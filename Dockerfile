@@ -12,15 +12,18 @@ RUN apt-get update \
         nginx \
         swtpm \
         procps \
-        iptables \
-        iproute2 \
         apt-utils \
-        dnsmasq \
         net-tools \
         qemu-utils \
         ca-certificates \
-        netcat-openbsd \
-        qemu-system-x86 \
+        qemu-system-aarch64 \
+        qemu-efi-aarch64 \
+        ipxe-qemu \
+        seabios \
+        iputils-ping \
+        iptables \
+        iproute2 \
+        isc-dhcp-client \
     && apt-get clean \
     && novnc="1.4.0" \
     && mkdir -p /usr/share/novnc \
@@ -38,13 +41,15 @@ COPY ./web /var/www/
 RUN chmod +x /run/*.sh
 RUN mv /var/www/nginx.conf /etc/nginx/sites-enabled/web.conf
 
-VOLUME /storage
-EXPOSE 22 5900 8006
+# Get OpenWrt images
+RUN mkdir /var/vm 
+RUN wget "https://archive.openwrt.org/releases/23.05.1/targets/armsr/armv8/openwrt-23.05.1-armsr-armv8-generic-ext4-rootfs.img.gz" \
+    -O /var/vm/rootfs.img.gz 
+RUN wget "https://archive.openwrt.org/releases/23.05.1/targets/armsr/armv8/openwrt-23.05.1-armsr-armv8-generic-kernel.bin" \
+    -O /var/vm/kernel.bin
 
-ENV CPU_CORES "1"
-ENV RAM_SIZE "1G"
-ENV DISK_SIZE "16G"
-ENV BOOT "http://example.com/image.iso"
+VOLUME /storage
+EXPOSE 8006
 
 ARG VERSION_ARG "0.0"
 RUN echo "$VERSION_ARG" > /run/version

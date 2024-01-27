@@ -17,6 +17,7 @@ echo
 # Docker environment variables
 
 : "${BOOT:=""}"           # URL of the ISO file
+: "${KERNELIMG:=""}"           # URL of the ISO file
 : "${DEBUG:="N"}"         # Disable debugging
 : "${ALLOCATE:=""}"       # Preallocate diskspace
 : "${ARGUMENTS:=""}"      # Extra QEMU parameters
@@ -24,6 +25,10 @@ echo
 : "${RAM_SIZE:="1G"}"     # Maximum RAM amount
 : "${DISK_SIZE:="16G"}"   # Initial data disk size
 : "${BOOT_INDEX:="10"}"   # Boot index of CD drive
+: "${DISPLAY:="web"}"     # Display type
+: "${KVM:="Y"}"
+: "${CPU_FLAGS:=""}"
+: "${CPU_MODEL:="host"}"
 
 # Helper variables
 
@@ -37,7 +42,7 @@ FOOTER2="<a href='$SUPPORT'>$SUPPORT</a>"
 KERNEL=$(uname -r | cut -b 1)
 MINOR=$(uname -r | cut -d '.' -f2)
 ARCH=$(dpkg --print-architecture)
-VERS=$(qemu-system-x86_64 --version | head -n 1 | cut -d '(' -f 1)
+VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
 
 # Check system
 

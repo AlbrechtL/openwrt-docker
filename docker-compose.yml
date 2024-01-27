@@ -1,13 +1,12 @@
 version: "3"
 services:
   qemu:
-    container_name: qemu
-    image: qemux/qemu-docker
+    container_name: openwrt-docker-arm64
+    image: "openwrt-docker-arm64"
     environment:
-      RAM_SIZE: "1G"
-      CPU_CORES: "1"
-      DISK_SIZE: "16G"
-      BOOT: "https://dl-cdn.alpinelinux.org/alpine/v3.19/releases/x86_64/alpine-virt-3.19.0-x86_64.iso"
+      DEBUG: "y"
+      WAN_IF: "enx00e04c0407a6"
+      LAN_IF: "enx00e04d68033f"
     devices:
       - /dev/kvm
     device_cgroup_rules:
@@ -18,3 +17,7 @@ services:
       - 8006:8006
     stop_grace_period: 2m
     restart: on-failure
+    pid: "host"
+    privileged: true
+    volumes:
+      - /dev:/dev/
