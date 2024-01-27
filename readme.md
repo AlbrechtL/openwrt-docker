@@ -12,7 +12,7 @@ Pre-build images can be found a docker hub (TBD)
 
  - KVM acceleration
  - Web-based viewer for tty console
- - Attaches two physical Ethernet interfaces exclusicly into the docker container
+ - Attaches two physical Ethernet interfaces exclusively into the docker container
 
 ## Usage
 
