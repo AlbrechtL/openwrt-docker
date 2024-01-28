@@ -46,6 +46,11 @@ else
     info "$FILE does not exist. Copying image to storage ..."
     cp /var/vm/rootfs.img.gz /storage/rootfs.img.gz
     gzip -d /storage/rootfs.img.gz
+    
+    info "Copy some additional files into the image"
+    mount /storage/rootfs.img /mnt
+    cp /var/vm/* /mnt/root
+    umount /mnt
 fi
 
 

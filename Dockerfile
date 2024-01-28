@@ -44,6 +44,7 @@ RUN  mkdir /var/vm \
 
 COPY ./src /run/
 COPY ./web /var/www/
+COPY ./openwrt_additional /var/vm/
 
 RUN chmod +x /run/*.sh
 RUN mv /var/www/nginx.conf /etc/nginx/sites-enabled/web.conf

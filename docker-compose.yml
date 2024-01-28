@@ -7,7 +7,7 @@ services:
       DEBUG: "y"
       # If WAN interface is not specified the Docker network
       # In this case a port forwarding from port OpenWrt 80 to port 8000 is available
-      WAN_IF: "enx00e04c0407a6"
+      #WAN_IF: "enx00e04c0407a6"
       #LAN_IF: "enx00e04d68033f"
     devices:
       - /dev/kvm
@@ -17,7 +17,9 @@ services:
       - NET_ADMIN
     ports:
       - 8006:8006
-      - 8000:8000 # only when Docker WAN network is used
+      # Port 8000 is available only when Docker WAN network is used.
+      # Use script /root/fw_wan_open_http.sh to open the port
+      - 8000:8000
     stop_grace_period: 2m
     restart: on-failure
     pid: "host"
