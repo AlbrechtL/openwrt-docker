@@ -18,6 +18,8 @@ echo
 
 : "${WAN_IF:=""}"         # Physical WAN interface name
 : "${LAN_IF:=""}"         # Physical LAN interface name
+: "${USB_VID_1:=""}"      # USB vendor ID
+: "${USB_PID_1:=""}"      # USB product ID
 : "${DEBUG:="N"}"         # Disable debugging
 
 # Helper variables

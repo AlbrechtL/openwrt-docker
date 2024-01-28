@@ -100,6 +100,14 @@ else
   WAN_ARGS="-device virtio-net-pci,netdev=hostnet1 -netdev tap,fd=31,id=hostnet1"
 fi
 
+# Attach USB interface
+USB_ARGS=""
+if [[ -z "${USB_VID_1}" || -z "${USB_PID_1}" ]]; then
+  USB_ARGS=""
+else
+  USB_ARGS="-device usb-host,vendorid=0x$USB_VID_1,productid=0x$USB_PID_1"
+fi
+
 info "Booting image using $VERS..."
 
 [[ "$DEBUG" == [Yy1]* ]] && set -x
@@ -115,7 +123,8 @@ exec qemu-system-aarch64 -M virt \
 -device virtio-blk-pci,drive=hd0 \
 -device qemu-xhci -device usb-kbd \
  $LAN_ARGS \
- $WAN_ARGS
-
+ $WAN_ARGS \
+ $USB_ARGS
+ 
 # -device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
 # -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/openwrt-armsr-armv8-generic-ext4-combined.img \
