@@ -5,7 +5,7 @@ set -Eeuo pipefail
 
 
 APP="OpenWrt"
-SUPPORT="albrechtloh@gmx.de"
+SUPPORT="https://github.com/AlbrechtL/openwrt-docker-arm64-build"
 
 attach_eth_if () {
   HOST_IF=$1
@@ -75,8 +75,7 @@ if [ ! -e /dev/kvm ]; then
     fi
 fi
 if [ -n "$KVM_ERR" ]; then
-    KVM="N"
-    warning "KVM acceleration not detected $KVM_ERR, this will cause a major loss of performance."
+    info "KVM acceleration not detected $KVM_ERR, this will cause a major loss of performance."
 fi
 
 # Attach physical PHY to container
@@ -114,7 +113,7 @@ info "Booting image using $VERS..."
 exec qemu-system-aarch64 -M virt \
 -m 128 \
 -nodefaults \
- $CPU_ARGS -smp 2 \
+ $CPU_ARGS -smp $CPU_COUNT \
 -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd \
 -display vnc=:0,websocket=5700 \
 -vga none -device ramfb \

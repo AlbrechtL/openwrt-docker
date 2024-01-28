@@ -16,6 +16,7 @@ echo
 
 # Docker environment variables
 
+: "${CPU_COUNT:=""}"         # Physical LAN interface name
 : "${WAN_IF:=""}"         # Physical WAN interface name
 : "${LAN_IF:=""}"         # Physical LAN interface name
 : "${USB_VID_1:=""}"      # USB vendor ID

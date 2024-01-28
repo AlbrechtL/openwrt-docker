@@ -1,21 +1,26 @@
 version: "3"
 services:
   qemu:
-    container_name: openwrt-docker-arm64
+    container_name: openwrt
+    #image: albrechtloh/qemu-openwrt:openwrt-23.05.1-2
     image: "openwrt-docker-arm64"
 
     environment:
       DEBUG: "y"
+
+      # Define number of VM CPUs
+      CPU_COUNT: 4
+
       # If WAN interface is not specified the Docker network
       # In this case a port forwarding from port OpenWrt 80 to port 8000 is available
       #WAN_IF: "enx00e04c0407a6"
       #LAN_IF: "enx00e04d68033f"
 
-      # USB passtrough
+      # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given
       # Currently only one USB device is supported
-      USB_VID_1: "148f" # vendor ID
-      USB_PID_1: "7601" # product ID
+      #USB_VID_1: "148f" # vendor ID
+      #USB_PID_1: "7601" # product ID
 
     ports:
       # Port 8006 is console tty web VNC

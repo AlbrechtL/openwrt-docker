@@ -6,7 +6,7 @@ QEMU in a docker container for running arm64 virtual machines. Tested on Raspber
 
 It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 
-Pre-build images can be found a docker hub (TBD)
+Images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openwrt
 
 ## Features
 
