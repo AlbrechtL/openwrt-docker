@@ -35,21 +35,22 @@ RUN apt-get update \
     && sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# Get OpenWrt images
+RUN  mkdir /var/vm \
+    && wget "https://archive.openwrt.org/releases/23.05.1/targets/armsr/armv8/openwrt-23.05.1-armsr-armv8-generic-ext4-rootfs.img.gz" \
+    -O /var/vm/rootfs.img.gz \
+    && wget "https://archive.openwrt.org/releases/23.05.1/targets/armsr/armv8/openwrt-23.05.1-armsr-armv8-generic-kernel.bin" \
+    -O /var/vm/kernel.bin
+
 COPY ./src /run/
 COPY ./web /var/www/
 
 RUN chmod +x /run/*.sh
 RUN mv /var/www/nginx.conf /etc/nginx/sites-enabled/web.conf
 
-# Get OpenWrt images
-RUN mkdir /var/vm 
-RUN wget "https://archive.openwrt.org/releases/23.05.1/targets/armsr/armv8/openwrt-23.05.1-armsr-armv8-generic-ext4-rootfs.img.gz" \
-    -O /var/vm/rootfs.img.gz 
-RUN wget "https://archive.openwrt.org/releases/23.05.1/targets/armsr/armv8/openwrt-23.05.1-armsr-armv8-generic-kernel.bin" \
-    -O /var/vm/kernel.bin
-
 VOLUME /storage
 EXPOSE 8006
+EXPOSE 8000
 
 ARG VERSION_ARG "0.0"
 RUN echo "$VERSION_ARG" > /run/version

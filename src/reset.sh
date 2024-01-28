@@ -16,19 +16,9 @@ echo
 
 # Docker environment variables
 
-: "${BOOT:=""}"           # URL of the ISO file
-: "${KERNELIMG:=""}"           # URL of the ISO file
+: "${WAN_IF:=""}"         # Physical WAN interface name
+: "${LAN_IF:=""}"         # Physical LAN interface name
 : "${DEBUG:="N"}"         # Disable debugging
-: "${ALLOCATE:=""}"       # Preallocate diskspace
-: "${ARGUMENTS:=""}"      # Extra QEMU parameters
-: "${CPU_CORES:="1"}"     # Amount of CPU cores
-: "${RAM_SIZE:="1G"}"     # Maximum RAM amount
-: "${DISK_SIZE:="16G"}"   # Initial data disk size
-: "${BOOT_INDEX:="10"}"   # Boot index of CD drive
-: "${DISPLAY:="web"}"     # Display type
-: "${KVM:="Y"}"
-: "${CPU_FLAGS:=""}"
-: "${CPU_MODEL:="host"}"
 
 # Helper variables
 

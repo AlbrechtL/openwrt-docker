@@ -5,8 +5,10 @@ services:
     image: "openwrt-docker-arm64"
     environment:
       DEBUG: "y"
+      # If WAN interface is not specified the Docker network
+      # In this case a port forwarding from port OpenWrt 80 to port 8000 is available
       WAN_IF: "enx00e04c0407a6"
-      LAN_IF: "enx00e04d68033f"
+      #LAN_IF: "enx00e04d68033f"
     devices:
       - /dev/kvm
     device_cgroup_rules:
@@ -15,6 +17,7 @@ services:
       - NET_ADMIN
     ports:
       - 8006:8006
+      - 8000:8000 # only when Docker WAN network is used
     stop_grace_period: 2m
     restart: on-failure
     pid: "host"

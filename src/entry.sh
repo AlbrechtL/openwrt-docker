@@ -58,14 +58,14 @@ rm -f "$PAGE"
 
 info "Checking for KVM ..."
 KVM_ERR=""
-CPU="-cpu cortex-a53"
+CPU_ARGS="-cpu cortex-a53"
 if [ ! -e /dev/kvm ]; then
     KVM_ERR="(device file missing)"
   else
     if ! sh -c 'echo -n > /dev/kvm' &> /dev/null; then
       KVM_ERR="(no write access)"
     else
-      CPU="--enable-kvm -cpu host"
+      CPU_ARGS="--enable-kvm -cpu host"
       info "KVM detected"
     fi
 fi
@@ -75,21 +75,33 @@ if [ -n "$KVM_ERR" ]; then
 fi
 
 # Attach physical PHY to container
-# HOST_WAN_IF="enx00e04c0407a6" # WAN
-# HOST_LAN_IF="enx00e04d68033f" # LAN
-HOST_WAN_IF=$WAN_IF
-HOST_LAN_IF=$LAN_IF
-attach_eth_if $HOST_WAN_IF $HOST_WAN_IF qwan0
-attach_eth_if $HOST_LAN_IF $HOST_LAN_IF qlan0
+LAN_ARGS=""
+if [[ -z "${LAN_IF}" ]]; then
+  LAN_ARGS="-device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24"
+else
+  HOST_LAN_IF=$LAN_IF
+  attach_eth_if $HOST_LAN_IF $HOST_LAN_IF qlan0
+  exec 30<>/dev/tap$(cat /sys/class/net/qlan0/ifindex)
+  LAN_ARGS="-device virtio-net-pci,netdev=hostnet0 -netdev tap,fd=30,id=hostnet0"
+fi
 
+WAN_ARGS=""
+if [[ -z "${WAN_IF}" ]]; then
+  WAN_ARGS="-device virtio-net,netdev=qwan0 -netdev user,id=qwan0,hostfwd=tcp::8000-:80"
+else
+  HOST_WAN_IF=$WAN_IF
+  attach_eth_if $HOST_WAN_IF $HOST_WAN_IF qwan0
+  exec 31<>/dev/tap$(cat /sys/class/net/qwan0/ifindex)
+  WAN_ARGS="-device virtio-net-pci,netdev=hostnet1 -netdev tap,fd=31,id=hostnet1"
+fi
 
 info "Booting image using $VERS..."
 
 [[ "$DEBUG" == [Yy1]* ]] && set -x
 exec qemu-system-aarch64 -M virt \
--m 512 \
+-m 128 \
 -nodefaults \
-$CPU -smp 2 \
+ $CPU_ARGS -smp 2 \
 -bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd \
 -display vnc=:0,websocket=5700 \
 -vga none -device ramfb \
@@ -97,10 +109,8 @@ $CPU -smp 2 \
 -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/storage/rootfs.img \
 -device virtio-blk-pci,drive=hd0 \
 -device qemu-xhci -device usb-kbd \
--device virtio-net-pci,netdev=hostnet0 \
--netdev tap,fd=30,id=hostnet0 30<>/dev/tap$(cat /sys/class/net/qlan0/ifindex) \
--device virtio-net-pci,netdev=hostnet1 \
--netdev tap,fd=31,id=hostnet1 31<>/dev/tap$(cat /sys/class/net/qwan0/ifindex)
+ $LAN_ARGS \
+ $WAN_ARGS
 
-#- device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
+# -device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
 # -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/openwrt-armsr-armv8-generic-ext4-combined.img \
