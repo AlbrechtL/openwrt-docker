@@ -29,7 +29,7 @@ docker build -t openwrt-docker-arm64 . && docker compose up
 
 ## Screenshots
 
-VNC console in web browser]
+VNC console in web browser
 ![VNC console in web browser](pictures/qemu_openwrt_vnc_console.png)
 
 OpenWrt LUCI web interface
