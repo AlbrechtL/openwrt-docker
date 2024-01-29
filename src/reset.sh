@@ -34,7 +34,7 @@ FOOTER2="<a href='$SUPPORT'>$SUPPORT</a>"
 
 KERNEL=$(uname -r | cut -b 1)
 MINOR=$(uname -r | cut -d '.' -f2)
-ARCH=$(dpkg --print-architecture)
+ARCH=$(uname -m)
 VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
 
 # Check system

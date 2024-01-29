@@ -124,7 +124,7 @@ exec qemu-system-aarch64 -M virt \
 -m 128 \
 -nodefaults \
  $CPU_ARGS -smp $CPU_COUNT \
--bios /usr/share/qemu-efi-aarch64/QEMU_EFI.fd \
+-bios /usr/share/qemu/edk2-aarch64-code.fd \
 -display vnc=:0,websocket=5700 \
 -vga none -device ramfb \
 -kernel /var/vm/kernel.bin -append "root=fe00 console=tty0" \
