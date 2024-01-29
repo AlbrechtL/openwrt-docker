@@ -28,7 +28,15 @@ attach_eth_if () {
   #ip link add link $CONTAINER_IF name $QEMU_IF type ipvlan mode l2
   #ip link add link $CONTAINER_IF name $QEMU_IF type macvtap mode bridge
   ip link add link $CONTAINER_IF name $QEMU_IF type macvtap mode passthru
-  ip link set $QEMU_IF up
+
+  # Create MAC address for new interface
+  QEMU_MAC_OUI="52:54:00"
+  read MAC </sys/class/net/$CONTAINER_IF/address
+  QEMU_IF_MAC=${QEMU_MAC_OUI}${MAC:8} # Replaces the 8 first characters of the original MAC
+
+  # Active new interface
+  ip link set $QEMU_IF address $QEMU_IF_MAC up
+  #ip link set $QEMU_IF up
 }
 
 cd /run
@@ -86,7 +94,8 @@ else
   HOST_LAN_IF=$LAN_IF
   attach_eth_if $HOST_LAN_IF $HOST_LAN_IF qlan0
   exec 30<>/dev/tap$(cat /sys/class/net/qlan0/ifindex)
-  LAN_ARGS="-device virtio-net-pci,netdev=hostnet0 -netdev tap,fd=30,id=hostnet0"
+  LAN_ARGS="-device virtio-net-pci,netdev=hostnet0,mac=$(cat /sys/class/net/qlan0/address) \
+    -netdev tap,fd=30,id=hostnet0"
 fi
 
 WAN_ARGS=""
@@ -96,7 +105,8 @@ else
   HOST_WAN_IF=$WAN_IF
   attach_eth_if $HOST_WAN_IF $HOST_WAN_IF qwan0
   exec 31<>/dev/tap$(cat /sys/class/net/qwan0/ifindex)
-  WAN_ARGS="-device virtio-net-pci,netdev=hostnet1 -netdev tap,fd=31,id=hostnet1"
+  WAN_ARGS="-device virtio-net-pci,netdev=hostnet1,mac=$(cat /sys/class/net/qwan0/address) \
+    -netdev tap,fd=31,id=hostnet1"
 fi
 
 # Attach USB interface
