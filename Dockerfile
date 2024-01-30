@@ -5,6 +5,8 @@ RUN apk add --no-cache \
         tini \
         wget \
         qemu-system-aarch64 \
+        qemu-hw-usb-host \
+        qemu-hw-usb-redirect \
         nginx \
     && novnc="1.4.0" \
     && mkdir -p /usr/share/novnc \
