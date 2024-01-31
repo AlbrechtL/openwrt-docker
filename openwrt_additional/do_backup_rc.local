@@ -1,0 +1,10 @@
+
+echo "Backup configuration"
+mkdir -p /root/backup
+sysupgrade -k -b /root/backup/config.tar.gz
+sync
+
+echo "Shutdown system"
+halt
+
+exit 0
