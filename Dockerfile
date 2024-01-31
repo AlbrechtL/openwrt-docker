@@ -26,7 +26,7 @@ RUN  mkdir /var/vm \
 
 COPY ./src /run/
 COPY ./web /var/www/
-COPY ./openwrt_additional /var/vm/
+COPY ./openwrt_additional /var/vm/openwrt_additional
 
 RUN chmod +x /run/*.sh
 RUN mv /var/www/nginx.conf /etc/nginx/http.d/web.conf

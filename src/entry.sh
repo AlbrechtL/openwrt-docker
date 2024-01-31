@@ -55,9 +55,11 @@ else
     cp /var/vm/rootfs.img.gz /storage/rootfs.img.gz
     gzip -d /storage/rootfs.img.gz
     
-    info "Copy some additional files into the image"
+    info "Inject some additional files into the image"
     mount /storage/rootfs.img /mnt
-    cp /var/vm/* /mnt/root
+    # mount -o offset=$((512*262656)) /storage/disk.img /mnt # combined image ext4 partition starts at offset 262656
+    chmod +x /var/vm/openwrt_additional/bin/*
+    cp /var/vm/openwrt_additional/bin/* /mnt/usr/bin/
     umount /mnt
 fi
 
