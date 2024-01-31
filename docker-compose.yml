@@ -42,3 +42,7 @@ services:
     privileged: true
     volumes:
       - /dev:/dev/
+      - data:/storage/
+
+volumes:
+  data:
