@@ -13,6 +13,7 @@ Images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openw
  - KVM acceleration
  - Web-based viewer for tty console
  - Attaches two physical Ethernet interfaces exclusively into the docker container
+ - Automatic config migration when OpenWrt is updated (experimental)
 
 ## Usage
 
