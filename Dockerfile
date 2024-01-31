@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 ARG NOVNC_VERSION="1.4.0" 
-ARG OPENWRT_VERSION="23.05.1"
+ARG OPENWRT_VERSION="23.05.2"
 ARG VERSION_ARG "0.1"
 
 RUN apk add --no-cache \
