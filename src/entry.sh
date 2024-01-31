@@ -47,16 +47,16 @@ cd /run
 trap - ERR
 
 # Check if rootfs is in volume
-FILE=/storage/rootfs.img
+FILE=/storage/rootfs-${OPENWRT_VERSION}.img
 if [ -f "$FILE" ]; then
     info "$FILE exists. Nothing to do."
 else 
     info "$FILE does not exist. Copying image to storage ..."
-    cp /var/vm/rootfs.img.gz /storage/rootfs.img.gz
-    gzip -d /storage/rootfs.img.gz
+    cp /var/vm/rootfs-${OPENWRT_VERSION}.img.gz /storage/rootfs-${OPENWRT_VERSION}.img.gz
+    gzip -d /storage/rootfs-${OPENWRT_VERSION}.img.gz
     
     info "Inject some additional files into the image"
-    mount /storage/rootfs.img /mnt
+    mount /storage/rootfs-${OPENWRT_VERSION}.img /mnt
     # mount -o offset=$((512*262656)) /storage/disk.img /mnt # combined image ext4 partition starts at offset 262656
     chmod +x /var/vm/openwrt_additional/bin/*
     cp /var/vm/openwrt_additional/bin/* /mnt/usr/bin/
@@ -130,7 +130,7 @@ exec qemu-system-aarch64 -M virt \
 -display vnc=:0,websocket=5700 \
 -vga none -device ramfb \
 -kernel /var/vm/kernel.bin -append "root=fe00 console=tty0" \
--blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/storage/rootfs.img \
+-blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/storage/rootfs-${OPENWRT_VERSION}.img \
 -device virtio-blk-pci,drive=hd0 \
 -device qemu-xhci -device usb-kbd \
  $LAN_ARGS \
