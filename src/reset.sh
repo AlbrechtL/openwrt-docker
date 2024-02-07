@@ -16,11 +16,12 @@ echo
 
 # Docker environment variables
 
-: "${CPU_COUNT:=""}"         # Physical LAN interface name
+: "${CPU_COUNT:=""}"      # Physical LAN interface name
 : "${WAN_IF:=""}"         # Physical WAN interface name
 : "${LAN_IF:=""}"         # Physical LAN interface name
 : "${USB_VID_1:=""}"      # USB vendor ID
 : "${USB_PID_1:=""}"      # USB product ID
+: "${IS_U_OS_APP:=""}"    # By default this container is not a u-OS app 
 : "${DEBUG:="N"}"         # Disable debugging
 
 # Helper variables
@@ -49,6 +50,15 @@ fi
 
 if [ ! -d "$STORAGE" ]; then
   error "Storage folder ($STORAGE) not found!" && exit 13
+fi
+
+# Check u-OS app
+if [[ -z "${IS_U_OS_APP}" ]]; then
+  info "Detected generic container"
+  cp -f /var/www/nginx.conf.generic /etc/nginx/http.d/web.conf
+else
+  info "Detected u-OS app"
+  cp -f  /var/www/nginx.conf.u-os-app /etc/nginx/http.d/web.conf
 fi
 
 # Helper functions
