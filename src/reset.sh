@@ -168,4 +168,8 @@ cp -r /var/www/* /run/shm
 html "Starting $APP for Docker..."
 nginx -e stderr
 
+# Start OliveTin
+cp -f /var/www/olivetin_config.yaml /etc/OliveTin/config.yaml
+OliveTin 2> /var/log/olivetin.log &
+
 return 0

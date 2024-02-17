@@ -12,11 +12,14 @@ RUN apk add --no-cache \
         qemu-hw-usb-host \
         qemu-hw-usb-redirect \
         nginx \
+        netcat-openbsd \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
     && cd /tmp/noVNC-${NOVNC_VERSION}\
     && mv app core vendor package.json *.html /usr/share/novnc \
+    && wget https://github.com/OliveTin/OliveTin/releases/latest/download/OliveTin_linux_arm64.apk \
+    && apk add --allow-untrusted OliveTin_linux_arm64.apk \
     && sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf
 
 # export OPENWRT_VERSION=`date '+%Y%M%W'`_$OPENWRT_VERSION \

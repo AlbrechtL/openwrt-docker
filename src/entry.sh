@@ -139,7 +139,7 @@ if [ -f /storage/old_version ]; then
   chmod +x /mnt/etc/rc.local
   umount /mnt
 
-  info "Boot previos $OLD_VERSION_ROOTFS to get config"
+  info "Boot previous $OLD_VERSION_ROOTFS to get config"
   qemu-system-aarch64 -M virt \
   -m 128 \
   -nodefaults \
@@ -220,7 +220,8 @@ exec qemu-system-aarch64 -M virt \
 -device qemu-xhci -device usb-kbd \
  $LAN_ARGS \
  $WAN_ARGS \
- $USB_ARGS
+ $USB_ARGS \
+ -qmp unix:/run/qmp-sock,server=on,wait=off
  
 # -device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
 # -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/openwrt-armsr-armv8-generic-ext4-combined.img \
