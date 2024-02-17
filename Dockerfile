@@ -19,13 +19,21 @@ RUN apk add --no-cache \
     && mv app core vendor package.json *.html /usr/share/novnc \
     && sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf
 
+# export OPENWRT_VERSION=`date '+%Y%M%W'`_$OPENWRT_VERSION \
 
 # Get OpenWrt images
-RUN  mkdir /var/vm \
-    && wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-ext4-rootfs.img.gz" \
-    -O /var/vm/rootfs-${OPENWRT_VERSION}.img.gz \
-    && wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-kernel.bin" \
-    -O /var/vm/kernel.bin
+RUN mkdir /var/vm \ 
+    && if [ "$OPENWRT_VERSION" = "master" ] ; then \
+        wget "https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-ext4-rootfs.img.gz" \
+        -O /var/vm/rootfs-${OPENWRT_VERSION}.img.gz \
+        && wget "https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-kernel.bin" \
+        -O /var/vm/kernel.bin ;\
+    else \
+        wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-ext4-rootfs.img.gz" \
+        -O /var/vm/rootfs-${OPENWRT_VERSION}.img.gz \
+        && wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-kernel.bin" \
+        -O /var/vm/kernel.bin ;\
+    fi
 ENV OPENWRT_VERSION=${OPENWRT_VERSION}
 
 COPY ./src /run/
@@ -37,6 +45,7 @@ RUN chmod +x /run/*.sh
 VOLUME /storage
 EXPOSE 8006
 EXPOSE 8000
+EXPOSE 8022
 
 RUN echo "$VERSION_ARG" > /run/version
 

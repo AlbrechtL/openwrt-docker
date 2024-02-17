@@ -139,6 +139,7 @@ if [ -f /storage/old_version ]; then
   chmod +x /mnt/etc/rc.local
   umount /mnt
 
+  info "Boot previos $OLD_VERSION_ROOTFS to get config"
   qemu-system-aarch64 -M virt \
   -m 128 \
   -nodefaults \
@@ -173,6 +174,7 @@ if [ -f /storage/old_version ]; then
   chmod +x /mnt/etc/rc.local
   umount /mnt
 
+  info "Boot current rootfs-${OPENWRT_VERSION}.img to install config"
   qemu-system-aarch64 -M virt \
   -m 128 \
   -nodefaults \
