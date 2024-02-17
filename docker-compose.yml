@@ -9,7 +9,7 @@ services:
       DEBUG: "y"
 
       # Define number of VM CPUs
-      CPU_COUNT: 4
+      CPU_COUNT: 2
 
       # If WAN interface is not specified the Docker network
       # In this case a port forwarding from port OpenWrt 80 to port 8000 is available
