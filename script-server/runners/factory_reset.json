@@ -1,0 +1,6 @@
+{
+  "name": "Apply factory reset",
+  "description": "Hard factory reset of Openwrt",
+  "script_path": "/run/qemu_qmp.sh -f"
+}
+

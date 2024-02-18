@@ -2,7 +2,7 @@ div {
     text-align:center;
  }
  
- html, body, div, iframe { height: 100%; }
+ html, body, div, iframe { height: 99%; }
 
  iframe {
     display:inline-block;

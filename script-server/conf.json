@@ -1,0 +1,9 @@
+{
+  "title": "Openwrt control",
+  "port": "5000",
+ 
+  "access": {
+    "allowed_users": "*",
+    "admin_users": "*"  
+  }
+}

@@ -168,8 +168,18 @@ cp -r /var/www/* /run/shm
 html "Starting $APP for Docker..."
 nginx -e stderr
 
-# Start OliveTin
-cp -f /var/www/olivetin_config.yaml /etc/OliveTin/config.yaml
-OliveTin 2> /var/log/olivetin.log &
+# ******* script-server handeling *******
+
+# Ugly hack to enable iframe usage
+sed -i "s/'X-Frame-Options', 'DENY'/ \
+'X-Frame-Options', 'ALLOWALL'/g" \
+/usr/share/script-server/src/web/server.py 
+
+# Usage of default logging.json'
+cp -f /usr/share/script-server/conf/logging.json /var/script-server/logging.json
+
+# Start script-server
+/var/lib/script-server-env/bin/python \
+/usr/share/script-server/launcher.py -d /var/script-server > /var/log/script-server.log &
 
 return 0
