@@ -39,7 +39,6 @@ ARCH=$(uname -m)
 VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
 
 # Check system
-
 if [ ! -d "/dev/shm" ]; then
   error "Directory /dev/shm not found!" && exit 14
 else
@@ -47,7 +46,6 @@ else
 fi
 
 # Check folder
-
 if [ ! -d "$STORAGE" ]; then
   error "Storage folder ($STORAGE) not found!" && exit 13
 fi
@@ -61,115 +59,11 @@ else
   cp -f  /var/www/nginx.conf.u-os-app /etc/nginx/http.d/web.conf
 fi
 
-# Helper functions
-
-isAlive() {
-  local pid=$1
-
-  if kill -0 "$pid" 2>/dev/null; then
-    return 0
-  fi
-
-  return 1
-}
-
-pKill() {
-  local pid=$1
-
-  { kill -15 "$pid" || true; } 2>/dev/null
-
-  while isAlive "$pid"; do
-    sleep 0.2
-  done
-
-  return 0
-}
-
-fWait() {
-  local name=$1
-
-  while pgrep -f -l "$name" >/dev/null; do
-    sleep 0.2
-  done
-
-  return 0
-}
-
-fKill() {
-  local name=$1
-
-  { pkill -f "$name" || true; } 2>/dev/null
-  fWait "$name"
-
-  return 0
-}
-
-escape () {
-    local s
-    s=${1//&/\&amp;}
-    s=${s//</\&lt;}
-    s=${s//>/\&gt;}
-    s=${s//'"'/\&quot;}
-    printf -- %s "$s"
-    return 0
-}
-
-html()
-{
-    local title
-    local body
-    local script
-    local footer
-
-    title=$(escape "$APP")
-    title="<title>$title</title>"
-    footer=$(escape "$FOOTER1")
-
-    body=$(escape "$1")
-    if [[ "$body" == *"..." ]]; then
-      body="<p class=\"loading\">${body/.../}</p>"
-    fi
-
-    [ -n "${2:-}" ] && script="$2" || script=""
-
-    local HTML
-    HTML=$(<"$TEMPLATE")
-    HTML="${HTML/\[1\]/$title}"
-    HTML="${HTML/\[2\]/$script}"
-    HTML="${HTML/\[3\]/$body}"
-    HTML="${HTML/\[4\]/$footer}"
-    HTML="${HTML/\[5\]/$FOOTER2}"
-
-    echo "$HTML" > "$PAGE"
-    echo "$body" > "$INFO"
-
-    return 0
-}
-
-addPackage() {
-  local pkg=$1
-  local desc=$2
-
-  if apt-mark showinstall | grep -qx "$pkg"; then
-    return 0
-  fi
-
-  MSG="Installing $desc..."
-  info "$MSG" && html "$MSG"
-
-  DEBIAN_FRONTEND=noninteractive apt-get -qq update
-  DEBIAN_FRONTEND=noninteractive apt-get -qq --no-install-recommends -y install "$pkg" > /dev/null
-
-  return 0
-}
-
 # Start webserver
 cp -r /var/www/* /run/shm
-html "Starting $APP for Docker..."
 nginx -e stderr
 
 # ******* script-server handeling *******
-
 # Ugly hack to enable iframe usage
 sed -i "s/'X-Frame-Options', 'DENY'/ \
 'X-Frame-Options', 'ALLOWALL'/g" \

@@ -2,11 +2,12 @@ FROM alpine:latest
 
 ARG NOVNC_VERSION="1.4.0" 
 ARG OPENWRT_VERSION="23.05.2"
+ARG S6_OVERLAY_VERSION="3.1.6.2"
 ARG VERSION_ARG "0.1"
 
 RUN apk add --no-cache \
+        supervisor \
         bash \
-        tini \
         wget \
         qemu-system-aarch64 \
         qemu-hw-usb-host \
@@ -43,6 +44,7 @@ RUN mkdir /var/vm \
     fi
 ENV OPENWRT_VERSION=${OPENWRT_VERSION}
 
+COPY supervisord.conf /etc/supervisord.conf
 COPY ./src /run/
 COPY ./web /var/www/
 COPY ./openwrt_additional /var/vm/openwrt_additional
@@ -57,4 +59,4 @@ EXPOSE 8022
 
 RUN echo "$VERSION_ARG" > /run/version
 
-ENTRYPOINT ["/sbin/tini", "-s", "/run/entry.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
