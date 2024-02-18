@@ -70,14 +70,6 @@ else
     echo "rootfs-${OPENWRT_VERSION}.img" > /storage/current_version
 fi
 
-# Enable VNC
-info "Activating web VNC ..."
-[ ! -f "$INFO" ] && error "File $INFO not found?!"
-rm -f "$INFO"
-[ ! -f "$PAGE" ] && error "File $PAGE not found?!"
-rm -f "$PAGE"
-
-
 # Check KVM
 info "Checking for KVM ..."
 KVM_ERR=""

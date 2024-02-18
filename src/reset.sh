@@ -61,7 +61,7 @@ fi
 
 # Start webserver
 cp -r /var/www/* /run/shm
-nginx -e stderr
+supervisorctl start nginx
 
 # ******* script-server handeling *******
 # Ugly hack to enable iframe usage

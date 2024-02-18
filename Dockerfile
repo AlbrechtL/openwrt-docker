@@ -27,8 +27,8 @@ RUN apk add --no-cache \
     && python3 -m venv /var/lib/script-server-env \
     && source /var/lib/script-server-env/bin/activate \
     && pip install -r /usr/share/script-server/requirements.txt \
-    && sed -i 's/^worker_processes.*/worker_processes 1;/' /etc/nginx/nginx.conf
-
+    && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf
+    
 # Get OpenWrt images
 RUN mkdir /var/vm \ 
     && if [ "$OPENWRT_VERSION" = "master" ] ; then \
