@@ -19,8 +19,15 @@ attach_eth_if () {
   # * https://serverfault.com/questions/688483/assign-physical-interface-to-docker-exclusively
   # * https://medium.com/lucjuggery/a-container-to-access-the-shell-of-the-host-2c7c227c64e9
   # * https://developers.redhat.com/blog/2018/10/22/introduction-to-linux-interfaces-for-virtual-networking#
-      
+
   info "Attaching physical Ethernet interface $HOST_IF into container with the name $CONTAINER_IF ..."
+
+  # Check if interface exists
+  if ! nsenter --target 1 --uts --net --ipc --mount ip link show "$HOST_IF" &> /dev/null; then
+    info "Host Ethernet interface $HOST_IF does not exists. It can be a wrong interface name or the Ethernet interface is already assigend to this container."
+    return
+  fi
+
   PID_CONTAINTER=$(nsenter --target 1 --uts --net --ipc --mount docker inspect -f '{{.State.Pid}}' $(cat /etc/hostname))
   nsenter --target 1 --uts --net --ipc --mount mkdir -p /var/run/netns
   nsenter --target 1 --uts --net --ipc --mount ln -s /proc/$PID_CONTAINTER/ns/net /var/run/netns/$PID_CONTAINTER
@@ -114,6 +121,6 @@ qemu-system-aarch64 -M virt \
  $WAN_ARGS \
  $USB_ARGS \
  -qmp unix:/run/qmp-sock,server=on,wait=off
- 
+
 # -device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
 # -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/openwrt-armsr-armv8-generic-ext4-combined.img \

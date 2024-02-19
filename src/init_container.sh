@@ -56,4 +56,4 @@ supervisorctl start nginx # Start webserver
 
 
 # ******* OpenWrt handling *******
-supervisorctl start openwrt # Start webserver
+supervisorctl start openwrt # Start openwrt

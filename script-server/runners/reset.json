@@ -1,6 +1,6 @@
 {
-  "name": "Reset OpenWRT",
-  "description": "Hard reset of Openwrt VM",
+  "name": "98 Reset OpenWrt",
+  "description": "Hard reset of OpenWrt VM",
   "script_path": "/run/qemu_qmp.sh -r"
 }
 

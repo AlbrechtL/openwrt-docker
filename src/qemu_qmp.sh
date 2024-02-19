@@ -28,7 +28,7 @@ Help()
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":hvrqf" option; do
+while getopts ":hvrqs" option; do
    case $option in
       h) # display Help
          Help
@@ -42,10 +42,8 @@ while getopts ":hvrqf" option; do
       q) # Quit Qemu
          echo -ne '{ "execute": "qmp_capabilities" } { "execute": "quit" }' | nc -w 1 -U /run/qmp-sock
          exit;;
-      f) # Apply factory reset
-         rm /storage/current_version
-         rm /storage/rootfs-${OPENWRT_VERSION}.img
-         echo -ne '{ "execute": "qmp_capabilities" } { "execute": "quit" }' | nc -w 1 -U /run/qmp-sock
+      s) # Shutdown VM
+         echo -ne '{ "execute": "qmp_capabilities" } { "execute": "system_powerdown" }' | nc -w 1 -U /run/qmp-sock
          exit;;
      \?) # Invalid option
          echo "Error: Invalid option"
