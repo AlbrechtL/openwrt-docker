@@ -14,7 +14,7 @@ services:
       # If WAN interface is not specified the Docker network
       # In this case a port forwarding from port OpenWrt 80 to port 8000 is available
       #WAN_IF: "enx00e04c0407a6"
-      #LAN_IF: "enx00e04d68033f"
+      LAN_IF: "enx00e04d68033f"
 
       # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given
