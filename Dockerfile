@@ -31,17 +31,32 @@ RUN apk add --no-cache \
     
 # Get OpenWrt images
 RUN mkdir /var/vm \ 
+    mkdir /var/vm/packages \
     && if [ "$OPENWRT_VERSION" = "master" ] ; then \
         wget "https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-ext4-rootfs.img.gz" \
         -O /var/vm/rootfs-${OPENWRT_VERSION}.img.gz \
         && wget "https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-kernel.bin" \
-        -O /var/vm/kernel.bin ;\
+        -O /var/vm/kernel.bin \
+        && wget "https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-rootfs.tar.gz" \
+        -O /tmp/rootfs-${OPENWRT_VERSION}.tar.gz ; \
     else \
         wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-ext4-rootfs.img.gz" \
         -O /var/vm/rootfs-${OPENWRT_VERSION}.img.gz \
         && wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-kernel.bin" \
-        -O /var/vm/kernel.bin ;\
-    fi
+        -O /var/vm/kernel.bin \ 
+        && wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-rootfs.tar.gz" \ 
+        -O /tmp/rootfs-${OPENWRT_VERSION}.tar.gz ; \
+    fi \
+    && mkdir /tmp/openwrt-rootfs \
+    && tar -xzf /tmp/rootfs-${OPENWRT_VERSION}.tar.gz -C /tmp/openwrt-rootfs \
+    && cp /etc/resolv.conf /tmp/openwrt-rootfs/etc/resolv.conf \
+    && chroot /tmp/openwrt-rootfs mkdir -p /var/lock \
+    && chroot /tmp/openwrt-rootfs opkg update \
+    && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci --download-only \
+    && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
+    && rm -rf /tmp/openwrt-rootfs \
+    && rm /tmp/rootfs-${OPENWRT_VERSION}.tar.gz
+
 ENV OPENWRT_VERSION=${OPENWRT_VERSION}
 
 COPY supervisord.conf /etc/supervisord.conf

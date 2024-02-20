@@ -5,8 +5,6 @@ trap - ERR
 
 . /run/helpers.sh
 
-CURRENT_VERSION_ROOTFS=`cat /storage/current_version`
-
 # Stop openwrt
 echo "****** Stop openwrt ******"
 supervisorctl stop openwrt

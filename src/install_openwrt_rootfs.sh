@@ -17,12 +17,21 @@ else
     info "Inject some additional files into the image"
     mount /storage/rootfs-${OPENWRT_VERSION}.img /mnt
     # mount -o offset=$((512*262656)) /storage/disk.img /mnt # combined image ext4 partition starts at offset 262656
+    
     chmod +x /var/vm/openwrt_additional/bin/*
     cp /var/vm/openwrt_additional/bin/* /mnt/usr/bin/
 
     mv /mnt/etc/rc.local /mnt/etc/rc.local.orig
     cp /var/vm/openwrt_additional/rc.local /mnt/etc/rc.local
     chmod +x /mnt/etc/rc.local
+
+    info "Install additional IPKs into the image"
+    mkdir /mnt/var/offline_packages
+    cp /var/vm/packages/*.ipk /mnt/var/offline_packages/
+    chroot /mnt/ mkdir -p /var/lock
+    chroot /mnt/ sh -c 'cd /var/offline_packages/ && opkg install *.ipk'
+    rm -rf /mnt/var/offline_packages/
+    rm -rf /mnt/var/lock
 
     umount /mnt
 

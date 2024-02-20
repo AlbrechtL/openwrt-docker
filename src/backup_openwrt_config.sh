@@ -8,8 +8,13 @@ trap - ERR
 CURRENT_VERSION_ROOTFS=`cat /storage/current_version`
 
 # Stop openwrt
-echo "****** Stop openwrt ******"
-supervisorctl stop openwrt
+echo "****** shutdown openwrt ******"
+/run/qemu_qmp.sh -S
+
+until ! supervisorctl status openwrt | grep RUNNING
+do
+    sleep 1
+done
 
 # Get config
 echo "****** Mount $CURRENT_VERSION_ROOTFS ******"

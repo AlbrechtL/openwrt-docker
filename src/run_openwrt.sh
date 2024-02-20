@@ -9,6 +9,7 @@ trap - ERR
 . /run/migrate_openwrt_rootfs.sh
 
 VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
+FILE=/storage/rootfs-${OPENWRT_VERSION}.img
 
 attach_eth_if () {
   HOST_IF=$1
@@ -120,7 +121,11 @@ qemu-system-aarch64 -M virt \
  $LAN_ARGS \
  $WAN_ARGS \
  $USB_ARGS \
- -qmp unix:/run/qmp-sock,server=on,wait=off
+ -qmp unix:/run/qmp-sock,server=on,wait=off \
+ -chardev socket,path=/run/qga.sock,server=on,wait=off,id=qga0 \
+ -device virtio-serial \
+ -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0
+
 
 # -device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
 # -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/openwrt-armsr-armv8-generic-ext4-combined.img \

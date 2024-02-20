@@ -1,9 +1,0 @@
-
-echo "Restore configuration"
-sysupgrade -r /root/backup/config.tar.gz
-sync
-
-echo "Shutdown system"
-halt
-
-exit 0

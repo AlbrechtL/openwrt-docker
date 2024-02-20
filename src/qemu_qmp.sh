@@ -28,7 +28,7 @@ Help()
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":hvrqs" option; do
+while getopts ":hvrqsSVR" option; do
    case $option in
       h) # display Help
          Help
@@ -45,10 +45,19 @@ while getopts ":hvrqs" option; do
       s) # Shutdown VM
          echo -ne '{ "execute": "qmp_capabilities" } { "execute": "system_powerdown" }' | nc -w 1 -U /run/qmp-sock
          exit;;
+      S) # Shutdown VM grateful, package qemu-ga needs to be installed
+         echo -ne '{"execute":"guest-shutdown"}' | nc -w 1 -U /run/qga.sock
+         exit;;
+      V) # Get VM infos, package qemu-ga needs to be installed
+         echo -ne '{"execute":"guest-get-osinfo"}' | nc -w 1 -U /run/qga.sock
+         exit;;
+      R) # Reboot, package qemu-ga needs to be installed
+         echo -ne '{"execute": "guest-exec", "arguments": { "path": "reboot"}}' | nc -w 1 -U /run/qga.sock
+         exit;;
      \?) # Invalid option
          echo "Error: Invalid option"
          Help
          exit;;
-   esac
+   esac 
 done
 
