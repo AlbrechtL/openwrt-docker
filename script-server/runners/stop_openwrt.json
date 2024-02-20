@@ -1,5 +1,5 @@
 {
-  "name": "5 Stop OpenWrt",
+  "name": "5 Stop",
   "description": "Stop OpenWrt VM",
   "script_path": "supervisorctl stop openwrt"
 }

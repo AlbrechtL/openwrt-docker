@@ -1,5 +1,5 @@
 {
-    "name": "2 Restore OpenWrt config",
+    "name": "2 Restore config",
     "description": "Restore OpenWrt config. WARNING: OpenWrt will be stopped during this operation.",
     "script_path": "/run/restore_openwrt_config.sh",
     "parameters": [
