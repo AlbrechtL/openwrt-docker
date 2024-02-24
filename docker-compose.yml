@@ -2,8 +2,8 @@ version: "3"
 services:
   qemu:
     container_name: openwrt
-    #image: albrechtloh/qemu-openwrt:openwrt-23.05.2-8
-    image: "openwrt-docker-arm64"
+    image: albrechtloh/qemu-openwrt:openwrt-23.05.2-9
+    #image: "openwrt-docker-arm64"
 
     environment:
       DEBUG: "y"
