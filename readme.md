@@ -1,10 +1,6 @@
 # OpenWrt qemu docker container for arm64
 
-Based on the great works of https://github.com/qemus/qemu-docker. Thanks!
-
-QEMU in a docker container for running arm64 virtual machines. Tested on Raspberry Pi 5.
-
-It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
+QEMU in a docker container for running arm64 virtual machines. Tested on Raspberry Pi 5 but should work on any ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 
 Images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openwrt
 
@@ -20,9 +16,6 @@ Images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openw
 
 See `docker-compose.yml`
 
-## How it works
-See `src/entry.sh` and `Dockerfile`
-
 ## Build and run
 
 ```bash
@@ -36,6 +29,17 @@ VNC console in web browser
 
 OpenWrt LUCI web interface
 ![OpenWrt LUCI web interface](pictures/qemu_openwrt_luci.png)
+
+## Acknowledgement
+
+I would like to thanks to following Open Source projects. Without these great work this container would not be possbile
+* [OpenWrt](https://openwrt.org/)
+* [QEMU](https://www.qemu.org/)
+* [qemu-docker](https://github.com/qemus/qemu-docker)
+* [noVNC](https://novnc.com/)
+* [script-server](https://github.com/bugy/script-server)
+* [Docker](https://www.docker.com/)
+* [Alpine Linux](https://www.alpinelinux.org/)
 
 ## Disclaimer: Security Notice
 
