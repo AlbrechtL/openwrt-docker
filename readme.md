@@ -22,6 +22,15 @@ See `docker-compose.yml`
 docker build -t openwrt-docker-arm64 . && docker compose up
 ```
 
+If you like to specify a specific OpenWrt version you can do
+```bash
+docker build -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="23.05.2" && docker compose up
+```
+or for the latest development master
+```bash
+docker build -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="master" && docker compose up
+```
+
 ## Screenshots
 
 VNC console in web browser
