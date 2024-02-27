@@ -26,9 +26,9 @@ If you like to specify a specific OpenWrt version you can do
 ```bash
 docker build -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="23.05.2" && docker compose up
 ```
-or for the latest development master
+or for the latest development master. The `--no-cache` option is necessary to get always the newest version.
 ```bash
-docker build -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="master" && docker compose up
+docker build --no-cache -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="master" && docker compose up
 ```
 
 ## Screenshots
