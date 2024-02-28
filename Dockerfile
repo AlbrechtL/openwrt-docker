@@ -47,12 +47,18 @@ RUN mkdir /var/vm \
         && wget "https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-rootfs.tar.gz" \ 
         -O /tmp/rootfs-${OPENWRT_VERSION}.tar.gz ; \
     fi \
+    \
+    # Use OpenWrt rootfs to download additional IPKs and put them into the Docker image
     && mkdir /tmp/openwrt-rootfs \
     && tar -xzf /tmp/rootfs-${OPENWRT_VERSION}.tar.gz -C /tmp/openwrt-rootfs \
     && cp /etc/resolv.conf /tmp/openwrt-rootfs/etc/resolv.conf \
     && chroot /tmp/openwrt-rootfs mkdir -p /var/lock \
     && chroot /tmp/openwrt-rootfs opkg update \
+    # Download Luci and qemu guest agent \
     && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci --download-only \
+    # Download Wi-Fi access point support and Wi-Fi USB devices support \
+    && chroot /tmp/openwrt-rootfs opkg install hostapd wpa-supplicant kmod-mt7921u --download-only \
+    # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \
     && rm /tmp/rootfs-${OPENWRT_VERSION}.tar.gz

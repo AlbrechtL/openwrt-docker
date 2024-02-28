@@ -12,6 +12,17 @@ Images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openw
  - USB passthrough e.g. for modem or Wi-Fi
  - Automatic config migration when OpenWrt is updated (experimental)
 
+## Pre-installed OpenWrt software packages
+
+Because OpenWrt doesn't provide a user installed package update mechanism all required packages needs to be included into the OpenWrt rootfs image. This Docker images adds the following software to the OpenWrt rootfs:
+* Luci Web interface
+* ssh server
+* Wi-Fi client and access point support
+
+### Supported USB devices
+
+* Mediathek MT7961AU Wi-Fi 6 AX chipset based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
+
 ## Usage
 
 See `docker-compose.yml`
