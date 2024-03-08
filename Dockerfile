@@ -55,9 +55,11 @@ RUN mkdir /var/vm \
     && chroot /tmp/openwrt-rootfs mkdir -p /var/lock \
     && chroot /tmp/openwrt-rootfs opkg update \
     # Download Luci and qemu guest agent \
-    && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci --download-only \
+    && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci usbutils --download-only \
     # Download Wi-Fi access point support and Wi-Fi USB devices support \
     && chroot /tmp/openwrt-rootfs opkg install hostapd wpa-supplicant kmod-mt7921u --download-only \
+    # Download celluar network support \
+    && chroot /tmp/openwrt-rootfs opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils --download-only \
     # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \

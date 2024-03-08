@@ -22,6 +22,7 @@ Because OpenWrt doesn't provide a user installed package update mechanism all re
 ### Supported USB devices
 
 * Mediathek MT7961AU Wi-Fi 6 AX chipset based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
+* SIMCOM SIM8262E-M2 based devices (Multi-Band 5G NR/LTE-FDD/LTE-TDD/HSPA+ modem)
 
 ## Usage
 
