@@ -2,8 +2,7 @@ FROM alpine:latest
 
 ARG NOVNC_VERSION="1.4.0" 
 ARG OPENWRT_VERSION="23.05.2"
-ARG S6_OVERLAY_VERSION="3.1.6.2"
-ARG VERSION_ARG "0.1"
+ARG VERSION_ARG="0.1"
 
 RUN apk add --no-cache \
         supervisor \
@@ -17,6 +16,7 @@ RUN apk add --no-cache \
         python3 \
         py3-pip \
         py3-virtualenv \
+        uuidgen \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
@@ -63,9 +63,10 @@ RUN mkdir /var/vm \
     # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \
-    && rm /tmp/rootfs-${OPENWRT_VERSION}.tar.gz
-
-ENV OPENWRT_VERSION=${OPENWRT_VERSION}
+    && rm /tmp/rootfs-${OPENWRT_VERSION}.tar.gz \
+    && echo "OPENWRT_VERSION=\"${OPENWRT_VERSION}\"" > /var/vm/openwrt_metadata.conf \
+    && echo "OPENWRT_IMAGE_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf \
+    && echo "OPENWRT_IMAGE_ID=\"`uuidgen`\"" >> /var/vm/openwrt_metadata.conf
 
 COPY supervisord.conf /etc/supervisord.conf
 COPY ./src /run/

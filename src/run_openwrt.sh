@@ -4,12 +4,13 @@
 set -Eeuo pipefail
 trap - ERR
 
+. /var/vm/openwrt_metadata.conf
 . /run/helpers.sh
 . /run/install_openwrt_rootfs.sh
 . /run/migrate_openwrt_rootfs.sh
 
 VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
-FILE=/storage/rootfs-${OPENWRT_VERSION}.img
+FILE=/storage/rootfs-${OPENWRT_IMAGE_ID}.img
 
 attach_eth_if () {
   HOST_IF=$1

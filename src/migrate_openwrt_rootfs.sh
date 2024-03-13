@@ -3,15 +3,16 @@
 set -Eeuo pipefail
 trap - ERR
 
+. /var/vm/openwrt_metadata.conf
 . /run/helpers.sh
 
-FILE=/storage/rootfs-${OPENWRT_VERSION}.img
+FILE=/storage/rootfs-${OPENWRT_IMAGE_ID}.img
 
 # Migrate settings from old OpenWrt version to new one
 if [ -f /storage/old_version ]; then
   OLD_VERSION_ROOTFS=`cat /storage/old_version`
 
-  info "Migrate settings from $OLD_VERSION_ROOTFS to rootfs-${OPENWRT_VERSION}.img."
+  info "Migrate settings from $OLD_VERSION_ROOTFS to rootfs-${OPENWRT_IMAGE_ID}.img."
   
   mount /storage/$OLD_VERSION_ROOTFS /mnt
   chroot /mnt/ mkdir -p /var/lock
@@ -32,5 +33,5 @@ if [ -f /storage/old_version ]; then
   rm /storage/old_version
   rm /storage/config-`basename $OLD_VERSION_ROOTFS .img`.tar.gz
 else
-  info "rootfs-${OPENWRT_VERSION}.img is up to date. Nothing to do."
+  info "rootfs-${OPENWRT_IMAGE_ID}.img is up to date. Nothing to do."
 fi
