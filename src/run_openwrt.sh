@@ -12,6 +12,7 @@ trap - ERR
 VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
 FILE=/storage/rootfs-${OPENWRT_IMAGE_ID}.img
 
+# Attach physical interfaces to Docker container
 attach_eth_if () {
   HOST_IF=$1
   CONTAINER_IF=$2
@@ -51,6 +52,38 @@ attach_eth_if () {
   #ip link set $QEMU_IF up
 }
 
+# Create veth pairs between host system and Docker container
+attach_veth_if () {
+  VETH_IF_HOST=$1
+  VETH_IF_CONTAINER=$2
+  QEMU_IF=$3
+
+  info "Creating virtual Ethernet interfaces pairs between host system ($VETH_IF_HOST) and container ($VETH_IF_CONTAINER)..."
+
+  if ! nsenter --target 1 --uts --net --ipc --mount ip link show "$VETH_IF_HOST" &> /dev/null; then
+    # Create veth pair
+    nsenter --target 1 --uts --net --ipc --mount ip link add $VETH_IF_HOST type veth peer name $VETH_IF_CONTAINER
+    nsenter --target 1 --uts --net --ipc --mount ip link set $VETH_IF_HOST up
+  else
+    info "Virtual Ethernet interface $VETH_IF_HOST already exists. Assuming pairs is already created."
+  fi
+
+  if ! nsenter --target 1 --uts --net --ipc --mount ip link show "$VETH_IF_CONTAINER" &> /dev/null; then
+    #info "OpenWrt virtual Ethernet interface $VETH_IF_CONTAINER does not exists. It can be a wrong interface name or the Ethernet interface is already assigend to this container."
+    return
+  fi
+
+  # Put second pair into container
+  PID_CONTAINTER=$(nsenter --target 1 --uts --net --ipc --mount docker inspect -f '{{.State.Pid}}' $(cat /etc/hostname))
+  nsenter --target 1 --uts --net --ipc --mount mkdir -p /var/run/netns
+  nsenter --target 1 --uts --net --ipc --mount ln -s /proc/$PID_CONTAINTER/ns/net /var/run/netns/$PID_CONTAINTER
+  nsenter --target 1 --uts --net --ipc --mount ip link set $VETH_IF_CONTAINER netns $PID_CONTAINTER
+  nsenter --target 1 --uts --net --ipc --mount ip netns exec $PID_CONTAINTER ip link set $VETH_IF_CONTAINER up
+  nsenter --target 1 --uts --net --ipc --mount rm /var/run/netns/$PID_CONTAINTER
+
+  ip link add link $VETH_IF_CONTAINER name $QEMU_IF type macvtap mode passthru
+  ip link set $QEMU_IF up
+}
 
 # Check KVM
 info "Checking for KVM ..."
@@ -74,6 +107,11 @@ fi
 LAN_ARGS=""
 if [[ -z "${LAN_IF}" ]]; then
   LAN_ARGS="-device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24"
+elif [[ $LAN_IF = "veth" ]]; then
+  attach_veth_if veth-openwrt0 veth1 qlan1
+  exec 30<>/dev/tap$(cat /sys/class/net/qlan1/ifindex)
+  LAN_ARGS="-device virtio-net-pci,netdev=hostnet0,mac=$(cat /sys/class/net/qlan1/address) \
+    -netdev tap,fd=30,id=hostnet0"
 else
   HOST_LAN_IF=$LAN_IF
   attach_eth_if $HOST_LAN_IF $HOST_LAN_IF qlan0

@@ -11,16 +11,16 @@ services:
       # Define number of VM CPUs
       CPU_COUNT: 2
 
-      # If WAN interface is not specified the Docker network
-      # In this case a port forwarding from port OpenWrt 80 to port 8000 is available
+      # Define which physical or virtual interfaces shall be attach direct to OpenWrt
       #WAN_IF: "enx00e04c0407a6"
       #LAN_IF: "enx00e04d68033f"
+      LAN_IF: "veth" # veth pair between OpenWrt and host system
 
       # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given
       # Currently only one USB device is supported
-      USB_VID_1: "0e8d" # vendor ID
-      USB_PID_1: "7961" # product ID
+      #USB_VID_1: "0e8d" # vendor ID
+      #USB_PID_1: "7961" # product ID
 
     ports:
       # Port 8006 is console tty web VNC
