@@ -17,6 +17,7 @@ RUN apk add --no-cache \
         py3-pip \
         py3-virtualenv \
         uuidgen \
+        caddy \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \

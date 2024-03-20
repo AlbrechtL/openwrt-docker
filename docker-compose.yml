@@ -14,7 +14,8 @@ services:
       # Define which physical or virtual interfaces shall be attach direct to OpenWrt
       #WAN_IF: "enx00e04c0407a6"
       #LAN_IF: "enx00e04d68033f"
-      LAN_IF: "veth" # veth pair between OpenWrt and host system
+      #LAN_IF: "veth" # veth pair between OpenWrt and host system
+      #FORWARD_LUCI: "true" # Make LuCI OpenWrt web interface accessible via host LAN
 
       # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given
