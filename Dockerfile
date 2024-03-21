@@ -82,6 +82,7 @@ EXPOSE 8006
 EXPOSE 8000
 EXPOSE 8022
 
-RUN echo "$VERSION_ARG" > /run/version
+RUN echo "$VERSION_ARG" > /run/version \
+    && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
