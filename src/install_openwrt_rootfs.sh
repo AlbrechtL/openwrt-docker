@@ -19,11 +19,11 @@ else
     mount /storage/rootfs-${OPENWRT_IMAGE_ID}.img /mnt
     # mount -o offset=$((512*262656)) /storage/disk.img /mnt # combined image ext4 partition starts at offset 262656
     
-    chmod +x /var/vm/openwrt_additional/bin/*
-    cp /var/vm/openwrt_additional/bin/* /mnt/usr/bin/
+    chmod +x /var/vm/openwrt_additional/usr/bin/*
+    cp /var/vm/openwrt_additional/usr/bin/* /mnt/usr/bin/
 
     mv /mnt/etc/rc.local /mnt/etc/rc.local.orig
-    cp /var/vm/openwrt_additional/rc.local /mnt/etc/rc.local
+    cp /var/vm/openwrt_additional/etc/rc.local /mnt/etc/rc.local
     chmod +x /mnt/etc/rc.local
 
     info "Install additional IPKs into the image"
