@@ -31,9 +31,22 @@ fi
 if [[ -z "${IS_U_OS_APP}" ]]; then
   info "Detected generic container"
   cp -f /var/www/nginx.conf.generic /etc/nginx/http.d/web.conf
+
+  # Activate script-server
+  sed -i 's/---SED_REPLACEMENT_TAG---/"script-server\/"/g' /var/www/index.html 
 else
   info "Detected u-OS app"
   cp -f  /var/www/nginx.conf.u-os-app /etc/nginx/http.d/web.conf
+
+  # Generate page for meta information
+  echo "* Content of /var/vm/openwrt_metadata.conf *" > /var/www/system_info.txt
+  cat /var/vm/openwrt_metadata.conf >> /var/www/system_info.txt
+  echo $'\n' >> /var/www/system_info.txt
+
+  echo "* Enviroment variables *" >> /var/www/system_info.txt
+  export >> /var/www/system_info.txt
+
+  sed -i 's/---SED_REPLACEMENT_TAG---/"system_info.txt"/g' /var/www/index.html 
 fi
 
 

@@ -26,14 +26,17 @@ server {
     add_header Cache-Control "no-cache";
 
     location / {
+      root /var/www;
+    }
 
-      root /usr/share/novnc;
+    location /novnc {
       index vnc.html;
+      alias /usr/share/novnc;
+      try_files $uri $uri/ /vnc.html;
 
-      if ($request_uri = "/") {
-        return 301 ?resize=scale&reconnect_delay=2000&autoconnect=true&path=u-os-app-openwrt/websockify;
+      if ($request_uri = "/novnc/") {
+        return 301 ?resize=scale&autoconnect=true&reconnect_delay=2000&reconnect=true&path=u-os-app-openwrt/websockify;
       }
-
     }
 
     location /websockify {
