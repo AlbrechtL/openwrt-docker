@@ -99,9 +99,12 @@
         <div class="grid-container">
             <div  class="item1 tooltip">
                 <script language="JavaScript">
-                    document.write('<a href="' + window.location.protocol + '//' + window.location.hostname + ':9000' + '" class="button" >Open OpenWrt LuCI web interface</a> ' );
+                    document.write('<a href="http://' + window.location.hostname + ':9000" class="button" >Open OpenWrt LuCI web interface</a> ' );
                 </script>
                 <span class="tooltiptext">
+                    WARNING: <br>
+                    Currently unencrypted connection! <br>
+                    <br>
                     Requirements
                     <ul>
                         <li>LAN="veth"</li>
@@ -109,7 +112,7 @@
                         <li>Default OpenWrt DHCP LAN settings</li>
                         <li>Configured "veth-openwrt0" Ethernet interface in host system</li>
                     </ul>
-                    Internally a reverse proxy is forwading the web interface from "host-ip:9000" to "192.168.1.1:80"
+                    Internally a reverse proxy is forwading the web interface from "host-ip:9000" to "172.31.1.1:80"
                 </span>
             </div>
             <div class="item2">

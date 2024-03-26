@@ -26,6 +26,9 @@ else
     cp /var/vm/openwrt_additional/etc/rc.local /mnt/etc/rc.local
     chmod +x /mnt/etc/rc.local
 
+    chmod +x /var/vm/openwrt_additional/etc/uci-defaults/*
+    cp /var/vm/openwrt_additional/etc/uci-defaults/* /mnt/etc/uci-defaults/
+
     info "Install additional IPKs into the image"
     mkdir /mnt/var/offline_packages
     cp /var/vm/packages/*.ipk /mnt/var/offline_packages/
