@@ -153,6 +153,8 @@ fi
 WAN_ARGS=""
 if [[ -z "${WAN_IF}" ]]; then
   WAN_ARGS="-device virtio-net,netdev=qwan0 -netdev user,id=qwan0,hostfwd=tcp::8000-:80,hostfwd=tcp::8022-:22"
+elif [[ $WAN_IF = "none" ]]; then
+  WAN_ARGS=""
 else
   HOST_WAN_IF=$WAN_IF
   attach_eth_if $HOST_WAN_IF $HOST_WAN_IF qwan0

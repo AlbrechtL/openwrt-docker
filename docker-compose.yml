@@ -6,16 +6,21 @@ services:
     image: "openwrt-docker-arm64"
 
     environment:
-      DEBUG: "y"
+      #DEBUG: "y"
+      #IS_U_OS_APP: "true"
 
       # Define number of VM CPUs
       CPU_COUNT: 2
 
       # Define which physical or virtual interfaces shall be attach direct to OpenWrt
-      #WAN_IF: "enx00e04c0407a6"
-      #LAN_IF: "enx00e04d68033f"
-      #LAN_IF: "veth" # veth pair between OpenWrt and host system
-      #FORWARD_LUCI: "true" # Make LuCI OpenWrt web interface accessible via host LAN
+      #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
+      WAN_IF: "none" # No WAN interface defined. This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
+
+      LAN_IF: "veth" # veth pair between OpenWrt and host system
+      #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
+
+      # Make LuCI OpenWrt web interface accessible via host LAN
+      #FORWARD_LUCI: "true" 
 
       # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given
