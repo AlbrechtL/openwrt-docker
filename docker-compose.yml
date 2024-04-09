@@ -20,7 +20,7 @@ services:
       #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
 
       # Make LuCI OpenWrt web interface accessible via host LAN
-      #FORWARD_LUCI: "true" 
+      FORWARD_LUCI: "true" 
 
       # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given

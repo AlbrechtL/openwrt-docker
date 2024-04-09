@@ -64,6 +64,10 @@ attach_veth_if () {
     # Create veth pair
     nsenter --target 1 --uts --net --ipc --mount ip link add $VETH_IF_HOST type veth peer name $VETH_IF_CONTAINER
     nsenter --target 1 --uts --net --ipc --mount ip link set $VETH_IF_HOST up
+
+    if [[ -z "${IS_U_OS_APP}" ]]; then
+      nsenter --target 1 --uts --net --ipc --mount ip addr add 172.31.1.2/24 dev $VETH_IF_HOST
+    fi
   else
     info "Virtual Ethernet interface $VETH_IF_HOST already exists. Assuming pairs is already created."
   fi
