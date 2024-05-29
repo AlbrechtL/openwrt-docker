@@ -13,10 +13,11 @@ services:
       CPU_COUNT: 2
 
       # Define which physical or virtual interfaces shall be attach direct to OpenWrt
+      WAN_IF: "host" # Usage of container host Ethernet connection as WAN. WARNING: Bad performace because of user space Ethernet implementation.
+      #WAN_IF: "none" # No WAN interface defined. This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
       #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
-      WAN_IF: "none" # No WAN interface defined. This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
 
-      LAN_IF: "veth" # veth pair between OpenWrt and host system
+      #LAN_IF: "veth" # veth pair between OpenWrt and host system
       #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
 
       # Make LuCI OpenWrt web interface accessible via host LAN
