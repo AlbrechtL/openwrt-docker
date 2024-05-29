@@ -169,12 +169,25 @@ fi
 
 # Attach USB interface
 USB_ARGS=""
-if [[ -z "${USB_VID_1}" || -z "${USB_PID_1}" ]]; then
-  USB_ARGS=""
+USB_1_ARGS=""
+USB_2_ARGS=""
+if [[ -z "${USB_1}" ]]; then
+  USB_1_ARGS=""
 else
-  USB_ARGS="-device usb-host,vendorid=0x$USB_VID_1,productid=0x$USB_PID_1"
+  USB_VID_1=$(echo $USB_1 | cut -d':' -f1)
+  USB_PID_1=$(echo $USB_1 | cut -d':' -f2)
+  USB_1_ARGS="-device usb-host,vendorid=0x$USB_VID_1,productid=0x$USB_PID_1"
 fi
 
+if [[ -z "${USB_2}" ]]; then
+  USB_2_ARGS=""
+else
+  USB_VID_2=$(echo $USB_2 | cut -d':' -f1)
+  USB_PID_2=$(echo $USB_2 | cut -d':' -f2)
+  USB_2_ARGS="-device usb-host,vendorid=0x$USB_VID_2,productid=0x$USB_PID_2"
+fi
+
+USB_ARGS="${USB_1_ARGS} ${USB_2_ARGS}"
 
 info "Booting image using $VERS..."
 

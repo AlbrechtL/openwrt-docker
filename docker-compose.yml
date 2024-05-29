@@ -24,9 +24,9 @@ services:
 
       # USB passthrough
       # Format <vendorID>:<productID> like 'lsusb' is given
-      # Currently only one USB device is supported
-      #USB_VID_1: "0e8d" # vendor ID
-      #USB_PID_1: "7961" # product ID
+      # Currently only two USB devices are supported
+      #USB_1: "0bda:8153"
+      #USB_2: "0e8d:7961"
 
     ports:
       # Port 8006 is console tty web VNC
