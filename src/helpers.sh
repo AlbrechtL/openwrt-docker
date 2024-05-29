@@ -11,8 +11,8 @@ trap 'error "Status $? while: $BASH_COMMAND (line $LINENO/$BASH_LINENO)"' ERR
 : "${CPU_COUNT:=""}"      # Physical LAN interface name
 : "${WAN_IF:=""}"         # Physical WAN interface name
 : "${LAN_IF:=""}"         # Physical LAN interface name
-: "${USB_VID_1:=""}"      # USB vendor ID
-: "${USB_PID_1:=""}"      # USB product ID
+: "${USB_1:=""}"          # USB 1 vendor and device ID
+: "${USB_2:=""}"          # USB 2 vendor and device ID
 : "${FORWARD_LUCI:=""}"   # Make LuCI OpenWrt web interface accessible via host LAN
 : "${IS_U_OS_APP:=""}"    # By default this container is not a u-OS app 
 : "${DEBUG:="N"}"         # Disable debugging
