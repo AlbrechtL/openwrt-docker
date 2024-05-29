@@ -13,6 +13,8 @@ echo "❯ Starting $APP for Docker v$(</run/version)..."
 echo "❯ For support visit $SUPPORT"
 echo
 
+# Show alpine version
+cat /etc/*release*
 
 # Check system
 if [ ! -d "/dev/shm" ]; then
