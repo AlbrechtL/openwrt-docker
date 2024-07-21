@@ -1,7 +1,7 @@
 FROM alpine:latest
 
 ARG NOVNC_VERSION="1.4.0" 
-ARG OPENWRT_VERSION="23.05.3"
+ARG OPENWRT_VERSION="23.05.4"
 ARG VERSION_ARG="0.1"
 
 RUN apk add --no-cache \
@@ -61,6 +61,8 @@ RUN mkdir /var/vm \
     && chroot /tmp/openwrt-rootfs opkg install hostapd wpa-supplicant kmod-mt7921u --download-only \
     # Download celluar network support \
     && chroot /tmp/openwrt-rootfs opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils --download-only \
+    # Download basic GPS support \ 
+    && chroot /tmp/openwrt-rootfs opkg install kmod-usb-serial usbutils minicom gpsd --download-only \
     # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \

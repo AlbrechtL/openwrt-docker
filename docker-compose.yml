@@ -3,12 +3,13 @@ services:
   qemu:
     container_name: openwrt
     #image: albrechtloh/qemu-openwrt:openwrt-23.05.3-2
-    #image: "openwrt-docker-arm64"
+    #image: openwrt-docker-arm64
     build:
       context: .
       dockerfile: Dockerfile
       args: 
-        OPENWRT_VERSION: "23.05.3"
+        OPENWRT_VERSION: "23.05.4"
+        #OPENWRT_VERSION: "master"
 
     environment:
       #DEBUG: "y"
@@ -22,7 +23,7 @@ services:
       #WAN_IF: "none" # No WAN interface defined. This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
       #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
 
-      #LAN_IF: "veth" # veth pair between OpenWrt and host system
+      LAN_IF: "veth" # veth pair between OpenWrt and host system
       #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
 
       # Make LuCI OpenWrt web interface accessible via host LAN
