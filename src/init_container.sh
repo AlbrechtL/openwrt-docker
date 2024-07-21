@@ -47,6 +47,10 @@ else
 
   echo "* Enviroment variables *" >> /var/www/system_info.txt
   export >> /var/www/system_info.txt
+  echo $'\n' >> /var/www/system_info.txt
+
+  echo "* USB devices *" >> /var/www/system_info.txt
+  lsusb >> /var/www/system_info.txt
 
   sed -i 's/---SED_REPLACEMENT_TAG---/"system_info.txt"/g' /var/www/index.html 
 fi

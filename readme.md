@@ -32,7 +32,7 @@ See `docker-compose.yml`
 ## Build and run
 
 ```bash
-docker build -t openwrt-docker-arm64 . && docker compose up
+docker compose up
 ```
 
 If you like to specify a specific OpenWrt version you can do
