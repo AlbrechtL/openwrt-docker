@@ -49,7 +49,7 @@ RUN mkdir /var/vm \
         -O /tmp/rootfs-${OPENWRT_VERSION}.tar.gz ; \
     fi \
     \
-    # Use OpenWrt rootfs to download additional IPKs and put them into the Docker image
+    # Use OpenWrt rootfs to download additional IPKs and put them into the Docker image \
     && mkdir /tmp/openwrt-rootfs \
     && tar -xzf /tmp/rootfs-${OPENWRT_VERSION}.tar.gz -C /tmp/openwrt-rootfs \
     && cp /etc/resolv.conf /tmp/openwrt-rootfs/etc/resolv.conf \

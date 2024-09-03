@@ -9,7 +9,7 @@ on:
 
 jobs:
   build:
-    name: Build with Qt
+    name: Build
     runs-on: ubuntu-latest
 
     steps:
@@ -39,4 +39,3 @@ jobs:
           platforms: linux/arm64
           tags: albrechtloh/qemu-openwrt:latest
 
-          
