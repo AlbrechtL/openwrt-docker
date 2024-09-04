@@ -50,11 +50,8 @@ jobs:
           platforms: linux/arm64
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           tags: |
-            # Push to dockerhub
             albrechtloh/qemu-openwrt:latest
             albrechtloh/qemu-openwrt:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }}
-
-            # Push to local registry
             localhost:5000/local/qemu-openwrt:latest
 
       - name: Inspect
