@@ -1,8 +1,9 @@
-# OpenWrt qemu docker container for arm64
+# OpenWrt qemu docker container for arm64 and Weidmueller u-OS
 
-QEMU in a docker container for running arm64 virtual machines. Tested on Raspberry Pi 5 but should work on any ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
+OpenWrt in a docker container utilizing qemu. Tested on Raspberry Pi 5 and Weidmueller UC20-M4000 PLC but should work on any ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 
-Images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openwrt
+* Docker images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openwrt
+* Weidmueller u-OS apps are currently only available via Github Actions https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions
 
 ## Features
 
@@ -19,6 +20,7 @@ Because OpenWrt doesn't provide a user installed package update mechanism all re
 * Luci Web interface
 * ssh server
 * Wi-Fi client and access point support
+* Wireguard
 
 ### Supported USB devices
 

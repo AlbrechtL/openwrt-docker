@@ -63,6 +63,8 @@ RUN mkdir /var/vm \
     && chroot /tmp/openwrt-rootfs opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils --download-only \
     # Download basic GPS support \ 
     && chroot /tmp/openwrt-rootfs opkg install kmod-usb-serial usbutils minicom gpsd --download-only \
+    # Add Wireguard support \
+    && chroot /tmp/openwrt-rootfs opkg install wireguard-tools luci-proto-wireguard \
     # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \

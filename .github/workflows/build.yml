@@ -90,6 +90,8 @@ jobs:
         
           echo "***** Run uc-aom-packager to create the u-OS app *****"
           # uc-aom-packager accepts only multiarch images. "--build-arg BUILDKIT_MULTI_PLATFORM=1" has to set to ensure that.
+          # uc-aom-packager needs to Docker registry credentials in a clear text file. Because of security concerns we use a local registry without credentials here.
+
           docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager push \
