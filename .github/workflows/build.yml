@@ -14,6 +14,12 @@ jobs:
     env:
       OPENWRT_VERSION: 23.05.4
 
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +50,13 @@ jobs:
           platforms: linux/arm64
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           tags: |
+            # Push to dockerhub
             albrechtloh/qemu-openwrt:latest
             albrechtloh/qemu-openwrt:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }}
 
+            # Push to local registry
+            localhost:5000/local/qemu-openwrt:latest
+
+      - name: Inspect
+        run: |
+          docker buildx imagetools inspect localhost:5000/local/qemu-openwrt:latest
