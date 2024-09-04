@@ -78,7 +78,7 @@ jobs:
           cat u-os-app/manifest.json | grep version
         
           # Run uc-aom-packager
-          docker run --rm --pull=always \
+          docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager push \
           -m /tmp/u-os-app-openwrt \
@@ -87,7 +87,7 @@ jobs:
           -v
 
           # Create SWU app file
-          docker run --rm --pull=always \
+          docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager \
           export \
