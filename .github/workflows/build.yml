@@ -59,3 +59,39 @@ jobs:
       - name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/local/qemu-openwrt:latest
+
+      - name: Login to Weidmueller wmucdev
+        uses: docker/login-action@v3
+        with:
+          registry: wmucdev.azurecr.io
+          username: ${{ secrets.WMUCDEV_USERNAME }}
+          password: ${{ secrets.WMUCDEV_TOKEN }}
+
+      - name: Create Weidmueller u-OS app
+        run: |
+          # Create app version
+          APP_VERSION=$OPENWRT_VERSION-$GIT_HASH
+
+          # Create manifest from template
+          mv u-os-app/manifest.json.template u-os-app/manifest.json
+          sed -i 's/APPVERSION_TO_INSERT/$APP_VERSION/g' u-os-app/manifest.json
+        
+          # Run uc-aom-packager
+          docker run -it --rm --pull=always \
+          --mount src=u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
+          uc-aom-packager push \
+          -m /tmp/u-os-app-openwrt \
+          -s /tmp/u-os-app-openwrt/source-credentials.json \
+          -t /tmp/u-os-app-openwrt/target-credentials.json \
+          -v
+
+          # Create SWU app file
+          docker run -it --rm --pull=always \
+          --mount src=u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
+          uc-aom-packager \
+          export \
+          -t /tmp/u-os-app-openwrt/target-credentials.json \
+          --version $APP_VERSION \
+          -o /tmp/u-os-app-openwrt/u-os-app-openwrt_$APP_VERSION.swu \
+          -v
+  
