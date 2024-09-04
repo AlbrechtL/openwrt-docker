@@ -81,7 +81,7 @@ jobs:
           GIT_HASH_DECIMAL=$((16#$GIT_HASH))
 
           # Create app version
-          APP_VERSION=$OPENWRT_VERSION.DATETIME-$GIT_HASH_DECIMAL
+          APP_VERSION=$OPENWRT_VERSION.$DATETIME-$GIT_HASH_DECIMAL
 
           echo "***** Create manifest from template *****"
           mv u-os-app/manifest.json.template u-os-app/manifest.json
