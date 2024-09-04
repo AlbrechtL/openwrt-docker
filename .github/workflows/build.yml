@@ -75,6 +75,7 @@ jobs:
           # Create manifest from template
           mv u-os-app/manifest.json.template u-os-app/manifest.json
           sed -i 's/APPVERSION_TO_INSERT/'"$APP_VERSION"'/g' u-os-app/manifest.json
+          cat u-os-app/manifest.json | grep version
         
           # Run uc-aom-packager
           docker run -it --rm --pull=always \
