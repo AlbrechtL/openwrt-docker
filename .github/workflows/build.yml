@@ -50,7 +50,9 @@ jobs:
           push: true
           provenance: false
           platforms: linux/arm64
-          build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }} BUILDKIT_MULTI_PLATFORM=1
+          build-args: | 
+            OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
+            BUILDKIT_MULTI_PLATFORM=1
           tags: |
             albrechtloh/qemu-openwrt:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }}
             albrechtloh/qemu-openwrt:latest
