@@ -63,7 +63,7 @@ jobs:
       - name: Login to Weidmueller wmucdev
         uses: docker/login-action@v3
         with:
-          registry:  
+          registry: wmucdev.azurecr.io
           username: ${{ secrets.WMUCDEV_USERNAME }}
           password: ${{ secrets.WMUCDEV_TOKEN }}
 
