@@ -52,8 +52,8 @@ jobs:
           platforms: linux/arm64
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           tags: |
-            albrechtloh/qemu-openwrt:latest
             albrechtloh/qemu-openwrt:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }}
+            albrechtloh/qemu-openwrt:latest
             localhost:5000/local/qemu-openwrt:latest
 
       - name: Inspect
@@ -69,8 +69,13 @@ jobs:
 
       - name: Create Weidmueller u-OS app
         run: |
+          # uc-aom-packager allow only decimal digits aus version number
+          # see https://github.com/weidmueller/uc-addon/blob/main/uc-manifest.schema-doc.md#version)
+          # So lets convert the git hash into a decimal value
+          GIT_HASH_DECIMAL=$((16#$GIT_HASH))
+
           # Create app version
-          APP_VERSION=$OPENWRT_VERSION-$GIT_HASH
+          APP_VERSION=$OPENWRT_VERSION-$GIT_HASH_DECIMAL
 
           # Create manifest from template
           mv u-os-app/manifest.json.template u-os-app/manifest.json
