@@ -17,7 +17,7 @@
     "u-link-addon-u-link": {
       "type": "docker-compose",
       "config": {
-        "image": "localhost:5000:local/qemu-openwrt:latest",
+        "image": "local/qemu-openwrt:latest",
         "privileged": true,
         "restart": "no",
         "volumes": [
