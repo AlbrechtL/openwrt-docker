@@ -103,5 +103,5 @@ jobs:
           -o /tmp/u-os-app-openwrt/u-os-app-openwrt_$APP_VERSION.swu \
           -v
 
-          find u-osapp/
+          find u-os-app/
   
