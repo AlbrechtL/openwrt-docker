@@ -64,7 +64,7 @@ RUN mkdir /var/vm \
     # Download basic GPS support \ 
     && chroot /tmp/openwrt-rootfs opkg install kmod-usb-serial usbutils minicom gpsd --download-only \
     # Add Wireguard support \
-    && chroot /tmp/openwrt-rootfs opkg install wireguard-tools luci-proto-wireguard \
+    && chroot /tmp/openwrt-rootfs opkg install wireguard-tools luci-proto-wireguard --download-only \
     # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \
