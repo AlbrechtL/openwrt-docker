@@ -79,12 +79,12 @@ jobs:
           # Create app version
           APP_VERSION=$OPENWRT_VERSION-$GIT_HASH_DECIMAL
 
-          # Create manifest from template
+          echo "Create manifest from template"
           mv u-os-app/manifest.json.template u-os-app/manifest.json
           sed -i 's/APPVERSION_TO_INSERT/'"$APP_VERSION"'/g' u-os-app/manifest.json
           cat u-os-app/manifest.json | grep version
         
-          # Run uc-aom-packager
+          echo "Run uc-aom-packager to create the u-OS app"
           docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager push \
@@ -93,7 +93,7 @@ jobs:
           -t /tmp/u-os-app-openwrt/target-credentials.json \
           -v
 
-          # Create SWU app file
+          echo "Create SWU app file"
           docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager \
@@ -102,4 +102,6 @@ jobs:
           --version $APP_VERSION \
           -o /tmp/u-os-app-openwrt/u-os-app-openwrt_$APP_VERSION.swu \
           -v
+
+          find u-osapp/
   
