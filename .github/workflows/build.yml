@@ -70,6 +70,7 @@ jobs:
           password: ${{ secrets.WMUCDEV_TOKEN }}
 
       - name: Create Weidmueller u-OS app
+        id: create_u-os-app
         run: |
           # uc-aom-packager allow only decimal digits aus version number
           # see https://github.com/weidmueller/uc-addon/blob/main/uc-manifest.schema-doc.md#version)
@@ -79,12 +80,12 @@ jobs:
           # Create app version
           APP_VERSION=$OPENWRT_VERSION-$GIT_HASH_DECIMAL
 
-          echo "Create manifest from template"
+          echo "***** Create manifest from template *****"
           mv u-os-app/manifest.json.template u-os-app/manifest.json
           sed -i 's/APPVERSION_TO_INSERT/'"$APP_VERSION"'/g' u-os-app/manifest.json
           cat u-os-app/manifest.json | grep version
         
-          echo "Run uc-aom-packager to create the u-OS app"
+          echo "***** Run uc-aom-packager to create the u-OS app *****"
           docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager push \
@@ -93,7 +94,7 @@ jobs:
           -t /tmp/u-os-app-openwrt/target-credentials.json \
           -v
 
-          echo "Create SWU app file"
+          echo "***** Create SWU app file*****"
           docker run --rm --network=host --pull=always \
           --mount src=$(pwd)/u-os-app,target=/tmp/u-os-app-openwrt,type=bind wmucdev.azurecr.io/u-control/uc-aom-packager:0 \
           uc-aom-packager \
@@ -104,4 +105,12 @@ jobs:
           -v
 
           find u-os-app/
+
+      - name: Archive artifacts (OpenWrt u-OS app)
+        if: always() && steps.create_u-os-app.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: welle.io AppImage
+          path: u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
+          if-no-files-found: error
   
