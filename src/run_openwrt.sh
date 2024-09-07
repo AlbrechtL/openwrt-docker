@@ -9,7 +9,10 @@ trap - ERR
 . /run/install_openwrt_rootfs.sh
 . /run/migrate_openwrt_rootfs.sh
 
-VERS=$(qemu-system-aarch64 --version | head -n 1 | cut -d '(' -f 1)
+# CPU architecture specific
+CPU_ARCH=$(arch)
+
+VERS=$(qemu-system-"$CPU_ARCH" --version | head -n 1 | cut -d '(' -f 1)
 FILE=/storage/rootfs-${OPENWRT_IMAGE_ID}.img
 
 # Attach physical interfaces to Docker container
@@ -119,17 +122,23 @@ attach_veth_if () {
   fi
 }
 
+# Handle dirfferent architectures
+if [ $CPU_ARCH = "aarch64" ]; then
+  CPU_ARGS="-cpu cortex-a53 -M virt -bios /usr/share/qemu/edk2-aarch64-code.fd -vga none -device ramfb"
+else
+  CPU_ARGS="-M pc -vga std"
+fi
+
 # Check KVM
 info "Checking for KVM ..."
 KVM_ERR=""
-CPU_ARGS="-cpu cortex-a53"
 if [ ! -e /dev/kvm ]; then
     KVM_ERR="(device file missing)"
   else
     if ! sh -c 'echo -n > /dev/kvm' &> /dev/null; then
       KVM_ERR="(no write access)"
     else
-      CPU_ARGS="--enable-kvm -cpu host"
+      CPU_ARGS+=" --enable-kvm -cpu host"
       info "KVM detected"
     fi
 fi
@@ -195,13 +204,11 @@ info "Booting image using $VERS..."
 [[ "$DEBUG" == [Yy1]* ]] && set -x
 
 #************************ FINAL BOOTING ************************
-qemu-system-aarch64 -M virt \
+qemu-system-"$CPU_ARCH" \
 -m 128 \
 -nodefaults \
  $CPU_ARGS -smp $CPU_COUNT \
--bios /usr/share/qemu/edk2-aarch64-code.fd \
 -display vnc=:0,websocket=5700 \
--vga none -device ramfb \
 -kernel /var/vm/kernel.bin -append "root=fe00 console=tty0" \
 -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=${FILE} \
 -device virtio-blk-pci,drive=hd0 \

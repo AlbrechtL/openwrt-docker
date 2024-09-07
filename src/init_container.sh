@@ -7,14 +7,18 @@ set -Eeuo pipefail
 [ "$(id -u)" -ne "0" ] && error "Script must be executed with root privileges." && exit 12
 
 APP="OpenWrt"
-SUPPORT="https://github.com/AlbrechtL/openwrt-docker-arm64-build"
+SUPPORT="https://github.com/AlbrechtL/openwrt-docker"
 
 echo "❯ Starting $APP for Docker v$(</run/version)..."
 echo "❯ For support visit $SUPPORT"
 echo
 
 # Show alpine version
+echo "**** Alpine release ****"
 cat /etc/*release*
+echo "**** End Alpine release information ****"
+
+echo "CPU architecture: '$(arch)'"
 
 # Check system
 if [ ! -d "/dev/shm" ]; then

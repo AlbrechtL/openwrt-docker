@@ -2,8 +2,8 @@ version: "3"
 services:
   qemu:
     container_name: openwrt
-    #image: albrechtloh/qemu-openwrt:openwrt-23.05.3-2
-    #image: openwrt-docker-arm64
+    #image: albrechtloh/openwrt-docker:latest
+    #image: openwrt-docker
     build:
       context: .
       dockerfile: Dockerfile

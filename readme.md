@@ -1,11 +1,11 @@
-# OpenWrt qemu docker container for arm64 and Weidmueller u-OS
+# OpenWrt qemu docker container for x86_64, arm64 and Weidmueller u-OS
 
 Automated build: [![Build](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml)
 
-OpenWrt in a docker container utilizing qemu. Tested on Raspberry Pi 5 and Weidmueller UC20-M4000 PLC but should work on any ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
-
-* Docker images can be found a docker hub https://hub.docker.com/r/albrechtloh/qemu-openwrt
-* Weidmueller u-OS apps are currently only available via Github Actions https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions
+OpenWrt in a docker container utilizing qemu. Tested on Raspberry Pi 5 and Weidmueller UC20-M4000 PLC but should work on any x86_64 and ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
+4 and 
+* Docker images can be found a docker hub https://hub.docker.com/r/albrechtloh/openwrt-docker
+* Weidmueller u-OS apps are currently only available via Github Actions https://github.com/AlbrechtL/openwrt-docker/actions
 
 ## Features
 
@@ -41,11 +41,11 @@ docker compose up
 
 If you like to specify a specific OpenWrt version you can do
 ```bash
-docker build -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="23.05.2" && docker compose up
+docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="23.05.4" && docker compose up
 ```
 or for the latest development master. The `--no-cache` option is necessary to get always the newest version.
 ```bash
-docker build --no-cache -t openwrt-docker-arm64 . --build-arg OPENWRT_VERSION="master" && docker compose up
+docker build --no-cache -t openwrt-docker . --build-arg OPENWRT_VERSION="master" && docker compose up
 ```
 
 ## Screenshots

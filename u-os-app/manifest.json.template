@@ -6,7 +6,7 @@
   "logo": "openwrt_logo_text_vertical_blue_and_dark_blue.svg",
   "vendor": {
     "name": "Albrecht Lohofener",
-    "url": "https://github.com/AlbrechtL/openwrt-docker-arm64-build/",
+    "url": "https://github.com/AlbrechtL/openwrt-docker",
     "email": "albrechtloh@gmx.de",
     "street": "",
     "zip": "",
@@ -17,7 +17,7 @@
     "u-link-addon-u-link": {
       "type": "docker-compose",
       "config": {
-        "image": "local/qemu-openwrt:latest",
+        "image": "localhost:5000/local/openwrt-docker:latest",
         "privileged": true,
         "restart": "no",
         "volumes": [
