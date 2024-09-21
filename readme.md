@@ -1,8 +1,7 @@
 # OpenWrt qemu docker container for x86_64, arm64 and Weidmueller u-OS
 
-<p align="center">
-[![Build](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml) [![Tests](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml)
-</p>
+[![Build](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml)
+[![Tests](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml)
 
 OpenWrt in a docker container utilizing qemu. Tested on Raspberry Pi 5 and Weidmueller UC20-M4000 PLC but should work on any x86_64 and ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
 4 and 
