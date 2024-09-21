@@ -37,7 +37,7 @@ jobs:
           multipass launch --network wannetvm --name wan-vm
           multipass launch --network lannetvm --name lan-vm
 
-      - name: Show VM and and enviroments variables
+      - name: Show VM and and environments variables
         run:  |
           export
           multipass exec router-vm -- lsb_release -a
