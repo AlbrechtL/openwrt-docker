@@ -1,0 +1,10 @@
+{
+    "python.testing.pytestArgs": [
+        "test/tests",
+        "--rootdir=test/",
+        "-v",
+        "-s"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

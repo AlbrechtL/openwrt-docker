@@ -1,0 +1,5 @@
+polling2
+pytest
+pytest-docker
+requests
+pyyaml

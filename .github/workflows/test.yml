@@ -1,0 +1,104 @@
+name: Test
+
+on:
+  workflow_run:
+     workflows: [ Build ]
+     types:
+        - completed
+
+jobs:
+  build:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Install VMs
+        run: |
+          set -x
+          sudo snap install multipass --edge # Edge is necessary to get 1.15 dev because of networks support
+          sudo chmod a+w /var/snap/multipass/common/multipass_socket # Fix 'multipass socket access denied'
+          multipass find
+
+          # Set up some bridges for the VMs
+          sudo ip link add lannetvm type bridge
+          sudo ip link add wannetvm type bridge
+          sudo ip link set dev lannetvm up
+          sudo ip link set dev wannetvm up
+          ip addr
+
+          # We need to disable the firewall otherwise the tap devices are not working properly
+          sudo ufw disable
+
+          # Start VMs
+          # Multipass and the OpenWrt container are using the same MAC QUI 52:54:00 which creates error. Let's use differnet MAC addresses here
+          multipass launch docker --network name=wannetvm,mac=06:00:00:11:22:33 --network name=lannetvm,mac=06:00:00:44:55:66 --name router-vm
+          multipass mount $GITHUB_WORKSPACE router-vm
+
+          multipass launch --network wannetvm --name wan-vm
+          multipass launch --network lannetvm --name lan-vm
+
+      - name: Show VM and and enviroments variables
+        run:  |
+          export
+          multipass exec router-vm -- lsb_release -a
+          multipass info
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare VMs
+        run: |
+          # By default portainer is running at port 9000. But we need port 9000
+          multipass exec router-vm -- docker stop portainer
+
+          # Install python
+          multipass exec router-vm -- sudo apt-get -y install python3-pip python-is-python3
+
+          # Install everthing for pytest
+          multipass exec router-vm -- find .
+          #multipass exec router-vm -- export PATH=$PATH:~/.local/bin # not working
+          multipass exec router-vm -- pip install -r test/requirements.txt
+          
+          echo '******** router-vm IPs ********'
+          multipass exec router-vm -- ip addr
+
+          # Prepare WAN VM
+          echo '******** wan-vm IPs ********'
+          # Add IP address
+          multipass exec wan-vm -- sudo ip addr add 192.168.22.1/24 dev ens4
+          multipass exec wan-vm -- ip addr
+          # Install DHCP server
+          multipass exec wan-vm -- sudo sh -c 'apt-get update && apt-get install -y isc-dhcp-server && echo "default-lease-time 600;\nmax-lease-time 7200;\nsubnet 192.168.22.0 netmask 255.255.255.0 {\n  range 192.168.22.100 192.168.22.200;\n  option routers 192.168.22.1;\n  option domain-name-servers 8.8.8.8, 8.8.4.4;\n  option domain-name \"example.org\";\n}" > /etc/dhcp/dhcpd.conf && systemctl enable isc-dhcp-server && systemctl restart isc-dhcp-server'
+          multipass exec wan-vm -- cat /etc/dhcp/dhcpd.conf
+          # Enable NAT
+          multipass exec wan-vm -- sudo modprobe iptable_nat
+          multipass exec wan-vm -- sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+          multipass exec wan-vm -- sudo sysctl -w net.ipv4.ip_forward=1
+
+          # Prepare LAN VM
+          echo '******** lan-vm IPs ********'
+          multipass exec lan-vm -- sudo ip addr add 172.31.1.2/24 dev ens4
+          multipass exec lan-vm -- ip addr
+
+          # Double check if virtual networks are working
+          echo '******** host IPs ********'
+          ip addr
+          sudo ufw status
+
+          echo '******** router-vm IPs ********'
+          multipass exec router-vm -- sudo ip addr add 192.168.22.99/24 dev ens4
+          multipass exec router-vm -- sudo ip addr add 172.31.1.99/24 dev ens5
+          multipass exec router-vm -- ip addr
+
+          echo '******** Test connection between router-vm, lan-vm and wan-vm ********'
+          multipass exec router-vm -- ping -c 1 192.168.22.1 # to wan-vm
+          multipass exec router-vm -- ping -c 1 172.31.1.2 # to lan-vm
+
+
+      - name: Run tests
+        #timeout-minutes: 10
+        run: |
+          # Run pytest
+          multipass exec router-vm -- sh -c 'cd test/ && ~/.local/bin/pytest -v -s'
+
+          
