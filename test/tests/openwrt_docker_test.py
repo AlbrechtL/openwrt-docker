@@ -358,6 +358,8 @@ def test_additional_installed_packages(docker_services):
 
     package_list_openwrt_full = response['out-data'].splitlines()
 
+    print(f"'{len(package_list_docker)}' additional installed packages", end=' ')
+
     # Check if all additional OpenWrt packages in Docker image are installed in OpenWrt
     for package in package_list_docker:
         assert any(package in s for s in package_list_openwrt_full) == True
