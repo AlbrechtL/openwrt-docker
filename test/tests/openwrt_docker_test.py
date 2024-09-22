@@ -19,7 +19,7 @@ def parameter(request):
 
 # Adapt docker-compose.yml to our test needs
 @pytest.fixture(scope="session")
-def docker_compose_file(pytestconfig, parameter):
+def docker_compose_file(pytestconfig, parameter, docker_compose_project_name):
         
     compose_file_template = os.path.join(str(pytestconfig.rootdir), "tests", "docker-compose.yml.template")
     compose_file = os.path.join(str(pytestconfig.rootdir), "tests", "docker-compose.yml.generated")
@@ -28,12 +28,23 @@ def docker_compose_file(pytestconfig, parameter):
     with open(compose_file_template) as f:
         list_doc = yaml.safe_load(f)
 
-    # Change enviroment variable
     if parameter:
-        if len(parameter) == 2:
+        # Change environment variables
+        if len(parameter) >= 2:
             env_var = parameter[0]
             value = parameter[1]
-            list_doc['services']['openwrt']['environment'][env_var] = value
+            if env_var != "": 
+                list_doc['services']['openwrt']['environment'][env_var] = value
+
+        # Load volume data
+        if len(parameter) == 3:
+            # We don't care about the first two parameters, see above
+            # Let's use only the third one
+            data_volume_backup = parameter[2]
+            vackup_dir = os.path.join(str(pytestconfig.rootdir), "docker-vackup")
+            vackup = os.path.join(vackup_dir, "vackup") # Funny name ;-)
+            
+            os.system(f"cd {vackup_dir}/../test_data/ && {vackup} import {data_volume_backup} {docker_compose_project_name}_data >/dev/null 2>/dev/null")
 
     # Save docker-compose file
     with open(compose_file, "w") as f:
@@ -183,6 +194,16 @@ def is_openwrt_booted():
     else:
         return False
 
+def get_logs():
+    process = subprocess.run(['docker','logs','openwrt'], 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.PIPE,
+        universal_newlines=True)
+    
+    return process.stdout + process.stderr
+
+def is_specific_log(log_text):
+    return log_text in get_logs()
 
 # ************************ Tests ************************
 
@@ -292,7 +313,7 @@ def test_openwrt_wan(docker_services, parameter):
             return
         
         case _: # Usage of real Ethernet interface e.g. 'eth0'
-            # This test is most likely only working in a github action enviroment because multiple VM are necessary to test it. See the action file, please
+            # This test is most likely only working in a github action environment because multiple VM are necessary to test it. See the action file, please
             # Try to get IP address from WAN-VM
             response = run_openwrt_shell_command("udhcpc", "-i", "eth1")
             assert ('udhcpc: setting default routers: 192.168.22.1' in response['out-data']) == True
@@ -333,6 +354,7 @@ def test_cpu_num(docker_services, parameter):
         
     assert parameter[1] == cpu_num
 
+
 def test_additional_installed_packages(docker_services):
 
     # Get list of packages to be installed in OpenWrt
@@ -363,3 +385,44 @@ def test_additional_installed_packages(docker_services):
     # Check if all additional OpenWrt packages in Docker image are installed in OpenWrt
     for package in package_list_docker:
         assert any(package in s for s in package_list_openwrt_full) == True
+
+
+@pytest.mark.parametrize("parameter", 
+    [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
+    ids=['20240922_test_volume_openwrt_23.05.4'])
+def test_openwrt_migrate_existing_volume(docker_services):
+    docker_services.wait_until_responsive(
+        timeout=90.0, pause=1, check=lambda: is_specific_log('Booting image using QEMU emulator')
+    )
+
+    assert ('upgrade: Saving config files' in get_logs()) == True
+    assert ('upgrade: Restoring config files' in get_logs()) == True
+
+
+@pytest.mark.parametrize("parameter", 
+    [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
+    ids=['20240922_test_volume_openwrt_23.05.4'])
+def test_openwrt_migrate_settings(docker_services):
+    docker_services.wait_until_responsive(
+        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
+    )
+
+    # Here we test a custom configuration that is stored in the existing volume.
+    # Currently hostname and an additional interface are configured.
+    
+    # Check for host name 'TestRouter'
+    response = run_openwrt_shell_command("uci", "get", "system.@system[0].hostname")
+    assert ('TestRouter' in response['out-data']) == True
+
+    # Check for test LAN
+    response = run_openwrt_shell_command("uci", "show", "network.TestLan")
+    assert ("network.TestLan.ipaddr='192.168.40.1'" in response['out-data']) == True
+
+
+def test_kvm(docker_services):
+    docker_services.wait_until_responsive(
+        timeout=90.0, pause=1, check=lambda: is_specific_log('Checking for KVM')
+    )
+
+    time.sleep(1)
+    assert ('KVM detected' in get_logs()) == True
