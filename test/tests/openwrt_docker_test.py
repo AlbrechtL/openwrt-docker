@@ -8,6 +8,7 @@ import requests
 import base64
 import time
 import yaml
+import re
 
 # Workaround to make parameters global accessible
 @pytest.fixture(scope='session')
@@ -426,3 +427,26 @@ def test_kvm(docker_services):
 
     time.sleep(1)
     assert ('KVM detected' in get_logs()) == True
+
+
+def test_alpine_version_output(docker_services):
+    docker_services.wait_until_responsive(
+        timeout=90.0, pause=1, check=lambda: is_specific_log('Booting image using QEMU emulator')
+    )
+
+    logs = get_logs()
+    assert ('NAME="Alpine Linux"' in logs) == True
+
+    version = re.findall("ID=alpine\nVERSION_ID=.+", logs)[0].split("=")
+    print(f"'Version: {version[2]}'", end=' ')
+
+
+def test_novnc(docker_services):
+    docker_services.wait_until_responsive(
+        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
+    )
+
+    # Here we only test if novnc is running, not if the connection to qemu is successful. To test this selenium is necessary.
+    response = requests.get("http://localhost:8006/novnc")
+    
+    assert ('<title>noVNC</title>' in response.content.decode()) == True
