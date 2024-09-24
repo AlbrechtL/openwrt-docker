@@ -336,7 +336,7 @@ def test_nginx_luci_forwarding_access(docker_services):
     # Double check if caddy is still running
     assert get_service_status('nginx_luci_forward') == 'RUNNING'
 
-    response = requests.get("https://localhost:9000")
+    response = requests.get("https://localhost:9000", verify=False)
     
     assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
 
