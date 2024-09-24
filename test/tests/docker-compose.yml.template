@@ -3,6 +3,7 @@ services:
   openwrt:
     container_name: openwrt
     image: albrechtloh/openwrt-docker:latest
+    #image: openwrt-docker
 
     environment:
       #DEBUG: "y"

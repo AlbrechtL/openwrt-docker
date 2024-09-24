@@ -234,17 +234,17 @@ def test_openwrt_start(docker_services):
 @pytest.mark.parametrize("parameter", 
     [('FORWARD_LUCI','true'),('FORWARD_LUCI','false')], indirect=True,
     ids=['FORWARD_LUCI=true', 'FORWARD_LUCI=false'])
-def test_caddy_start(docker_services, parameter):
+def test_nginx_luci_forward_start(docker_services, parameter):
     try:
         docker_services.wait_until_responsive(
-            timeout=30.0, pause=0.5, check=lambda: is_service_started('caddy')
+            timeout=30.0, pause=0.5, check=lambda: is_service_started('nginx_luci_forward')
         )
     except:
         if parameter[1] == 'false':
             return # We expect a timeout here. This is our test condition for FORWARD_LUCI=false
     
     # For FORWARD_LUCI=true
-    assert get_service_status('caddy') == 'RUNNING'
+    assert get_service_status('nginx_luci_forward') == 'RUNNING'
 
 
 def test_script_server_start(docker_services):
@@ -328,15 +328,15 @@ def test_openwrt_wan(docker_services, parameter):
     assert False, 'Unknown parameter'
 
 
-def test_openwrt_luci_forwarding(docker_services):
+def test_nginx_luci_forwarding_access(docker_services):
     docker_services.wait_until_responsive(
         timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
     )
     
     # Double check if caddy is still running
-    assert get_service_status('caddy') == 'RUNNING'
+    assert get_service_status('nginx_luci_forward') == 'RUNNING'
 
-    response = requests.get("http://localhost:9000")
+    response = requests.get("https://localhost:9000")
     
     assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
 
