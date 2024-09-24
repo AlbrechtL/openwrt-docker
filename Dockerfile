@@ -19,7 +19,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         exit 1; \
     fi \
     && apk add --no-cache \
-        supervisor \
+        multirun \
         bash \
         wget \
         qemu-system-"$CPU_ARCH" \
@@ -120,4 +120,4 @@ EXPOSE 8022
 RUN echo "$VERSION_ARG" > /run/version \
     && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["/run/init_container.sh"]

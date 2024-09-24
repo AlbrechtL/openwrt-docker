@@ -204,7 +204,7 @@ info "Booting image using $VERS..."
 [[ "$DEBUG" == [Yy1]* ]] && set -x
 
 #************************ FINAL BOOTING ************************
-qemu-system-"$CPU_ARCH" \
+exec qemu-system-"$CPU_ARCH" \
 -m 128 \
 -nodefaults \
  $CPU_ARGS -smp $CPU_COUNT \

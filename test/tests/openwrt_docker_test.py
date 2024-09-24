@@ -55,51 +55,13 @@ def docker_compose_file(pytestconfig, parameter, docker_compose_project_name):
 
 
 def is_container_running():
-    # Get current service list from supervisor
-    process = subprocess.run(['docker','exec','openwrt','supervisorctl','status'], 
-                         stdout=subprocess.PIPE, 
-                         universal_newlines=True)
-    
-    # Check if supervisord is running
-    if process.returncode == 0 \
-    or process.returncode == 3 : # Means a service has an issue
-        return True
-    else:
-        return False
-
-def get_service_status(service):
-    # Get current service list from supervisor
-    process = subprocess.run(['docker','exec','openwrt','supervisorctl','status'], 
-                         stdout=subprocess.PIPE, 
-                         universal_newlines=True)
-    
-    # Check if supervisord is running
-    if process.returncode == 0 \
-    or process.returncode == 3 : # Means a service has an issue
-        # Extract list from supervisorctl output
-        service_list = process.stdout.splitlines()
-
-        # Filter for service
-        service_status = [s for s in service_list if service in s][0].split()
-
-        return service_status[1]
-    else:
-        return None
-
-def is_service_started(service):
-    service_status = get_service_status(service)
-
-    if service_status != None:
-        # Check if service is running or in other states
-        if service_status == 'RUNNING' \
-        or service_status == 'BACKOFF' \
-        or service_status == 'EXITED' \
-        or service_status == 'FATAL' \
-        or service_status == 'UNKNOWN':
+    try:
+        response = requests.get("http://localhost:8006")
+        if response.status_code == 200:
             return True
         else:
-            return False
-    else:
+         return False   
+    except Exception:
         return False
 
 def run_openwrt_shell_command(command, *arg):
@@ -215,46 +177,6 @@ def test_basic_container_start(docker_services):
     return
 
 
-def test_nginx_start(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.5, check=lambda: is_service_started('nginx')
-    )
-    
-    assert get_service_status('nginx') == 'RUNNING'
-
-
-def test_openwrt_start(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.5, check=lambda: is_service_started('openwrt')
-    )
-    
-    assert get_service_status('openwrt') == 'RUNNING'
-
-
-@pytest.mark.parametrize("parameter", 
-    [('FORWARD_LUCI','true'),('FORWARD_LUCI','false')], indirect=True,
-    ids=['FORWARD_LUCI=true', 'FORWARD_LUCI=false'])
-def test_nginx_luci_forward_start(docker_services, parameter):
-    try:
-        docker_services.wait_until_responsive(
-            timeout=30.0, pause=0.5, check=lambda: is_service_started('nginx_luci_forward')
-        )
-    except:
-        if parameter[1] == 'false':
-            return # We expect a timeout here. This is our test condition for FORWARD_LUCI=false
-    
-    # For FORWARD_LUCI=true
-    assert get_service_status('nginx_luci_forward') == 'RUNNING'
-
-
-def test_script_server_start(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.5, check=lambda: is_service_started('script-server')
-    )
-
-    assert get_service_status('script-server') == 'RUNNING'
-
-
 def test_openwrt_booted(docker_services):
     docker_services.wait_until_responsive(
         timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
@@ -327,18 +249,27 @@ def test_openwrt_wan(docker_services, parameter):
 
     assert False, 'Unknown parameter'
 
-
-def test_nginx_luci_forwarding_access(docker_services):
+@pytest.mark.parametrize("parameter", 
+    [('FORWARD_LUCI','true'),('FORWARD_LUCI','false')], indirect=True,
+    ids=['FORWARD_LUCI=true', 'FORWARD_LUCI=false'])
+def test_nginx_luci_forwarding_access(docker_services, parameter):
     docker_services.wait_until_responsive(
         timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
     )
-    
-    # Double check if caddy is still running
-    assert get_service_status('nginx_luci_forward') == 'RUNNING'
 
-    response = requests.get("https://localhost:9000", verify=False)
-    
-    assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
+    if parameter[1] == 'true':
+        try:
+            response = requests.get("https://localhost:9000", verify=False)
+            assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
+        except Exception as excinfo:  
+            pytest.fail(f"Unexpected exception raised: {excinfo}")
+
+    if parameter[1] == 'false':
+        try:
+            response = requests.get("https://localhost:9000", verify=False)
+            pytest.fail(f'LuCI forwarding is active')
+        except Exception as excinfo: 
+            return
 
 
 @pytest.mark.parametrize("parameter", 

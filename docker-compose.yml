@@ -1,8 +1,7 @@
-version: "3"
 services:
   openwrt:
     container_name: openwrt
-    #image: albrechtloh/openwrt-docker:latest
+    image: albrechtloh/openwrt-docker:latest
     #image: openwrt-docker
     build:
       context: .
@@ -47,7 +46,7 @@ services:
     stop_grace_period: 2m
     restart: on-failure
     
-    # The following settings are mandantory to run the container
+    # The following settings are mandatory to run the container
     devices:
       - /dev/kvm
     device_cgroup_rules:
@@ -62,3 +61,4 @@ services:
 
 volumes:
   data:
+    

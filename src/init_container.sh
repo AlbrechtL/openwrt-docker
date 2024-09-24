@@ -69,24 +69,29 @@ sed -i "s/'X-Frame-Options', 'DENY'/ \
 # Usage of default logging.json'
 cp -f /usr/share/script-server/conf/logging.json /var/script-server/logging.json
 
-# Start script-server
-supervisorctl start script-server
-
-
 # ******* nginx handling *******
 cp -r /var/www/* /run/shm
-supervisorctl start nginx # Start webserver
-
-
-# ******* OpenWrt handling *******
-supervisorctl start openwrt # Start openwrt
 
 # ******* LuCi forwarding handling *******
 if [[ $FORWARD_LUCI = "true" ]]; then
   if [[ $LAN_IF = "veth" ]]; then
     info "Enable LuCI forwading to host LAN at port 9000"
-    supervisorctl start nginx_luci_forward # Start reverse proxy
+
+    multirun \
+    "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
+    "nginx" \
+    "/run/run_openwrt.sh" \
+    "nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf"
+
   else
     error "LuCI forwading is only available if enviroment variable is set to LAN_IF: 'veth'"
   fi
+else
+
+  # Start processes
+  multirun \
+    "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
+    "nginx" \
+    "/run/run_openwrt.sh"
+
 fi
