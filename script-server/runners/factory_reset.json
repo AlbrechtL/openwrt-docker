@@ -1,6 +1,0 @@
-{
-  "name": "99 Factory reset",
-  "description": "Hard factory reset of Openwrt. WARNING: OpenWrt will be stopped during this operation.",
-  "script_path": "/run/factory_reset.sh"
-}
-

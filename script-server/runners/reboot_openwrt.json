@@ -1,6 +1,0 @@
-{
-  "name": "6 Reboot",
-  "description": "Reboot OpenWrt VM",
-  "script_path": "/run/qemu_qmp.sh -R"
-}
-

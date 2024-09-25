@@ -1,8 +1,0 @@
-{
-  "title": "OpenWrt control",
-  "port": "5000",
- 
-  "access": {
-    "allowed_users": "*"
-  }
-}

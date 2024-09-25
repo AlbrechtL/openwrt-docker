@@ -1,6 +1,0 @@
-{
-  "name": "4 Start",
-  "description": "Start OpenWrt VM",
-  "script_path": "supervisorctl start openwrt"
-}
-

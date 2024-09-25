@@ -1,6 +1,0 @@
-{
-  "name": "98 Hard reboot",
-  "description": "Hard reboot of OpenWrt VM",
-  "script_path": "/run/qemu_qmp.sh -r"
-}
-

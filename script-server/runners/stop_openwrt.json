@@ -1,6 +1,0 @@
-{
-  "name": "5 Stop",
-  "description": "Stop OpenWrt VM",
-  "script_path": "/run/qemu_qmp.sh -S"
-}
-

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenWrt control panel</title>
+
+    <!-- Add Material Design Lite CSS -->
+    <link rel="stylesheet" href="./mdl/material.min.css">
+    <script src="./mdl/material.min.js"></script>
+    
+    <!-- Custom Styles for Tooltip -->
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .mdl-button {
+            width: 100%;
+        }
+
+        pre {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mdl-card mdl-shadow--2dp">
+        <h1 class="mdl-typography--headline" style="margin-top: 0">OpenWrt</h1>
+
+        <div class="button-row">
+            <script language="JavaScript">
+                document.write('<a id="tt1" target="_blank" rel="noopener noreferrer" href="https://' + window.location.hostname + ':9000" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"  ">\
+                  Open OpenWrt LuCI web interface </a>');
+            </script>
+
+            <div class="mdl-tooltip mdl-tooltip--large" for="tt1" style="text-align: left;">
+              Access via HTTPS to OpenWrt LuCI web interface<br>
+                <br>
+                Requirements<br>
+                - LAN="veth"<br>
+                - FORWARD_LUCI="true"<br>
+                - Default OpenWrt DHCP LAN settings<br>
+                - Configured "veth-openwrt0" Ethernet interface in host system<br>
+                <br>
+                Internally a reverse proxy is forwarding the web interface from "host-ip:9000" to "172.31.1.1:80"
+            </div>
+
+            <h4 class="mdl-typography--title" style="margin-bottom: 0">Control</h4>
+          
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="fetchJsonFromEndpoint(1)">
+                Reboot
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="fetchJsonFromEndpoint(2)">
+                Hard reset
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="fetchJsonFromEndpoint(3)">
+                Get OpenWrt information
+            </button>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="fetchJsonFromEndpoint(4)">
+                Get container information
+            </button>
+            <!-- <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="fetchJsonFromEndpoint(5)">
+                Hard factory reset
+            </button> -->
+        </div>
+
+        <h4 class="mdl-typography--title" style="margin-bottom: 0">Response</h4>
+        <pre id="response">Click a button to get the response...</pre>
+    </div>
+
+    <script>
+        const endpoints = [
+            'api/reboot',
+            'api/reset',
+            'api/get_openwrt_info',
+            'api/get_container_info',
+            'api/factory_reset'
+        ];
+
+        function fetchJsonFromEndpoint(endpointNumber) {
+            const endpoint = endpoints[endpointNumber - 1];
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    response_data = data['combined_output']
+                    
+                    response_data.replace(/"\{/g, "{");
+                    if(isJsonString(response_data)) { // lets json show nice
+                        json = JSON.parse(response_data);
+                        document.getElementById('response').textContent = JSON.stringify(json, null, 2);
+                    }
+                    else
+                    {
+                        const regex = /\\n|\\r\\n|\\n\\r|\\r/g;
+                        response_data.replace(regex, '<br>');
+                        document.getElementById('response').textContent = response_data;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('response').textContent = `Error: ${error}`;
+                });
+        }
+
+        function isJsonString(str) {
+            try {
+                JSON.parse(str);
+            } catch (e) {
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+</html>

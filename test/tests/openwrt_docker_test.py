@@ -422,3 +422,48 @@ def test_novnc(docker_services):
     response = requests.get("http://localhost:8006/novnc")
     
     assert ('<title>noVNC</title>' in response.content.decode()) == True
+
+
+def test_api_reboot(docker_services):
+    
+    wait_for_openwrt_startup(docker_services)
+
+    response = requests.get("http://localhost:8006/api/reboot")
+
+    assert ('{"command":"/run/qemu_qmp.sh [\\"-R\\"]' in response.content.decode()) == True
+
+
+def test_api_reset(docker_services):
+    
+    wait_for_openwrt_startup(docker_services)
+
+    response = requests.get("http://localhost:8006/api/reset")
+
+    assert ('{"command":"/run/qemu_qmp.sh [\\"-r\\"]' in response.content.decode()) == True
+
+
+def test_api_get_openwrt_info(docker_services):
+    
+    wait_for_openwrt_startup(docker_services)
+
+    response = requests.get("http://localhost:8006/api/get_openwrt_info")
+
+    assert ('{"command":"/run/qemu_qmp.sh [\\"-V\\"]' in response.content.decode()) == True
+
+
+def test_api_get_container_info(docker_services):
+    
+    wait_for_container_startup(docker_services)
+
+    response = requests.get("http://localhost:8006/api/get_container_info")
+
+    assert ('Content of /var/vm/' in response.content.decode()) == True
+
+
+def test_api_get_factory_reset(docker_services):
+    
+    wait_for_container_startup(docker_services)
+
+    response = requests.get("http://localhost:8006/api/factory_reset")
+
+    assert ('{"command":"/run/factory_reset.sh []"' in response.content.decode()) == True

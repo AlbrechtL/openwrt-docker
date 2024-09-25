@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta http-equiv="Cache-Control" content="no-cache" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" href="img/favicon.svg" type="image/x-icon">
+
+        <style>
+            div {
+                text-align:center;
+            }
+            
+            html, body, iframe { height: 99%; }
+
+            iframe {
+                display:inline-block;
+                border: solid;
+            }
+            .grid-container {
+                display: grid;
+                grid-template-columns: 20% 79%;
+                gap: 10px;
+                height: 100%
+            }
+
+            .grid-container > div {
+                text-align: center;
+            }
+
+            .item3 {
+                grid-column: 2;
+            }
+        </style>  
+    </head>
+
+    <body>  
+        <div class="grid-container">
+            <div class="item1">
+                <iframe src=control.html width="100%"></iframe>
+            </div>
+            <div class="item2">
+                <iframe src="novnc/" width="100%"></iframe>
+            </div>
+        </div>
+    </body>
+</html>

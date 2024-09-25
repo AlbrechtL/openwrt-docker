@@ -37,37 +37,22 @@ fi
 if [[ -z "${IS_U_OS_APP}" ]]; then
   info "Detected generic container"
   cp -f /var/www/nginx.conf.generic /etc/nginx/http.d/web.conf
-
-  # Activate script-server
-  sed -i 's/---SED_REPLACEMENT_TAG---/"script-server\/"/g' /var/www/index.html 
 else
   info "Detected u-OS app"
   cp -f  /var/www/nginx.conf.u-os-app /etc/nginx/http.d/web.conf
-
-  # Generate page for meta information
-  echo "* Content of /var/vm/openwrt_metadata.conf *" > /var/www/system_info.txt
-  cat /var/vm/openwrt_metadata.conf >> /var/www/system_info.txt
-  echo $'\n' >> /var/www/system_info.txt
-
-  echo "* Enviroment variables *" >> /var/www/system_info.txt
-  export >> /var/www/system_info.txt
-  echo $'\n' >> /var/www/system_info.txt
-
-  echo "* USB devices *" >> /var/www/system_info.txt
-  lsusb >> /var/www/system_info.txt
-
-  sed -i 's/---SED_REPLACEMENT_TAG---/"system_info.txt"/g' /var/www/index.html 
 fi
 
+# Generate page for meta information
+echo "* Content of /var/vm/openwrt_metadata.conf *" > /var/www/system_info.txt
+cat /var/vm/openwrt_metadata.conf >> /var/www/system_info.txt
+echo $'\n' >> /var/www/system_info.txt
 
-# ******* script-server handling *******
-# Ugly hack to enable iframe usage
-sed -i "s/'X-Frame-Options', 'DENY'/ \
-'X-Frame-Options', 'ALLOWALL'/g" \
-/usr/share/script-server/src/web/server.py 
+echo "* Enviroment variables *" >> /var/www/system_info.txt
+export >> /var/www/system_info.txt
+echo $'\n' >> /var/www/system_info.txt
 
-# Usage of default logging.json'
-cp -f /usr/share/script-server/conf/logging.json /var/script-server/logging.json
+echo "* USB devices *" >> /var/www/system_info.txt
+lsusb >> /var/www/system_info.txt
 
 # ******* nginx handling *******
 cp -r /var/www/* /run/shm
@@ -78,10 +63,10 @@ if [[ $FORWARD_LUCI = "true" ]]; then
     info "Enable LuCI forwading to host LAN at port 9000"
 
     exec multirun \
-    "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
+    "qemu-openwrt-web-backend" \
     "nginx" \
     "/run/run_openwrt.sh" \
-    "nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf"
+    "nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf" \
 
   else
     warn "LuCI forwading is only available if enviroment variable is set to LAN_IF: 'veth'"
@@ -90,6 +75,6 @@ fi
 
 # Start processes
 exec multirun \
-  "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
+  "qemu-openwrt-web-backend" \
   "nginx" \
   "/run/run_openwrt.sh"

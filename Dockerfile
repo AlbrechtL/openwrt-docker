@@ -1,3 +1,42 @@
+########################################################################################################################
+# Build stage for rust backend
+########################################################################################################################
+
+FROM --platform=$BUILDPLATFORM rust:alpine as builder
+
+ARG TARGETPLATFORM
+
+RUN apk update && \
+    apk add --no-cache \
+    musl-dev \
+    gcc
+
+WORKDIR /usr/src/qemu-backend
+COPY ./web-backend .
+
+# Build the application for musl
+RUN rustup target add x86_64-unknown-linux-musl
+RUN cargo build --release --target x86_64-unknown-linux-musl \
+    && cp /usr/src/qemu-backend/target/x86_64-unknown-linux-musl/release/qemu-openwrt-web-backend /usr/local/bin
+
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        rustup target add aarch64-unknown-linux-musl; \
+    else \
+        rustup target add x86_64-unknown-linux-musl; \
+    fi
+
+# Build the application for the specific target architecture
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        cargo build --release --target aarch64-unknown-linux-musl; \
+        cp /usr/src/qemu-backend/target/aarch64-unknown-linux-musl/release/qemu-openwrt-web-backend /usr/local/bin; \
+    else \
+        cargo build --release --target x86_64-unknown-linux-musl; \
+        cp /usr/src/qemu-backend/target/x86_64-unknown-linux-musl/release/qemu-openwrt-web-backend /usr/local/bin; \
+    fi
+
+########################################################################################################################
+# OpenWrt image
+########################################################################################################################
 FROM alpine:latest
 
 ARG NOVNC_VERSION="1.4.0" 
@@ -28,20 +67,14 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         nginx \
         nginx-mod-stream \
         netcat-openbsd \
-        python3 \
-        py3-pip \
-        py3-virtualenv \
         uuidgen \
+        curl \
+        usbutils \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
     && cd /tmp/noVNC-${NOVNC_VERSION}\
     && mv app core vendor package.json *.html /usr/share/novnc \
-    && wget https://github.com/bugy/script-server/releases/download/1.18.0/script-server.zip \
-    && unzip -o script-server.zip -d /usr/share/script-server \
-    && python3 -m venv /var/lib/script-server-env \
-    && source /var/lib/script-server-env/bin/activate \
-    && pip install -r /usr/share/script-server/requirements.txt \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf
     
 # Handle different CPUs architectures and choose the correct OpenWrt images
@@ -104,10 +137,10 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && echo "OPENWRT_IMAGE_ID=\"`uuidgen`\"" >> /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_CPU_ARCH=\"${TARGETPLATFORM}\"" >> /var/vm/openwrt_metadata.conf
 
+COPY --from=builder /usr/local/bin/qemu-openwrt-web-backend /usr/local/bin/qemu-openwrt-web-backend
 COPY ./src /run/
-COPY ./web /var/www/
+COPY ./web-frontend /var/www/
 COPY ./openwrt_additional /var/vm/openwrt_additional
-COPY ./script-server /var/script-server
 
 RUN chmod +x /run/*.sh
 

@@ -1,6 +1,0 @@
-{
-  "name": "7 Container infos",
-  "description": "Get container infos",
-  "script_path": "cat /var/vm/openwrt_metadata.conf"
-}
-

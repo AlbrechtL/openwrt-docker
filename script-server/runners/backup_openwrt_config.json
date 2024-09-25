@@ -1,8 +1,0 @@
-{
-    "name": "1 Backup config",
-    "description": "Backup OpenWrt config. WARNING: OpenWrt will be stopped during this operation.",
-    "script_path": "/run/backup_openwrt_config.sh",
-    "output_files": [
-        "/tmp/openwrt_config.tar.gz"
-    ]
-}
