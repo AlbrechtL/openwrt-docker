@@ -35,7 +35,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
 ########################################################################################################################
 FROM alpine:latest
 
-ARG NOVNC_VERSION="1.4.0" 
+ARG NOVNC_VERSION="1.5.0" 
 ARG OPENWRT_VERSION="23.05.5"
 ARG VERSION_ARG="0.1"
 ARG TARGETPLATFORM
