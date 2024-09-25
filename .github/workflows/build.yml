@@ -12,7 +12,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      OPENWRT_VERSION: 23.05.4
+      OPENWRT_VERSION: 23.05.5
 
     services:
       registry:
