@@ -7,9 +7,10 @@ on:
         - completed
 
 jobs:
-  build:
+  testing:
     name: Test
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Runs only when build was sucessfull
     
     steps:
       - name: Install VMs
