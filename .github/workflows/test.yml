@@ -96,12 +96,12 @@ jobs:
 
 
       - name: Run tests
-        continue-on-error: true
         run: |
           # Run pytest
           multipass exec router-vm -- sh -c 'cd test/ && ~/.local/bin/pytest -v -s --html=report.html --self-contained-html'
 
       - name: Archive test report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: Test report
