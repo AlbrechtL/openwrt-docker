@@ -89,7 +89,7 @@ jobs:
 
           echo '******** router-vm IPs ********'
           multipass exec router-vm -- sudo ip addr add 192.168.22.99/24 dev ens4
-          multipass exec router-vm -- sudo ip addr add 172.31.1.99/24 dev ens5
+          multipass exec router-vm -- sudo ip addr add 172.31.22.99/24 dev ens5
           multipass exec router-vm -- ip addr
 
           echo '******** Test connection between router-vm, lan-vm and wan-vm ********'
