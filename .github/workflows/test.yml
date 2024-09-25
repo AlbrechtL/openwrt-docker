@@ -79,6 +79,7 @@ jobs:
           # Prepare LAN VM
           echo '******** lan-vm IPs ********'
           multipass exec lan-vm -- sudo ip addr add 172.31.1.2/24 dev ens4
+          multipass exec lan-vm -- sudo ip addr add 172.31.22.2/24 dev ens4
           multipass exec lan-vm -- ip addr
 
           # Double check if virtual networks are working
@@ -93,7 +94,7 @@ jobs:
 
           echo '******** Test connection between router-vm, lan-vm and wan-vm ********'
           multipass exec router-vm -- ping -c 1 192.168.22.1 # to wan-vm
-          multipass exec router-vm -- ping -c 1 172.31.1.2 # to lan-vm
+          multipass exec router-vm -- ping -c 1 172.31.22.2 # to lan-vm
 
 
       - name: Run tests
