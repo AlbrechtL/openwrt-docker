@@ -58,23 +58,19 @@ lsusb >> /var/www/system_info.txt
 cp -r /var/www/* /run/shm
 
 # ******* LuCi forwarding handling *******
-if [[ $FORWARD_LUCI = "true" ]]; then
-  if [[ $LAN_IF = "veth" ]]; then
-    info "Enable LuCI forwading to host LAN at port 9000"
-
-    exec multirun \
-    "qemu-openwrt-web-backend" \
-    "nginx" \
-    "/run/run_openwrt.sh" \
-    "nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf" \
-
-  else
-    warn "LuCI forwading is only available if enviroment variable is set to LAN_IF: 'veth'"
+if [[ $FORWARD_LUCI = "true" && $LAN_IF = "veth" ]]; then
+  info "Enable LuCI forwarding to host LAN at port 9000"
+  LUCI_COMMAND="nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf"
+else
+  if [[ $FORWARD_LUCI = "true" ]]; then
+    warn "LuCI forwarding is only available if environment variable is set to LAN_IF: 'veth'"
   fi
+  LUCI_COMMAND=""
 fi
 
 # Start processes
 exec multirun \
   "qemu-openwrt-web-backend" \
   "nginx" \
-  "/run/run_openwrt.sh"
+  "/run/run_openwrt.sh" \
+  $LUCI_COMMAND
