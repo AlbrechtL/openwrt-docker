@@ -77,21 +77,19 @@ if [[ $FORWARD_LUCI = "true" ]]; then
   if [[ $LAN_IF = "veth" ]]; then
     info "Enable LuCI forwading to host LAN at port 9000"
 
-    multirun \
+    exec multirun \
     "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
     "nginx" \
     "/run/run_openwrt.sh" \
     "nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf"
 
   else
-    error "LuCI forwading is only available if enviroment variable is set to LAN_IF: 'veth'"
+    warn "LuCI forwading is only available if enviroment variable is set to LAN_IF: 'veth'"
   fi
-else
-
-  # Start processes
-  multirun \
-    "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
-    "nginx" \
-    "/run/run_openwrt.sh"
-
 fi
+
+# Start processes
+exec multirun \
+  "/var/lib/script-server-env/bin/python /usr/share/script-server/launcher.py -d /var/script-server" \
+  "nginx" \
+  "/run/run_openwrt.sh"
