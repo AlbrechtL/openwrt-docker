@@ -1,6 +1,6 @@
 polling2
 pytest
 pytest-docker
-requests
+requests[security]
 pyyaml
 pytest-html
