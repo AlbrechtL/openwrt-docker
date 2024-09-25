@@ -160,10 +160,10 @@ def is_openwrt_booted():
 def get_logs():
     process = subprocess.run(['docker','logs','openwrt'], 
         stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
         universal_newlines=True)
     
-    return process.stdout + process.stderr
+    return process.stdout
 
 def is_specific_log(log_text):
     return log_text in get_logs()
@@ -192,9 +192,13 @@ def test_openwrt_booted(docker_services):
     [('LAN_IF','veth'),('LAN_IF','ens5')], indirect=True,
     ids=['LAN_IF=veth', 'LAN_IF=ens5'])
 def test_openwrt_lan(docker_services, parameter):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+    try:
+        docker_services.wait_until_responsive(
+            timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
+        )
+    except Exception as excinfo:
+            os.system(f"docker logs openwrt")
+            pytest.fail(f"Unexpected exception raised: {excinfo}")
     
     match parameter[1]:
         case 'veth':
@@ -259,6 +263,7 @@ def test_nginx_luci_forwarding_access(docker_services, parameter):
 
     if parameter[1] == 'true':
         try:
+            time.sleep(10) # Give OpenWrt some extra time to boot up finally
             response = requests.get("https://localhost:9000", verify=False)
             assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
         except Exception as excinfo:  
