@@ -38,7 +38,7 @@ services:
       # Use script /usr/bin/fw_wan_open_ssh to open the port
       - 8022:8022
     stop_grace_period: 2m
-    restart: on-failure
+    #restart: on-failure
     
     # The following settings are mandatory to run the container
     devices:

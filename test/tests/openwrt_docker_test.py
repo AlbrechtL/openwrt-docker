@@ -53,17 +53,6 @@ def docker_compose_file(pytestconfig, parameter, docker_compose_project_name):
 
     return compose_file
 
-
-def is_container_running():
-    try:
-        response = requests.get("http://localhost:8006")
-        if response.status_code == 200:
-            return True
-        else:
-         return False   
-    except Exception:
-        return False
-
 def run_openwrt_shell_command(command, *arg):
     # Add double quotes
     command = "\"" + command + "\""
@@ -149,14 +138,6 @@ def get_openwrt_info():
 
     return info['return']
 
-def is_openwrt_booted():
-    service_status = get_openwrt_info()
-
-    if service_status != None:
-        return True
-    else:
-        return False
-
 def get_logs():
     process = subprocess.run(['docker','logs','openwrt'], 
         stdout=subprocess.PIPE, 
@@ -165,22 +146,87 @@ def get_logs():
     
     return process.stdout
 
+def get_container_status():
+    process = subprocess.run(['docker','inspect','openwrt'], 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.STDOUT,
+        universal_newlines=True)
+    
+    ret = json.loads(process.stdout)
+    status = ret[0]['State']['Status']
+
+    if(status != 'running'):
+        raise Exception(f"Container not running. Status '{status}'")
+    
+    return True
+
+def is_openwrt_booted():
+    if get_container_status() == False:
+        return False
+    
+    service_status = get_openwrt_info()
+
+    if service_status != None:
+        return True
+    else:
+        return False
+    
 def is_specific_log(log_text):
+    if get_container_status() == False:
+        return False
+    
     return log_text in get_logs()
+
+def is_container_running():
+    if get_container_status() == False:
+        return False
+
+    try:
+        response = requests.get("http://localhost:8006")
+        if response.status_code == 200:
+            return True
+        else:
+         return False   
+    except Exception:
+        return False
+
+def wait_for_container_startup(docker_services):
+    try:
+        docker_services.wait_until_responsive(
+            timeout=90.0, pause=1, check=lambda: is_container_running()
+        )
+    except Exception as excinfo:
+            print(get_logs())
+            pytest.fail(f"Unexpected exception raised: {excinfo}")
+
+def wait_for_openwrt_startup(docker_services):
+    try:
+        docker_services.wait_until_responsive(
+            timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
+        )
+    except Exception as excinfo:
+            print(get_logs())
+            pytest.fail(f"Unexpected exception raised: {excinfo}")
+
+def wait_for_specific_log(docker_services, log):
+    try:
+        docker_services.wait_until_responsive(
+        timeout=90.0, pause=1, check=lambda: is_specific_log(log)
+    )
+    except Exception as excinfo:
+            print(get_logs())
+            pytest.fail(f"Unexpected exception raised: {excinfo}")
 
 # ************************ Tests ************************
 
 def test_basic_container_start(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=30.0, pause=0.5, check=lambda: is_container_running()
-    )
+    wait_for_container_startup(docker_services)
+
     return
 
 
 def test_openwrt_booted(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+    wait_for_openwrt_startup(docker_services)
 
     info = get_openwrt_info()
     print(f"Running '{info['pretty-name'].rstrip()}'", end=' ')
@@ -192,13 +238,8 @@ def test_openwrt_booted(docker_services):
     [('LAN_IF','veth'),('LAN_IF','ens5')], indirect=True,
     ids=['LAN_IF=veth', 'LAN_IF=ens5'])
 def test_openwrt_lan(docker_services, parameter):
-    try:
-        docker_services.wait_until_responsive(
-            timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-        )
-    except Exception as excinfo:
-            os.system(f"docker logs openwrt")
-            pytest.fail(f"Unexpected exception raised: {excinfo}")
+
+    wait_for_openwrt_startup(docker_services)
     
     match parameter[1]:
         case 'veth':
@@ -209,7 +250,7 @@ def test_openwrt_lan(docker_services, parameter):
             return
 
         case _: # Usage of real Ethernet interface e.g. 'eth0'
-            # This test is most likely only working in a github action enviroment because multiple VM are necessary to test it. See the action file, please.
+            # This test is most likely only working in a github action environment because multiple VM are necessary to test it. See the action file, please.
             # Try to ping LAN-VM
             response = run_openwrt_shell_command("ping", "-c1", "-W2", "-w2", "172.31.1.2")
             assert response['exitcode'] == 0
@@ -222,9 +263,8 @@ def test_openwrt_lan(docker_services, parameter):
     [('WAN_IF','host'),('WAN_IF','none'),('WAN_IF','ens4')], indirect=True,
     ids=['WAN_IF=host', 'WAN_IF=none', 'WAN_IF=ens4'])
 def test_openwrt_wan(docker_services, parameter):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+
+    wait_for_openwrt_startup(docker_services)
     
     match parameter[1]:
         case 'host':
@@ -257,9 +297,8 @@ def test_openwrt_wan(docker_services, parameter):
     [('FORWARD_LUCI','true'),('FORWARD_LUCI','false')], indirect=True,
     ids=['FORWARD_LUCI=true', 'FORWARD_LUCI=false'])
 def test_nginx_luci_forwarding_access(docker_services, parameter):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+    
+    wait_for_openwrt_startup(docker_services)
 
     if parameter[1] == 'true':
         try:
@@ -281,9 +320,8 @@ def test_nginx_luci_forwarding_access(docker_services, parameter):
     [('CPU_COUNT',1),('CPU_COUNT',2),('CPU_COUNT',3),('CPU_COUNT',4)], indirect=True,
     ids=['CPU_COUNT=1', 'CPU_COUNT=2', 'CPU_COUNT=3', 'CPU_COUNT=4'])
 def test_cpu_num(docker_services, parameter):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+    
+    wait_for_openwrt_startup(docker_services)
     
     # Get number of processors
     response = run_openwrt_shell_command("cat", "/proc/cpuinfo")
@@ -308,9 +346,7 @@ def test_additional_installed_packages(docker_services):
         package_list_docker.append(package)
 
     # Get list of installed packages in OpenWrt
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+    wait_for_openwrt_startup(docker_services)
     response = run_openwrt_shell_command("opkg", "list-installed")
 
     assert response['exitcode'] == 0
@@ -328,9 +364,7 @@ def test_additional_installed_packages(docker_services):
     [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
     ids=['20240922_test_volume_openwrt_23.05.4'])
 def test_openwrt_migrate_existing_volume(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_specific_log('Booting image using QEMU emulator')
-    )
+    wait_for_specific_log(docker_services, 'Booting image using QEMU emulator')
 
     assert ('upgrade: Saving config files' in get_logs()) == True
     assert ('upgrade: Restoring config files' in get_logs()) == True
@@ -340,9 +374,8 @@ def test_openwrt_migrate_existing_volume(docker_services):
     [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
     ids=['20240922_test_volume_openwrt_23.05.4'])
 def test_openwrt_migrate_settings(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+    
+    wait_for_openwrt_startup(docker_services)
 
     # Here we test a custom configuration that is stored in the existing volume.
     # Currently hostname and an additional interface are configured.
@@ -357,18 +390,16 @@ def test_openwrt_migrate_settings(docker_services):
 
 
 def test_kvm(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_specific_log('Checking for KVM')
-    )
+
+    wait_for_specific_log(docker_services, 'Checking for KVM')
 
     time.sleep(1)
     assert ('KVM detected' in get_logs()) == True
 
 
 def test_alpine_version_output(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_specific_log('Booting image using QEMU emulator')
-    )
+    
+    wait_for_specific_log(docker_services, 'Booting image using QEMU emulator')
 
     logs = get_logs()
     assert ('NAME="Alpine Linux"' in logs) == True
@@ -378,9 +409,8 @@ def test_alpine_version_output(docker_services):
 
 
 def test_novnc(docker_services):
-    docker_services.wait_until_responsive(
-        timeout=90.0, pause=1, check=lambda: is_openwrt_booted()
-    )
+
+    wait_for_openwrt_startup(docker_services)
 
     # Here we only test if novnc is running, not if the connection to qemu is successful. To test this selenium is necessary.
     response = requests.get("http://localhost:8006/novnc")

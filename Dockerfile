@@ -104,7 +104,6 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && echo "OPENWRT_IMAGE_ID=\"`uuidgen`\"" >> /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_CPU_ARCH=\"${TARGETPLATFORM}\"" >> /var/vm/openwrt_metadata.conf
 
-COPY supervisord.conf /etc/supervisord.conf
 COPY ./src /run/
 COPY ./web /var/www/
 COPY ./openwrt_additional /var/vm/openwrt_additional
