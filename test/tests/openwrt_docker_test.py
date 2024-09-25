@@ -306,8 +306,12 @@ def test_nginx_luci_forwarding_access(docker_services, parameter):
             assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
         except Exception as excinfo:
             #print(get_logs())
-            os.system("ping -c 1 172.31.1.1")
             os.system("ip addr")
+            os.system("ping -c 1 172.31.1.1")
+            
+            print(run_openwrt_shell_command("ip", "addr")['out-data'])
+            print(run_openwrt_shell_command("ping", "-c1", "-W2", "-w2", "172.31.1.2")['out-data'])
+            
             pytest.fail(f"Unexpected exception raised: {excinfo}")
 
     if parameter[1] == 'false':
