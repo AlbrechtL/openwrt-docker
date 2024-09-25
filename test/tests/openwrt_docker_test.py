@@ -302,10 +302,10 @@ def test_nginx_luci_forwarding_access(docker_services, parameter):
 
     if parameter[1] == 'true':
         try:
-            time.sleep(10) # Give OpenWrt some extra time to boot up finally
             response = requests.get("https://localhost:9000", verify=False)
             assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
-        except Exception as excinfo:  
+        except Exception as excinfo:
+            print(get_logs())
             pytest.fail(f"Unexpected exception raised: {excinfo}")
 
     if parameter[1] == 'false':
