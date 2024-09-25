@@ -15,10 +15,6 @@ WORKDIR /usr/src/qemu-backend
 COPY ./web-backend .
 
 # Build the application for musl
-RUN rustup target add x86_64-unknown-linux-musl
-RUN cargo build --release --target x86_64-unknown-linux-musl \
-    && cp /usr/src/qemu-backend/target/x86_64-unknown-linux-musl/release/qemu-openwrt-web-backend /usr/local/bin
-
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         rustup target add aarch64-unknown-linux-musl; \
     else \
@@ -39,7 +35,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
 ########################################################################################################################
 FROM alpine:latest
 
-ARG NOVNC_VERSION="1.5.0" 
+ARG NOVNC_VERSION="1.4.0" 
 ARG OPENWRT_VERSION="23.05.5"
 ARG VERSION_ARG="0.1"
 ARG TARGETPLATFORM
