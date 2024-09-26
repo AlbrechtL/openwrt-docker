@@ -238,7 +238,6 @@ def test_openwrt_booted(docker_services):
     [('LAN_IF','veth'),('LAN_IF','ens5')], indirect=True,
     ids=['LAN_IF=veth', 'LAN_IF=ens5'])
 def test_openwrt_lan(docker_services, parameter):
-
     wait_for_openwrt_startup(docker_services)
     
     match parameter[1]:
@@ -263,7 +262,6 @@ def test_openwrt_lan(docker_services, parameter):
     [('WAN_IF','host'),('WAN_IF','none'),('WAN_IF','ens4')], indirect=True,
     ids=['WAN_IF=host', 'WAN_IF=none', 'WAN_IF=ens4'])
 def test_openwrt_wan(docker_services, parameter):
-
     wait_for_openwrt_startup(docker_services)
     
     match parameter[1]:
@@ -297,7 +295,6 @@ def test_openwrt_wan(docker_services, parameter):
     [('FORWARD_LUCI','true'),('FORWARD_LUCI','false')], indirect=True,
     ids=['FORWARD_LUCI=true', 'FORWARD_LUCI=false'])
 def test_nginx_luci_forwarding_access(docker_services, parameter):
-    
     wait_for_openwrt_startup(docker_services)
 
     if parameter[1] == 'true':
@@ -326,18 +323,14 @@ def test_nginx_luci_forwarding_access(docker_services, parameter):
     [('CPU_COUNT',1),('CPU_COUNT',2),('CPU_COUNT',3),('CPU_COUNT',4)], indirect=True,
     ids=['CPU_COUNT=1', 'CPU_COUNT=2', 'CPU_COUNT=3', 'CPU_COUNT=4'])
 def test_cpu_num(docker_services, parameter):
-    
     wait_for_openwrt_startup(docker_services)
-    
     # Get number of processors
     response = run_openwrt_shell_command("cat", "/proc/cpuinfo")
     cpu_num = response['out-data'].count('processor')
-        
     assert parameter[1] == cpu_num
 
 
 def test_additional_installed_packages(docker_services):
-
     # Get list of packages to be installed in OpenWrt
     process = subprocess.run(['docker','exec','openwrt','ls','/var/vm/packages'], 
                          stdout=subprocess.PIPE, 
@@ -358,7 +351,6 @@ def test_additional_installed_packages(docker_services):
     assert response['exitcode'] == 0
 
     package_list_openwrt_full = response['out-data'].splitlines()
-
     print(f"'{len(package_list_docker)}' additional installed packages", end=' ')
 
     # Check if all additional OpenWrt packages in Docker image are installed in OpenWrt
@@ -380,7 +372,6 @@ def test_openwrt_migrate_existing_volume(docker_services):
     [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
     ids=['20240922_test_volume_openwrt_23.05.4'])
 def test_openwrt_migrate_settings(docker_services):
-    
     wait_for_openwrt_startup(docker_services)
 
     # Here we test a custom configuration that is stored in the existing volume.
@@ -396,15 +387,12 @@ def test_openwrt_migrate_settings(docker_services):
 
 
 def test_kvm(docker_services):
-
     wait_for_specific_log(docker_services, 'Checking for KVM')
-
     time.sleep(1)
     assert ('KVM detected' in get_logs()) == True
 
 
 def test_alpine_version_output(docker_services):
-    
     wait_for_specific_log(docker_services, 'Booting image using QEMU emulator')
 
     logs = get_logs()
@@ -415,55 +403,39 @@ def test_alpine_version_output(docker_services):
 
 
 def test_novnc(docker_services):
-
     wait_for_openwrt_startup(docker_services)
-
     # Here we only test if novnc is running, not if the connection to qemu is successful. To test this selenium is necessary.
     response = requests.get("http://localhost:8006/novnc")
-    
     assert ('<title>noVNC</title>' in response.content.decode()) == True
 
 
 def test_api_reboot(docker_services):
-    
     wait_for_openwrt_startup(docker_services)
-
     response = requests.get("http://localhost:8006/api/reboot")
-
     assert ('{"command":"/run/qemu_qmp.sh [\\"-R\\"]' in response.content.decode()) == True
 
 
 def test_api_reset(docker_services):
-    
     wait_for_openwrt_startup(docker_services)
-
     response = requests.get("http://localhost:8006/api/reset")
-
     assert ('{"command":"/run/qemu_qmp.sh [\\"-r\\"]' in response.content.decode()) == True
 
 
 def test_api_get_openwrt_info(docker_services):
-    
     wait_for_openwrt_startup(docker_services)
-
     response = requests.get("http://localhost:8006/api/get_openwrt_info")
-
     assert ('{"command":"/run/qemu_qmp.sh [\\"-V\\"]' in response.content.decode()) == True
 
 
-def test_api_get_container_info(docker_services):
-    
+def test_api_get_container_info(docker_services):  
     wait_for_container_startup(docker_services)
-
     response = requests.get("http://localhost:8006/api/get_container_info")
-
     assert ('Content of /var/vm/' in response.content.decode()) == True
 
 
 def test_api_get_factory_reset(docker_services):
-    
     wait_for_container_startup(docker_services)
-
     response = requests.get("http://localhost:8006/api/factory_reset")
-
     assert ('{"command":"/run/factory_reset.sh []"' in response.content.decode()) == True
+
+
