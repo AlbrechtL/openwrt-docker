@@ -114,8 +114,8 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && cp /etc/resolv.conf /tmp/openwrt-rootfs/etc/resolv.conf \
     && chroot /tmp/openwrt-rootfs mkdir -p /var/lock \
     && chroot /tmp/openwrt-rootfs opkg update \
-    # Download Luci and qemu guest agent \
-    && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci usbutils --download-only \
+    # Download Luci, qemu guest agent and mDNS support \
+    && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci umdns --download-only \
     # Download Wi-Fi access point support and Wi-Fi USB devices support \
     && chroot /tmp/openwrt-rootfs opkg install hostapd wpa-supplicant kmod-mt7921u --download-only \
     # Download celluar network support \
