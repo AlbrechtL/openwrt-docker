@@ -52,7 +52,9 @@ export >> /var/www/system_info.txt
 echo $'\n' >> /var/www/system_info.txt
 
 echo "* USB devices *" >> /var/www/system_info.txt
+set +e # Enable that the next command can fail
 lsusb >> /var/www/system_info.txt
+set -e # Revert set +a
 
 # ******* nginx handling *******
 cp -r /var/www/* /run/shm
@@ -65,7 +67,7 @@ else
   if [[ $FORWARD_LUCI = "true" ]]; then
     warn "LuCI forwarding is only available if environment variable is set to LAN_IF: 'veth'"
   fi
-  LUCI_COMMAND=""
+  LUCI_COMMAND="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run. 
 fi
 
 # Start processes
@@ -73,4 +75,4 @@ exec multirun \
   "qemu-openwrt-web-backend" \
   "nginx" \
   "/run/run_openwrt.sh" \
-  $LUCI_COMMAND
+  "$LUCI_COMMAND"
