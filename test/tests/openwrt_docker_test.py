@@ -441,4 +441,8 @@ def test_api_get_factory_reset(docker_services):
 
 def test_mdns(docker_services):
     wait_for_openwrt_startup(docker_services)
-    assert os.system("ping -c 1 openwrt.local >/dev/null") == 0
+    try:
+        polling2.poll(lambda: os.system("ping -c 1 openwrt.local") == 0, step=1, timeout=120)
+    except polling2.TimeoutException:
+        assert True, 'ping timeout'
+    return

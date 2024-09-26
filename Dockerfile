@@ -63,6 +63,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         nginx \
         nginx-mod-stream \
         netcat-openbsd \
+        tcpdump \
         uuidgen \
         curl \
         usbutils \
