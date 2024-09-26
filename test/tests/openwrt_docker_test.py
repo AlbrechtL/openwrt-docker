@@ -439,3 +439,6 @@ def test_api_get_factory_reset(docker_services):
     assert ('{"command":"/run/factory_reset.sh []"' in response.content.decode()) == True
 
 
+def test_mdns(docker_services):
+    wait_for_openwrt_startup(docker_services)
+    assert os.system("ping -c 1 openwrt.local >/dev/null") == 0
