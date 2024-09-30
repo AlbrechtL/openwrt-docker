@@ -44,7 +44,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -59,16 +59,11 @@ jobs:
             albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }}
             albrechtloh/openwrt-docker:latest
             localhost:5000/local/openwrt-docker:latest
+          outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
 
       - name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/local/openwrt-docker:latest
-
-      - name: Build and export
-        uses: docker/build-push-action@v6
-        with:
-          tags: localhost:5000/local/openwrt-docker:latest
-          outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
