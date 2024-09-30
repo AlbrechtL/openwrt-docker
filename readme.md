@@ -20,15 +20,16 @@ OpenWrt in a docker container utilizing qemu. Tested on Raspberry Pi 5 and Weidm
 ## Pre-installed OpenWrt software packages
 
 Because OpenWrt doesn't provide a user installed package update mechanism all required packages needs to be included into the OpenWrt rootfs image. This Docker images adds the following software to the OpenWrt rootfs:
-* Luci Web interface
-* ssh server
-* Wi-Fi client and access point support
-* Wireguard
+ - Luci Web interface
+ - ssh server
+ - Wi-Fi client and access point support
+ - Wireguard
+ - mDNS support
 
 ### Supported USB devices
 
-* Mediathek MT7961AU Wi-Fi 6 AX chipset based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
-* SIMCOM SIM8262E-M2 based devices (Multi-Band 5G NR/LTE-FDD/LTE-TDD/HSPA+ modem)
+ - Mediathek MT7961AU Wi-Fi 6 AX chipset based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
+ - SIMCOM SIM8262E-M2 based devices (Multi-Band 5G NR/LTE-FDD/LTE-TDD/HSPA+ modem)
 
 ## Usage
 
