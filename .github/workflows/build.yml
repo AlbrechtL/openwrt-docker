@@ -44,7 +44,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -66,6 +66,9 @@ jobs:
 
       - name: Build and export
         uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
         with:
           tags: localhost:5000/local/openwrt-docker:latest
           outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
