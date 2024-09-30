@@ -3,12 +3,10 @@
 
 use std::process::Command;
 use tide::{Request, Response, StatusCode, Next};
-use tide::http::{Method};
 use serde::Serialize;
 use std::str;
 use std::future::Future;
 use std::pin::Pin;
-use std::sync::Arc;
 
 #[derive(Serialize)]
 struct JsonResponse {

@@ -4,4 +4,3 @@ test/__pycache__/
 test/tests/.pytest_cache/
 .venv
 web-backend/target
-web-backend/Cargo.lock
