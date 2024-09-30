@@ -64,6 +64,18 @@ jobs:
         run: |
           docker buildx imagetools inspect localhost:5000/local/openwrt-docker:latest
 
+      - name: Build and export
+        uses: docker/build-push-action@v6
+        with:
+          tags: localhost:5000/local/openwrt-docker:latest
+          outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: OpenWrt Docker Image
+          path: /tmp/openwrt-docker-image.tar
+
       - name: Login to Weidmueller wmucdev
         uses: docker/login-action@v3
         with:
