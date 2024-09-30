@@ -121,4 +121,67 @@ jobs:
           name: OpenWrt u-OS app
           path: u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
           if-no-files-found: error
-  
+
+
+  sbom:
+    name: SBOM generation
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate alpine SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: albrechtloh/openwrt-docker:latest
+          upload-artifact: false
+          format: cyclonedx-json
+          output-file: alpine_sbom.json
+
+      - name: Prepare OpenWrt rootfs
+        run: |
+          # Run OpenWrt container for some time to install additional IPKs
+          set +e # Enable that the next command can fail
+          timeout --preserve-status 30 docker compose up
+          set -e # Revert set +e
+
+          # Get image from volume
+          sudo find /var/lib/docker/volumes/
+          IMAGE=$(sudo cat /var/lib/docker/volumes/openwrt-docker_data/_data/current_version)
+          echo $IMAGE
+
+          # Mount volume
+          sudo mount /var/lib/docker/volumes/openwrt-docker_data/_data/$IMAGE /mnt
+
+      - name: Generate OpenWrt SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: /mnt
+          upload-artifact: false
+          format: cyclonedx-json
+          output-file: openwrt_sbom.json
+
+      - name: Generate web-frontend SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: web-frontend
+          upload-artifact: false
+          format: cyclonedx-json
+          output-file: web-frontend_sbom.json
+
+      - name: Generate web-backend SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: web-backend
+          upload-artifact: false
+          format: cyclonedx-json
+          output-file: web-backend_sbom.json
+
+      - name: Archive artifacts (SBOMs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Software Bill of Material (SBOM)
+          path: ./*.json
+          if-no-files-found: error
