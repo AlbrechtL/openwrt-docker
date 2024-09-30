@@ -2,7 +2,7 @@
 # Build stage for rust backend
 ########################################################################################################################
 
-FROM rust:alpine as builder
+FROM rust:alpine AS builder
 
 ARG TARGETPLATFORM
 
