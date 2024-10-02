@@ -4,4 +4,4 @@ pytest-docker
 requests[security]
 pyyaml
 pytest-html
-paramiko
+paramiko[all]

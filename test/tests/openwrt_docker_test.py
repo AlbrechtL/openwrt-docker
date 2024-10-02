@@ -236,8 +236,8 @@ def test_openwrt_booted(docker_services):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('LAN_IF','veth'),('LAN_IF','ens5'),('LAN_IF','')], indirect=True,
-    ids=['LAN_IF=veth', 'LAN_IF=ens5', 'LAN_IF=""'])
+    [('LAN_IF','veth'),('LAN_IF','ens5'),('LAN_IF',''),('LAN_IF','host')], indirect=True,
+    ids=['LAN_IF=veth', 'LAN_IF=ens5', 'LAN_IF=""', 'LAN_IF="host"'])
 def test_openwrt_lan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
     
@@ -249,14 +249,14 @@ def test_openwrt_lan(docker_services, parameter):
                 assert True, 'ping timeout'
             return
 
-        case "":
-            response = run_openwrt_shell_command("ip", "addr")
+        case '' | 'host':
+            response = run_openwrt_shell_command("ip", "addr", "add", "192.168.1.15/24", "dev", "br-lan")
             assert response['exitcode'] == 0
 
-            # Look for eth0      
-            assert ('eth0' in response['out-data']) == True
+            response = run_openwrt_shell_command("ping", "-c1", "-W2", "-w2", "192.168.1.2")
+            assert response['exitcode'] == 0
             return
-
+        
         case _: # Usage of real Ethernet interface e.g. 'eth0'
             # This test is most likely only working in a github action environment because multiple VM are necessary to test it. See the action file, please.
             # Try to ping LAN-VM
@@ -274,18 +274,12 @@ def test_openwrt_wan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
     
     match parameter[1]:
-        case 'host':
+        case '' | 'host':
             # For some reason ping is not working at github actions, so use nslookup to test internet connection
             response = run_openwrt_shell_command("nslookup", "google.com")
             assert response['exitcode'] == 0
             return
         
-        case '':
-            # For some reason ping is not working at github actions, so use nslookup to test internet connection
-            response = run_openwrt_shell_command("nslookup", "google.com")
-            assert response['exitcode'] == 0
-            return
-
         case 'none':
             # We are looking for eth1. It should not existing
             response = run_openwrt_shell_command("ip", "addr")        
@@ -457,7 +451,7 @@ def test_api_get_factory_reset(docker_services):
 def test_mdns(docker_services):
     wait_for_openwrt_startup(docker_services)
     try:
-        polling2.poll(lambda: os.system("ping -c 1 openwrt.local >/dev/null") == 0, step=1, timeout=240)
+        polling2.poll(lambda: os.system("ping -c 1 openwrt.local >/dev/null 2>/dev/null") == 0, step=1, timeout=240)
     except polling2.TimeoutException:
         assert True, 'ping timeout'
     return
