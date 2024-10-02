@@ -148,7 +148,7 @@ fi
 
 # Attach physical PHY to container
 LAN_ARGS=""
-if [[ -z "${LAN_IF}" ]]; then
+if [[ -z "${LAN_IF}" || $LAN_IF = "host" ]]; then
   LAN_ARGS="-device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24"
 elif [[ $LAN_IF = "veth" ]]; then
   attach_veth_if veth-openwrt0 veth1 qlan1
