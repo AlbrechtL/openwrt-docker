@@ -9,7 +9,6 @@ import base64
 import time
 import yaml
 import re
-import paramiko
 
 # Workaround to make parameters global accessible
 @pytest.fixture(scope='session')
@@ -479,18 +478,9 @@ def test_port_8022_ssh(docker_services):
     response = run_openwrt_shell_command("fw_wan_open_ssh", "")
     assert response['exitcode'] == 0
     
-    try:
-        try:
-            ssh = paramiko.client.SSHClient()
-            user = "root"
-            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-            ssh.connect("127.0.0.1", 8022, username=user, password=None, look_for_keys=False)
-        except paramiko.ssh_exception.AuthenticationException as e: # Paramiko can't handle password less login, we have to use a workaround
-            ssh.get_transport().auth_none(user)
-            stdout = ssh.exec_command("cat /etc/banner")[1].readlines()
-            assert ('OpenWrt' in stdout[6]) == True
-            return
-    except Exception as excinfo:
-        print(get_logs())
-        pytest.fail(f"Unexpected exception raised: {excinfo}")
+    process = subprocess.run(['timeout','2','ssh','root@localhost','-p 8022','-oStrictHostKeyChecking=no'], 
+        stdout=subprocess.PIPE, 
+        stderr=subprocess.STDOUT,
+        universal_newlines=True)
+    
+    assert ('OpenWrt' in process.stdout) == True
