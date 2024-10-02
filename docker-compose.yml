@@ -18,6 +18,7 @@ services:
       CPU_COUNT: 2
 
       # Define which physical or virtual interfaces shall be attach direct to OpenWrt
+      # If WAN_IF is missing then "host" mode is selected
       WAN_IF: "host" # Usage of container host Ethernet connection as WAN. WARNING: Bad performace because of user space Ethernet implementation.
       #WAN_IF: "none" # No WAN interface defined. This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
       #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
