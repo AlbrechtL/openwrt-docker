@@ -9,6 +9,7 @@ import base64
 import time
 import yaml
 import re
+import paramiko
 
 # Workaround to make parameters global accessible
 @pytest.fixture(scope='session')
@@ -235,8 +236,8 @@ def test_openwrt_booted(docker_services):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('LAN_IF','veth'),('LAN_IF','ens5')], indirect=True,
-    ids=['LAN_IF=veth', 'LAN_IF=ens5'])
+    [('LAN_IF','veth'),('LAN_IF','ens5'),('LAN_IF','')], indirect=True,
+    ids=['LAN_IF=veth', 'LAN_IF=ens5', 'LAN_IF=""'])
 def test_openwrt_lan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
     
@@ -246,6 +247,14 @@ def test_openwrt_lan(docker_services, parameter):
                 response = polling2.poll(lambda: os.system("ping -c 1 172.31.1.1 >/dev/null") == 0, step=1, timeout=90)
             except polling2.TimeoutException:
                 assert True, 'ping timeout'
+            return
+
+        case "":
+            response = run_openwrt_shell_command("ip", "addr")
+            assert response['exitcode'] == 0
+
+            # Look for eth0      
+            assert ('eth0' in response['out-data']) == True
             return
 
         case _: # Usage of real Ethernet interface e.g. 'eth0'
@@ -259,13 +268,19 @@ def test_openwrt_lan(docker_services, parameter):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('WAN_IF','host'),('WAN_IF','none'),('WAN_IF','ens4')], indirect=True,
-    ids=['WAN_IF=host', 'WAN_IF=none', 'WAN_IF=ens4'])
+    [('WAN_IF','host'),('WAN_IF','none'),('WAN_IF','ens4'),('WAN_IF','')], indirect=True,
+    ids=['WAN_IF=host', 'WAN_IF=none', 'WAN_IF=ens4', 'WAN_IF=""'])
 def test_openwrt_wan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
     
     match parameter[1]:
         case 'host':
+            # For some reason ping is not working at github actions, so use nslookup to test internet connection
+            response = run_openwrt_shell_command("nslookup", "google.com")
+            assert response['exitcode'] == 0
+            return
+        
+        case '':
             # For some reason ping is not working at github actions, so use nslookup to test internet connection
             response = run_openwrt_shell_command("nslookup", "google.com")
             assert response['exitcode'] == 0
@@ -446,3 +461,42 @@ def test_mdns(docker_services):
     except polling2.TimeoutException:
         assert True, 'ping timeout'
     return
+
+
+@pytest.mark.parametrize("parameter", 
+    [('WAN_IF','host'),('WAN_IF','')], indirect=True,
+    ids=['WAN_IF=host', 'WAN_IF=""'])
+def test_port_8000_luci(docker_services):
+    wait_for_openwrt_startup(docker_services)
+
+    response = run_openwrt_shell_command("fw_wan_open_http", "")
+    assert response['exitcode'] == 0
+    
+    response = requests.get("http://localhost:8000")
+    assert ('LuCI - Lua Configuration Interface' in response.content.decode()) == True
+
+
+@pytest.mark.parametrize("parameter", 
+    [('WAN_IF','host'),('WAN_IF','')], indirect=True,
+    ids=['WAN_IF=host', 'WAN_IF=""'])
+def test_port_8022_ssh(docker_services):
+    wait_for_openwrt_startup(docker_services)
+
+    response = run_openwrt_shell_command("fw_wan_open_ssh", "")
+    assert response['exitcode'] == 0
+    
+    try:
+        try:
+            ssh = paramiko.client.SSHClient()
+            user = "root"
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+            ssh.connect("127.0.0.1", 8022, username=user, password=None, look_for_keys=False)
+        except paramiko.ssh_exception.AuthenticationException as e: # Paramiko can't handle password less login, we have to use a workaround
+            ssh.get_transport().auth_none(user)
+            stdout = ssh.exec_command("cat /etc/banner")[1].readlines()
+            assert ('OpenWrt' in stdout[6]) == True
+            return
+    except Exception as excinfo:
+        print(get_logs())
+        pytest.fail(f"Unexpected exception raised: {excinfo}")
