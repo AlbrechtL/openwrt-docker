@@ -60,12 +60,18 @@ set -e # Revert set +a
 cp -r /var/www/* /run/shm
 
 # ******* LuCi forwarding handling *******
-if [[ $FORWARD_LUCI = "true" && $LAN_IF = "veth" ]]; then
+LAN_IF_NAME=$(echo $LAN_IF | cut -d',' -f1)
+LAN_IF_OPTION=$(echo $LAN_IF | cut -d',' -f2)
+if [[ $FORWARD_LUCI = "true" && $LAN_IF_NAME = "veth" ]]; then
   info "Enable LuCI forwarding to host LAN at port 9000"
   LUCI_COMMAND="nsenter --target 1 --uts --net --ipc nginx -c /var/www/nginx-luci.conf"
+
+  if [[ $LAN_IF_OPTION = "nofixedip" ]]; then
+    warn "Please ensure that the virtual Ethernet interface is configured correctly. The LuCI reverse proxy is expecting OpenWrt at the IP address 172.31.1.1"
+  fi
 else
   if [[ $FORWARD_LUCI = "true" ]]; then
-    warn "LuCI forwarding is only available if environment variable is set to LAN_IF: 'veth'"
+    warn "LuCI forwarding is only available if environment variable is set to LAN_IF: 'veth'. Currently LAN_IF=$LAN_IF."
   fi
   LUCI_COMMAND="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run. 
 fi

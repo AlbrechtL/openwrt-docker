@@ -235,8 +235,8 @@ def test_openwrt_booted(docker_services):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('LAN_IF','veth'),('LAN_IF','ens5'),('LAN_IF',''),('LAN_IF','host')], indirect=True,
-    ids=['LAN_IF=veth', 'LAN_IF=ens5', 'LAN_IF=""', 'LAN_IF="host"'])
+    [('LAN_IF','veth'),('LAN_IF','veth,nofixedip'),('LAN_IF','ens5'),('LAN_IF',''),('LAN_IF','host')], indirect=True,
+    ids=['LAN_IF=veth','LAN_IF=veth,nofixedip', 'LAN_IF=ens5', 'LAN_IF=""', 'LAN_IF="host"'])
 def test_openwrt_lan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
     
@@ -247,6 +247,18 @@ def test_openwrt_lan(docker_services, parameter):
             except polling2.TimeoutException:
                 assert True, 'ping timeout'
             return
+
+        case 'veth,nofixedip':
+            # Get all IPv4 addresses 
+            process = subprocess.run(['sh','-c','ip addr show veth-openwrt0 | grep -oP "(?<=inet\s)\d+(\.\d+){3}"'], 
+                stdout=subprocess.PIPE, 
+                stderr=subprocess.STDOUT,
+                universal_newlines=True)
+    
+            # No IP address shall be found
+            assert ('' in process.stdout) == True
+            return
+
 
         case '' | 'host':
             response = run_openwrt_shell_command("ip", "addr", "add", "192.168.1.15/24", "dev", "br-lan")

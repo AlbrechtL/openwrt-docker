@@ -12,7 +12,6 @@ services:
 
     environment:
       #DEBUG: "y"
-      #IS_U_OS_APP: "true"
 
       # Define number of VM CPUs
       CPU_COUNT: 2
@@ -25,7 +24,8 @@ services:
       #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
       # -
       #LAN_IF: "host" # Usage of container host Ethernet connection as LAN. WARNING: Bad performace because of user space Ethernet implementation.
-      LAN_IF: "veth" # veth pair between OpenWrt and host system
+      LAN_IF: "veth" # veth pair between OpenWrt and host system. The host Ethernet interface IP is fixed to 172.31.1.2/24
+      #LAN_IF: "veth,nofixedip" # veth pair between OpenWrt and host system. No host Ethernet interface configuration
       #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
 
       # Make LuCI OpenWrt web interface accessible via host LAN

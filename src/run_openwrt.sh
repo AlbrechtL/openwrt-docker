@@ -60,6 +60,7 @@ attach_veth_if () {
   VETH_IF_HOST=$1
   VETH_IF_CONTAINER=$2
   QEMU_IF=$3
+  OPTION=$4
 
   info "Creating virtual Ethernet interfaces pairs between host system ($VETH_IF_HOST) and container ($VETH_IF_CONTAINER)..."
 
@@ -68,7 +69,7 @@ attach_veth_if () {
     nsenter --target 1 --uts --net --ipc --mount ip link add $VETH_IF_HOST type veth peer name $VETH_IF_CONTAINER
     nsenter --target 1 --uts --net --ipc --mount ip link set $VETH_IF_HOST up
 
-    if [[ -z "${IS_U_OS_APP}" ]]; then
+    if [[ -z "${IS_U_OS_APP}" && $OPTION != "nofixedip" ]]; then
       nsenter --target 1 --uts --net --ipc --mount ip addr add 172.31.1.2/24 dev $VETH_IF_HOST
     fi
   else
@@ -148,15 +149,17 @@ fi
 
 # Attach physical PHY to container
 LAN_ARGS=""
-if [[ -z "${LAN_IF}" || $LAN_IF = "host" ]]; then
+LAN_IF_NAME=$(echo $LAN_IF | cut -d',' -f1)
+LAN_IF_OPTION=$(echo $LAN_IF | cut -d',' -f2)
+if [[ -z "${LAN_IF_NAME}" || $LAN_IF_NAME = "host" ]]; then
   LAN_ARGS="-device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24"
-elif [[ $LAN_IF = "veth" ]]; then
-  attach_veth_if veth-openwrt0 veth1 qlan1
+elif [[ $LAN_IF_NAME = "veth" ]]; then
+  attach_veth_if veth-openwrt0 veth1 qlan1 $LAN_IF_OPTION
   exec 30<>/dev/tap$(cat /sys/class/net/qlan1/ifindex)
   LAN_ARGS="-device virtio-net-pci,netdev=hostnet0,mac=$(cat /sys/class/net/qlan1/address) \
     -netdev tap,fd=30,id=hostnet0"
 else
-  HOST_LAN_IF=$LAN_IF
+  HOST_LAN_IF=$LAN_IF_NAME
   attach_eth_if $HOST_LAN_IF $HOST_LAN_IF qlan0
   exec 30<>/dev/tap$(cat /sys/class/net/qlan0/ifindex)
   LAN_ARGS="-device virtio-net-pci,netdev=hostnet0,mac=$(cat /sys/class/net/qlan0/address) \
