@@ -3,23 +3,18 @@
 [![Build](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml)
 [![Tests](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml)
 
-OpenWrt in a docker container utilizing qemu. Tested on Raspberry Pi 5 and Weidmueller UC20-M4000 PLC but should work on any x86_64 and ARM64 (aarch64) based hardware. It uses high-performance QEMU options (like KVM acceleration, kernel-mode networking, IO threading, etc.) to achieve near-native speed.
-4 and 
-* Docker images can be found a docker hub https://hub.docker.com/r/albrechtloh/openwrt-docker
-* Weidmueller u-OS apps are currently only available via Github Actions https://github.com/AlbrechtL/openwrt-docker/actions
-
 ## Features
 
  - KVM acceleration
  - Web-based viewer for tty console
  - Attaches two physical Ethernet interfaces (LAN/WAN) exclusively into the docker container
  - Create virtual LAN between OpenWrt and host system (LAN only)
- - USB passthrough e.g. for modem or Wi-Fi
+ - USB pass-through e.g. for modem or Wi-Fi
  - Automatic config migration when OpenWrt is updated (experimental)
 
 ## Pre-installed OpenWrt software packages
 
-Because OpenWrt doesn't provide a user installed package update mechanism all required packages needs to be included into the OpenWrt rootfs image. This Docker images adds the following software to the OpenWrt rootfs:
+Because OpenWrt doesn't provide a user installed package update mechanism, all required packages needs to be included into the OpenWrt rootfs image. This Docker images add the following software to the OpenWrt rootfs:
  - Luci Web interface
  - ssh server
  - Wi-Fi client and access point support
@@ -41,7 +36,7 @@ See `docker-compose.yml`
 docker compose up
 ```
 
-If you like to specify a specific OpenWrt version you can do
+If you like to specify a specific OpenWrt version, you can do
 ```bash
 docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="23.05.4" && docker compose up
 ```
@@ -58,9 +53,26 @@ VNC console in web browser
 OpenWrt LUCI web interface
 ![OpenWrt LUCI web interface](pictures/qemu_openwrt_luci.png)
 
+## Platform specific tips and tricks
+
+#### Does it run under MS Windows WSL?
+* Yes, but only `LAN_IF="host"` and `WAN_IF="host"` is supported because WSL doesn't support the `macvtab` driver.
+* See issue https://github.com/AlbrechtL/openwrt-docker/issues/5 for details.
+
+#### A have a board with two Ethernet ports and I want to use one as OpenWrt LAN and one as OpenWrt WAN without losing the access to the host Linux system.
+* The easiest is to add simply a 3rd Ethernet port to the system, e.g. a USB-Ethernet dongle.
+* You can also create a bridge in at the host and use the option `LAN_IF: "veth,nofixedip"`. See https://github.com/AlbrechtL/openwrt-docker/issues/8 for details.
+
+#### Which Weidmueller u-OS version is supported?
+* You need the u-OS version "u-OS 2.1.1-preview-kvm" to run OpenWrt correctly. Unfortunately, this version is not public available. If you are interested, feel free to fill out the contact form at https://www.weidmueller.com/int/solutions/technologies/edge_computing_u_os/index.jsp.
+* This special u-OS version is necessary because we need the `kvm` and `macvtab` driver enabled in the Linux kernel.
+
+#### In the `LAN_IF: "veth"` mode the host virtual Ethernet interface IP address is fixed to 172.31.1.2/24. How can I change it?
+You can use the option `nofixedip` e.g. `LAN_IF: "veth,nofixedip"` to avoid that an IP address is set after interface creation. But it is your responsibility to configure the Ethernet interface correctly. The OpenWrt LuCI web interface forwarding is only working correctly when the virtual Ethernet interfaces are configured correctly. Furthermore, the OpenWrt LuCI web interface forwarding is expecting OpenWrt at the IP address 172.31.1.1.
+
 ## Acknowledgement
 
-I would like to thanks to following Open Source projects. Without these great work this container would not be possbile
+I would like to thanks to following Open Source projects. Without these great works this container would not be possible
 * [OpenWrt](https://openwrt.org/)
 * [QEMU](https://www.qemu.org/)
 * [qemu-docker](https://github.com/qemus/qemu-docker)
