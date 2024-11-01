@@ -7,6 +7,9 @@ This Docker container brings you OpenWrt, a software-based router solution, in a
 
 ## Features
 
+ - Supports all x86_64 and arm64 Linux based systems
+   - x86_64 tested on some Intel and AMD system
+   - arm64 tested on a [Raspberry Pi 5](https://www.raspberrypi.com/products/raspberry-pi-5/) and Weidmueller [UC20-M4000](https://eshop.weidmueller.com/en/uc20-m4000/p/2839160000)
  - KVM acceleration
  - Web-based viewer for tty console
  - Attaches two physical Ethernet interfaces (LAN/WAN) exclusively into the docker container
@@ -30,7 +33,9 @@ Because OpenWrt doesn't provide a user installed package update mechanism, all r
 
 ## Usage
 
-Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/master/docker-compose.yml) to your needs and run `docker compose up`
+Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/master/docker-compose.yml) to your needs and run `docker compose up`.
+
+Images are available at https://hub.docker.com/r/albrechtloh/openwrt-docker.
 
 ## Screenshots
 
@@ -80,7 +85,6 @@ I would like to thanks to following Open Source projects. Without these great wo
 * [QEMU](https://www.qemu.org/)
 * [qemu-docker](https://github.com/qemus/qemu-docker)
 * [noVNC](https://novnc.com/)
-* [script-server](https://github.com/bugy/script-server)
 * [Docker](https://www.docker.com/)
 * [Alpine Linux](https://www.alpinelinux.org/)
 
