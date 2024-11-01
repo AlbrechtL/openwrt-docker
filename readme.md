@@ -28,22 +28,7 @@ Because OpenWrt doesn't provide a user installed package update mechanism, all r
 
 ## Usage
 
-See `docker-compose.yml`
-
-## Build and run
-
-```bash
-docker compose up
-```
-
-If you like to specify a specific OpenWrt version, you can do
-```bash
-docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="23.05.4" && docker compose up
-```
-or for the latest development master. The `--no-cache` option is necessary to get always the newest version.
-```bash
-docker build --no-cache -t openwrt-docker . --build-arg OPENWRT_VERSION="master" && docker compose up
-```
+Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/master/docker-compose.yml) to your needs and run `docker compose up`
 
 ## Screenshots
 
@@ -69,6 +54,22 @@ OpenWrt LUCI web interface
 
 #### In the `LAN_IF: "veth"` mode the host virtual Ethernet interface IP address is fixed to 172.31.1.2/24. How can I change it?
 You can use the option `nofixedip` e.g. `LAN_IF: "veth,nofixedip"` to avoid that an IP address is set after interface creation. But it is your responsibility to configure the Ethernet interface correctly. The OpenWrt LuCI web interface forwarding is only working correctly when the virtual Ethernet interfaces are configured correctly. Furthermore, the OpenWrt LuCI web interface forwarding is expecting OpenWrt at the IP address 172.31.1.1.
+
+
+## Build and run
+Clone this repo and run
+```bash
+docker build -t openwrt-docker .
+```
+
+If you like to specify a specific OpenWrt version, you can do
+```bash
+docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="23.05.4"
+```
+or for the latest development master. The `--no-cache` option is necessary to get always the newest version.
+```bash
+docker build --no-cache -t openwrt-docker . --build-arg OPENWRT_VERSION="master"
+```
 
 ## Acknowledgement
 
