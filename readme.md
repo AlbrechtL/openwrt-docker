@@ -1,7 +1,9 @@
-# OpenWrt qemu docker container for x86_64, arm64 and Weidmueller u-OS
+# OpenWrt docker container for x86_64, arm64 and Weidmueller u-OS
 
 [![Build](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml)
 [![Tests](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml)
+
+This Docker container brings you OpenWrt, a software-based router solution, in an easy-to-use setup. Unlike other OpenWrt containers, this one provides a full system emulation, complete with OpenWrt's own Linux kernel. Thanks to powerful technologies like KVM and macvtap, OpenWrt runs at nearly native speeds here. We use the original OpenWrt binary builds, so most features should work seamlessly. If you notice any features that aren’t working as expected, please let us know!
 
 ## Features
 
