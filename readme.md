@@ -1,5 +1,6 @@
 # OpenWrt docker container for x86_64, arm64 and Weidmueller u-OS
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/albrechtloh/openwrt-docker)](https://hub.docker.com/r/albrechtloh/openwrt-docker)
 [![Build](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker-arm64-build/actions/workflows/build.yml)
 [![Tests](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml/badge.svg)](https://github.com/AlbrechtL/openwrt-docker/actions/workflows/test.yml)
 
