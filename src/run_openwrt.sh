@@ -45,6 +45,10 @@ attach_eth_if () {
   #ip link add link $CONTAINER_IF name $QEMU_IF type macvtap mode bridge
   ip link add link $CONTAINER_IF name $QEMU_IF type macvtap mode passthru
 
+  # Enable multicast (important for IPv6)
+  #ip link set dev $QEMU_IF allmulticast on # not working for some reason
+  ip link set dev $QEMU_IF promisc on # lets use the hammer
+
   # Create MAC address for new interface
   QEMU_MAC_OUI="52:54:00"
   read MAC </sys/class/net/$CONTAINER_IF/address
