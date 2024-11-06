@@ -26,8 +26,8 @@ else
     cp /var/vm/openwrt_additional/etc/rc.local /mnt/etc/rc.local
     chmod +x /mnt/etc/rc.local
 
-    # Add some additional default configurations. Only if we have a fresh container
-    if [ ! -f /storage/old_version ]; then
+    # Add some additional default configurations. Only if we have a fresh container because /storage/current_version is not existing then
+    if [ ! -f /storage/current_version ]; then
       chmod +x /var/vm/openwrt_additional/etc/uci-defaults/*
       cp /var/vm/openwrt_additional/etc/uci-defaults/* /mnt/etc/uci-defaults/
     fi
