@@ -26,8 +26,11 @@ else
     cp /var/vm/openwrt_additional/etc/rc.local /mnt/etc/rc.local
     chmod +x /mnt/etc/rc.local
 
-    chmod +x /var/vm/openwrt_additional/etc/uci-defaults/*
-    cp /var/vm/openwrt_additional/etc/uci-defaults/* /mnt/etc/uci-defaults/
+    # Add some additional default configurations. Only if we have a fresh container
+    if [ ! -f /storage/old_version ]; then
+      chmod +x /var/vm/openwrt_additional/etc/uci-defaults/*
+      cp /var/vm/openwrt_additional/etc/uci-defaults/* /mnt/etc/uci-defaults/
+    fi
 
     info "Install additional IPKs into the image"
     mkdir /mnt/var/offline_packages
