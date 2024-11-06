@@ -149,4 +149,6 @@ EXPOSE 8022
 RUN echo "$VERSION_ARG" > /run/version \
     && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
+HEALTHCHECK --start-period=10m CMD /run/healthcheck.sh
+
 CMD ["/run/init_container.sh"]
