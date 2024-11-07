@@ -76,11 +76,20 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     
 # Handle different CPUs architectures and choose the correct OpenWrt images
 RUN echo "Building for platform '$TARGETPLATFORM'" \
+    OPKG_EXTRA_ARGS="" \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         if [ "$OPENWRT_VERSION" = "master" ]; then \
             OPENWRT_ROOTFS_IMG="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-x86-64-generic-ext4-rootfs.img.gz"; \
             OPENWRT_KERNEL="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-x86-64-generic-kernel.bin"; \
             OPENWRT_ROOTFS_TAR="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-x86-64-rootfs.tar.gz"; \
+            OPKG_EXTRA_ARGS="--no-check-certificate"; \
+        elif [ "$OPENWRT_VERSION" = "24.10-SNAPSHOT" ]; then \
+            wget https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/version.buildinfo; \
+            VERSION_BUILDINFO=`cat version.buildinfo`; \
+            OPENWRT_ROOTFS_IMG="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-x86-64-generic-ext4-rootfs.img.gz"; \
+            OPENWRT_KERNEL="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-x86-64-generic-kernel.bin"; \
+            OPENWRT_ROOTFS_TAR="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-x86-64-rootfs.tar.gz"; \
+            OPKG_EXTRA_ARGS="--no-check-certificate"; \
         else \
             OPENWRT_ROOTFS_IMG="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-ext4-rootfs.img.gz"; \
             OPENWRT_KERNEL="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-kernel.bin"; \
@@ -91,6 +100,14 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
             OPENWRT_ROOTFS_IMG="https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-ext4-rootfs.img.gz"; \
             OPENWRT_KERNEL="https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-kernel.bin"; \
             OPENWRT_ROOTFS_TAR="https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-rootfs.tar.gz"; \
+            OPKG_EXTRA_ARGS="--no-check-certificate"; \
+        elif [ "$OPENWRT_VERSION" = "24.10-SNAPSHOT" ]; then \
+            wget https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/version.buildinfo; \
+            VERSION_BUILDINFO=`cat version.buildinfo`; \
+            OPENWRT_ROOTFS_IMG="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv8-generic-ext4-rootfs.img.gz"; \
+            OPENWRT_KERNEL="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv8-generic-kernel.bin"; \
+            OPENWRT_ROOTFS_TAR="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv8-rootfs.tar.gz"; \
+            OPKG_EXTRA_ARGS="--no-check-certificate"; \
         else \
             OPENWRT_ROOTFS_IMG="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-ext4-rootfs.img.gz"; \
             OPENWRT_KERNEL="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-kernel.bin"; \
@@ -114,17 +131,17 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && tar -xzf /tmp/rootfs-${OPENWRT_VERSION}.tar.gz -C /tmp/openwrt-rootfs \
     && cp /etc/resolv.conf /tmp/openwrt-rootfs/etc/resolv.conf \
     && chroot /tmp/openwrt-rootfs mkdir -p /var/lock \
-    && chroot /tmp/openwrt-rootfs opkg update \
+    && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} update \
     # Download Luci, qemu guest agent and mDNS support \
-    && chroot /tmp/openwrt-rootfs opkg install qemu-ga luci umdns --download-only \
+    && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install qemu-ga luci luci-ssl umdns --download-only \
     # Download Wi-Fi access point support and Wi-Fi USB devices support \
-    && chroot /tmp/openwrt-rootfs opkg install hostapd wpa-supplicant kmod-mt7921u --download-only \
+    && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install hostapd wpa-supplicant kmod-mt7921u --download-only \
     # Download celluar network support \
-    && chroot /tmp/openwrt-rootfs opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils --download-only \
+    && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils --download-only \
     # Download basic GPS support \ 
-    && chroot /tmp/openwrt-rootfs opkg install kmod-usb-serial usbutils minicom gpsd --download-only \
+    && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install kmod-usb-serial usbutils minicom gpsd --download-only \
     # Add Wireguard support \
-    && chroot /tmp/openwrt-rootfs opkg install wireguard-tools luci-proto-wireguard --download-only \
+    && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install wireguard-tools luci-proto-wireguard --download-only \
     # Copy downloaded IPKs into the Docker image \
     && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
     && rm -rf /tmp/openwrt-rootfs \
