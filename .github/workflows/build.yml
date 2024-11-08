@@ -5,13 +5,14 @@ on:
     branches:
       - master
 
+env:
+  OPENWRT_VERSION: 23.05.5
+
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      OPENWRT_VERSION: 23.05.5
-
+    
     services:
       registry:
         image: registry:2
@@ -21,11 +22,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set environment variables
-        run: |
-          echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
-          cat $GITHUB_ENV
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -56,8 +52,7 @@ jobs:
             OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
             BUILDKIT_MULTI_PLATFORM=1
           tags: |
-            albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }}
-            albrechtloh/openwrt-docker:latest
+            albrechtloh/openwrt-docker:ci-openwrt-stable
             localhost:5000/local/openwrt-docker:latest
 
       - name: Inspect
@@ -70,7 +65,8 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
-          tags: localhost:5000/local/openwrt-docker:latest
+          tags: openwrt-docker:latest
+          build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
 
       - name: Upload artifact
@@ -137,7 +133,6 @@ jobs:
           path: u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
           if-no-files-found: error
 
-
   sbom:
     name: SBOM generation
     needs: build
@@ -150,7 +145,7 @@ jobs:
       - name: Generate alpine SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: albrechtloh/openwrt-docker:latest
+          image: albrechtloh/openwrt-docker:ci-openwrt-stable
           upload-artifact: false
           format: cyclonedx-json
           output-file: alpine_sbom.json
@@ -200,3 +195,132 @@ jobs:
           name: Software Bill of Material (SBOM)
           path: ./*.json
           if-no-files-found: error
+
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Runs only when build was sucessfull
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: OpenWrt Docker Image
+          path: .
+
+      - name: Install VMs
+        run: |
+          set -x
+          sudo snap install multipass --edge # Edge is necessary to get 1.15 dev because of networks support
+          sudo chmod a+w /var/snap/multipass/common/multipass_socket # Fix 'multipass socket access denied'
+          multipass find
+
+          # Set up some bridges for the VMs
+          sudo ip link add lannetvm type bridge
+          sudo ip link add wannetvm type bridge
+          sudo ip link set dev lannetvm up
+          sudo ip link set dev wannetvm up
+          ip addr
+
+          # We need to disable the firewall otherwise the tap devices are not working properly
+          sudo ufw disable
+
+          # Start VMs
+          # Multipass and the OpenWrt container are using the same MAC QUI 52:54:00 which creates error. Let's use differnet MAC addresses here
+          multipass launch docker --network name=wannetvm,mac=06:00:00:11:22:33 --network name=lannetvm,mac=06:00:00:44:55:66 --name router-vm
+          multipass mount $GITHUB_WORKSPACE router-vm
+
+          multipass launch --network wannetvm --name wan-vm
+          multipass launch --network lannetvm --name lan-vm
+
+      - name: Show VM and and environments variables
+        run:  |
+          export
+          multipass exec router-vm -- lsb_release -a
+          multipass info
+
+      - name: Load image
+        run: |
+          multipass exec router-vm -- docker load --input openwrt-docker-image.tar
+          multipass exec router-vm -- docker image ls -a
+
+      - name: Prepare VMs
+        run: |
+          # By default portainer is running at port 9000. But we need port 9000
+          multipass exec router-vm -- docker stop portainer
+
+          # Install python
+          multipass exec router-vm -- sudo apt-get -y install python3-pip python-is-python3
+
+          # Install everthing for pytest
+          multipass exec router-vm -- find .
+          #multipass exec router-vm -- export PATH=$PATH:~/.local/bin # not working
+          multipass exec router-vm -- pip install -r test/requirements.txt
+          
+          echo '******** router-vm IPs ********'
+          multipass exec router-vm -- ip addr
+
+          # Prepare WAN VM
+          echo '******** wan-vm IPs ********'
+          # Add IP address
+          multipass exec wan-vm -- sudo ip addr add 192.168.22.1/24 dev ens4
+          multipass exec wan-vm -- ip addr
+          # Install DHCP server
+          multipass exec wan-vm -- sudo sh -c 'apt-get update && apt-get install -y isc-dhcp-server && echo "default-lease-time 600;\nmax-lease-time 7200;\nsubnet 192.168.22.0 netmask 255.255.255.0 {\n  range 192.168.22.100 192.168.22.200;\n  option routers 192.168.22.1;\n  option domain-name-servers 8.8.8.8, 8.8.4.4;\n  option domain-name \"example.org\";\n}" > /etc/dhcp/dhcpd.conf && systemctl enable isc-dhcp-server && systemctl restart isc-dhcp-server'
+          multipass exec wan-vm -- cat /etc/dhcp/dhcpd.conf
+          # Enable NAT
+          multipass exec wan-vm -- sudo modprobe iptable_nat
+          multipass exec wan-vm -- sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+          multipass exec wan-vm -- sudo sysctl -w net.ipv4.ip_forward=1
+
+          # Prepare LAN VM
+          echo '******** lan-vm IPs ********'
+          multipass exec lan-vm -- sudo ip addr add 172.31.1.2/24 dev ens4
+          multipass exec lan-vm -- sudo ip addr add 172.31.22.2/24 dev ens4
+          multipass exec lan-vm -- ip addr
+
+          # Double check if virtual networks are working
+          echo '******** host IPs ********'
+          ip addr
+          sudo ufw status
+
+          echo '******** router-vm IPs ********'
+          multipass exec router-vm -- sudo ip addr add 192.168.22.99/24 dev ens4
+          multipass exec router-vm -- sudo ip addr add 172.31.22.99/24 dev ens5
+          multipass exec router-vm -- ip addr
+
+          echo '******** Test connection between router-vm, lan-vm and wan-vm ********'
+          multipass exec router-vm -- ping -c 1 192.168.22.1 # to wan-vm
+          multipass exec router-vm -- ping -c 1 172.31.22.2 # to lan-vm
+
+      - name: Run tests
+        run: |
+          # Run pytest
+          multipass exec router-vm -- sh -c 'cd test/ && ~/.local/bin/pytest -v -s --html=report.html --self-contained-html'
+
+      - name: Archive test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test report
+          path: test/*.html
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    needs: test
+
+    steps:
+    - name: Push image to GHCR
+        run: |
+          echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+          cat $GITHUB_ENV
+
+          docker buildx imagetools create \
+            --tag albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }} \
+            --tag albrechtloh/openwrt-docker:latest \
+            albrechtloh/openwrt-docker:ci-openwrt-stable 

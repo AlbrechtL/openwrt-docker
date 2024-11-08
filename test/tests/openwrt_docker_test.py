@@ -79,7 +79,7 @@ def run_openwrt_shell_command(command, *arg):
     # Sometime it happens that also the previous command return is included which results in two or more json strings.
     jsons = process.stdout.split('\n')
 
-    # Search for
+    # Search for 'pid' and give back the last occurrence index
     idx = next((i for i, s in reversed(list(enumerate(jsons))) if 'pid' in s), -1)
 
     # Assume json here, parse it
