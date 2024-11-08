@@ -316,7 +316,7 @@ jobs:
     needs: test
 
     steps:
-    - name: Push image to GHCR
+      - name: Push image to GHCR
         run: |
           echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
           cat $GITHUB_ENV
