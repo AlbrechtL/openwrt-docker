@@ -1,18 +1,21 @@
-name: OpenWrt stable build
+
+name: OpenWrt master build
 
 on:
   push:
     branches:
       - master
+  schedule:
+    - cron: '* 4 * * *'
 
 env:
-  OPENWRT_VERSION: 23.05.5
+  OPENWRT_VERSION: master
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    
+
     services:
       registry:
         image: registry:2
@@ -48,11 +51,11 @@ jobs:
           platforms: |
             linux/x86_64
             linux/arm64
-          build-args: | 
+          build-args: |
             OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
             BUILDKIT_MULTI_PLATFORM=1
           tags: |
-            albrechtloh/openwrt-docker:ci-openwrt-stable
+            albrechtloh/openwrt-docker:ci-openwrt-master-unstable
             localhost:5000/local/openwrt-docker:latest
 
       - name: Inspect
@@ -65,6 +68,7 @@ jobs:
           DOCKER_BUILD_SUMMARY: false
           DOCKER_BUILD_RECORD_UPLOAD: false
         with:
+          context: . # TODO: Just for testing
           tags: openwrt-docker:latest
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
           outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
@@ -95,7 +99,8 @@ jobs:
           GIT_HASH_DECIMAL=$((16#$GIT_HASH))
 
           # Create app version
-          APP_VERSION=$OPENWRT_VERSION.$DATETIME-$GIT_HASH_DECIMAL
+          #APP_VERSION=$OPENWRT_VERSION.$DATETIME-$GIT_HASH_DECIMAL
+          APP_VERSION=$DATETIME-$GIT_HASH_DECIMAL # TODO just for SNAPSHOT
 
           echo "***** Create manifest from template *****"
           mv u-os-app/manifest.json.template u-os-app/manifest.json
@@ -134,6 +139,7 @@ jobs:
           path: u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
           if-no-files-found: error
 
+
   sbom:
     name: SBOM generation
     needs: build
@@ -146,7 +152,7 @@ jobs:
       - name: Generate alpine SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: albrechtloh/openwrt-docker:ci-openwrt-stable
+          image: albrechtloh/openwrt-docker:ci-openwrt-master-unstable
           upload-artifact: false
           format: cyclonedx-json
           output-file: alpine_sbom.json
@@ -198,11 +204,8 @@ jobs:
           if-no-files-found: error
 
   test:
-    name: Test
-    needs: build
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Runs only when build was sucessfull
-    
+    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -248,7 +251,7 @@ jobs:
         run: |
           multipass exec router-vm -- docker load --input openwrt-docker-image.tar
           multipass exec router-vm -- docker image ls -a
-
+    
       - name: Prepare VMs
         run: |
           # By default portainer is running at port 9000. But we need port 9000
@@ -298,8 +301,15 @@ jobs:
           multipass exec router-vm -- ping -c 1 192.168.22.1 # to wan-vm
           multipass exec router-vm -- ping -c 1 172.31.22.2 # to lan-vm
 
+      - name: Prepare tests
+        run: |
+          # Use local image instead of hub.docker.com
+          sed -i 's/image: albrechtloh\/openwrt-docker:latest/image: openwrt-docker/g' test/tests/docker-compose.yml.template
+          cat test/tests/docker-compose.yml.template
+
       - name: Run tests
         run: |
+          cat test/tests/docker-compose.yml.template
           # Run pytest
           multipass exec router-vm -- sh -c 'cd test/ && ~/.local/bin/pytest -v -s --html=report.html --self-contained-html'
 
@@ -310,18 +320,3 @@ jobs:
           name: Test report
           path: test/*.html
           if-no-files-found: error
-
-  publish:
-    name: Publish
-    needs: test
-
-    steps:
-    - name: Push image to GHCR
-        run: |
-          echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
-          cat $GITHUB_ENV
-
-          docker buildx imagetools create \
-            --tag albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }} \
-            --tag albrechtloh/openwrt-docker:latest \
-            albrechtloh/openwrt-docker:ci-openwrt-stable 
