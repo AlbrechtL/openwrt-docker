@@ -76,8 +76,14 @@ def run_openwrt_shell_command(command, *arg):
     if process.stdout == "":
         return None
     
+    # Sometime it happens that also the previous command return is included which results in two or more json strings.
+    jsons = process.stdout.split('\n')
+
+    # Search for
+    idx = next((i for i, s in reversed(list(enumerate(jsons))) if 'pid' in s), -1)
+
     # Assume json here, parse it
-    ret = json.loads(process.stdout)
+    ret = json.loads(jsons[idx])
 
     if 'return' not in ret:
         return None
