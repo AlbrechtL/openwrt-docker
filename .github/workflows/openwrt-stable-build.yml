@@ -330,6 +330,6 @@ jobs:
           GIT_HASH=`git rev-parse --short HEAD`
 
           docker buildx imagetools create \
-            --tag albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }} \
+            --tag albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-$GIT_HASH \
             --tag albrechtloh/openwrt-docker:latest \
             albrechtloh/openwrt-docker:ci-openwrt-stable 

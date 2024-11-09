@@ -94,7 +94,7 @@ def run_openwrt_shell_command(command, *arg):
     pid = ret['return']['pid']
 
     # Get stdout of process
-    time.sleep(5) # Give command 5 seconds time to respond. It would be better to implement a real timeout here but I need to got he bed :-(
+    time.sleep(5) # Give command 5 seconds time to respond. It would be better to implement a real timeout.
     # Call qemu guest tools function 'guest-exec-status'. This is only working if OpenWrt is booted and the qemu guest tools are running
     process = subprocess.run(['docker','exec','openwrt','sh','-c',r"""echo -ne '{"execute":"guest-exec-status", "arguments": { "pid": """ + str(pid) + r"""}}' | nc -w 1 -U /run/qga.sock"""], 
                          stdout=subprocess.PIPE,
