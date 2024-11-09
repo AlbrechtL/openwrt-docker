@@ -29,7 +29,7 @@ Because OpenWrt doesn't provide a user installed package update mechanism, all r
 
 ### Supported USB devices
 
- - Mediathek MT7961AU Wi-Fi 6 AX chipset based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
+ - Mediathek MT7961AU Wi-Fi 6 AX chip-set based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
  - SIMCOM SIM8262E-M2 based devices (Multi-Band 5G NR/LTE-FDD/LTE-TDD/HSPA+ modem)
 
 ## Usage
@@ -37,6 +37,11 @@ Because OpenWrt doesn't provide a user installed package update mechanism, all r
 Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/master/docker-compose.yml) to your needs and run `docker compose up`.
 
 Images are available at https://hub.docker.com/r/albrechtloh/openwrt-docker.
+
+Currently, three images are available. For all of these images automated tests are applied.
+* `albrechtloh/openwrt-docker:latest` Latest OpenWrt stable version e.g. 24.05.5
+* `albrechtloh/openwrt-docker:openwrt-2410-snapshot` Latest OpenWrt 24.10 snapshot version
+* `albrechtloh/openwrt-docker:openwrt-master-snapshot` Latest OpenWrt master version
 
 ## Screenshots
 
