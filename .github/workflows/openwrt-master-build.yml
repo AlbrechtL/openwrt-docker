@@ -100,7 +100,7 @@ jobs:
 
           # Create app version
           #APP_VERSION=$OPENWRT_VERSION.$DATETIME-$GIT_HASH_DECIMAL
-          APP_VERSION=$DATETIME-$GIT_HASH_DECIMAL # TODO just for SNAPSHOT
+          APP_VERSION=0.0.0.$DATETIME-$GIT_HASH_DECIMAL # TODO just for SNAPSHOT
 
           echo "***** Create manifest from template *****"
           mv u-os-app/manifest.json.template u-os-app/manifest.json
@@ -204,6 +204,7 @@ jobs:
           if-no-files-found: error
 
   test:
+    name: Test
     runs-on: ubuntu-latest
     needs: build
     steps:
