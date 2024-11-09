@@ -95,7 +95,7 @@ jobs:
           # uc-aom-packager allow only decimal numbers as version number for an unkonwn reason
           # see https://github.com/weidmueller/uc-addon/blob/main/uc-manifest.schema-doc.md#version)
           # So lets convert the git hash into a decimal value
-          GIT_HASH=`git rev-parse --short HEAD`"
+          GIT_HASH=`git rev-parse --short HEAD`
           GIT_HASH_DECIMAL=$((16#$GIT_HASH))
 
           # Create app version
