@@ -55,7 +55,7 @@ jobs:
             OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
             BUILDKIT_MULTI_PLATFORM=1
           tags: |
-            albrechtloh/openwrt-docker:ci-openwrt-master-unstable
+            albrechtloh/openwrt-docker:ci-openwrt-master-snapshot
             localhost:5000/local/openwrt-docker:latest
 
       - name: Inspect
@@ -152,7 +152,7 @@ jobs:
       - name: Generate alpine SBOM
         uses: anchore/sbom-action@v0
         with:
-          image: albrechtloh/openwrt-docker:ci-openwrt-master-unstable
+          image: albrechtloh/openwrt-docker:ci-openwrt-master-snapshot
           upload-artifact: false
           format: cyclonedx-json
           output-file: alpine_sbom.json
@@ -321,3 +321,21 @@ jobs:
           name: Test report
           path: test/*.html
           if-no-files-found: error
+
+  publish:
+    name: Publish
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login into Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag image at Docker Hub
+        run: |
+          docker buildx imagetools create \
+            --tag albrechtloh/openwrt-docker:openwrt-master-snapshot  \
+            albrechtloh/openwrt-docker:ci-openwrt-master-snapshot 
