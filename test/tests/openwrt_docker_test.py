@@ -139,12 +139,18 @@ def get_openwrt_info():
     
     if process.stdout == "":
         return None
-    
-    # Assume json here, parse it
-    info = json.loads(process.stdout)
 
-    if 'return' not in info:
+    # Sometime it happens that also the previous command return is included which results in two or more json strings.
+    jsons = process.stdout.split('\n')
+
+    # Search for 'return' and give back the last occurrence index
+    idx = next((i for i, s in reversed(list(enumerate(jsons))) if 'return' in s), -1)
+
+    if idx == -1:
         return None
+
+    # Assume json here, parse it
+    info = json.loads(jsons[idx])
     
     if 'name' not in info['return']:
         return None
