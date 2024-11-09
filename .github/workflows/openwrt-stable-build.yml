@@ -324,8 +324,7 @@ jobs:
 
       - name: Tag image at Docker Hub
         run: |
-          echo "GIT_HASH=`git rev-parse --short HEAD`" >> $GITHUB_ENV
-          cat $GITHUB_ENV
+          GIT_HASH=`git rev-parse --short HEAD`
 
           docker buildx imagetools create \
             --tag albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-${{ env.GIT_HASH }} \
