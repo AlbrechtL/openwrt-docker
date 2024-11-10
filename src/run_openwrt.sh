@@ -212,7 +212,7 @@ info "Booting image using $VERS..."
 
 #************************ FINAL BOOTING ************************
 exec qemu-system-"$CPU_ARCH" \
--m 128 \
+-m 256 \
 -nodefaults \
  $CPU_ARGS -smp $CPU_COUNT \
 -display vnc=:0,websocket=5700 \
