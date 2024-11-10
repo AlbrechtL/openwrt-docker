@@ -13,7 +13,7 @@ trap - ERR
 CPU_ARCH=$(arch)
 
 VERS=$(qemu-system-"$CPU_ARCH" --version | head -n 1 | cut -d '(' -f 1)
-FILE=/storage/rootfs-${OPENWRT_IMAGE_ID}.img
+FILE=/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img
 
 # Attach physical interfaces to Docker container
 attach_eth_if () {
@@ -216,7 +216,6 @@ exec qemu-system-"$CPU_ARCH" \
 -nodefaults \
  $CPU_ARGS -smp $CPU_COUNT \
 -display vnc=:0,websocket=5700 \
--kernel /var/vm/kernel.bin -append "root=fe00 console=tty0" \
 -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=${FILE} \
 -device virtio-blk-pci,drive=hd0 \
 -device qemu-xhci -device usb-kbd \
@@ -228,6 +227,4 @@ exec qemu-system-"$CPU_ARCH" \
  -device virtio-serial \
  -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0
 
-
-# -device virtio-net,netdev=qlan1 -netdev user,id=qlan1,net=192.168.1.0/24,hostfwd=tcp::8000-192.168.1.1:80 \
-# -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/openwrt-armsr-armv8-generic-ext4-combined.img \
+# -kernel /var/vm/kernel.bin -append "root=fe00 console=tty0" \
