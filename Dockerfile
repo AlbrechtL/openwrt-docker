@@ -67,6 +67,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         uuidgen \
         curl \
         usbutils \
+        openssh-client \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
@@ -106,27 +107,42 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && mkdir /var/vm \ 
     && mkdir /var/vm/packages \
     && wget $OPENWRT_IMAGE -O /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
+    && gzip -d /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     \
-    # # Use OpenWrt rootfs to download additional IPKs and put them into the Docker image \
-    # && mkdir /tmp/openwrt-rootfs \
-    # && tar -xzf /tmp/rootfs-${OPENWRT_VERSION}.tar.gz -C /tmp/openwrt-rootfs \
-    # && cp /etc/resolv.conf /tmp/openwrt-rootfs/etc/resolv.conf \
-    # && chroot /tmp/openwrt-rootfs mkdir -p /var/lock \
-    # && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} update \
-    # # Download Luci, qemu guest agent and mDNS support \
-    # && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install qemu-ga luci luci-ssl umdns --download-only \
-    # # Download Wi-Fi access point support and Wi-Fi USB devices support \
-    # && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install hostapd wpa-supplicant kmod-mt7921u --download-only \
-    # # Download celluar network support \
-    # && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils --download-only \
-    # # Download basic GPS support \ 
-    # && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install kmod-usb-serial usbutils minicom gpsd --download-only \
-    # # Add Wireguard support \
-    # && chroot /tmp/openwrt-rootfs opkg ${OPKG_EXTRA_ARGS} install wireguard-tools luci-proto-wireguard --download-only \
-    # # Copy downloaded IPKs into the Docker image \
-    # && cp /tmp/openwrt-rootfs/*.ipk /var/vm/packages \
-    # && rm -rf /tmp/openwrt-rootfs \
-    # && rm /tmp/rootfs-${OPENWRT_VERSION}.tar.gz \
+    # Boot OpenWrt in order to install additional packages and settings
+    && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \ 
+        qemu-system-x86_64 -M pc -smp 2 -nographic -nodefaults -m 256 \
+        -bios /usr/share/qemu/edk2-aarch64-code.fd \
+        -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
+        -device virtio-blk-pci,drive=hd0 \
+        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::8022-192.168.1.1:22 \
+        -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
+        -daemonize; \
+    else \
+        qemu-system-aarch64 -M virt -cpu cortex-a53 -smp 2 -nographic -nodefaults -m 256 \
+        -bios /usr/share/qemu/edk2-aarch64-code.fd \
+        -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
+        -device virtio-blk-pci,drive=hd0 \
+        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::8022-192.168.1.1:22 \
+        -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
+        -daemonize; \
+    fi \
+    \
+    && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p 8022 'opkg update'; do echo "Retrying ssh ..."; sleep 1; done \
+    # Download Luci, qemu guest agent and mDNS support \
+    && ssh root@localhost -p 8022 'opkg install qemu-ga luci luci-ssl umdns' \
+    # Download Wi-Fi access point support and Wi-Fi USB devices support \
+    && ssh root@localhost -p 8022 'opkg install hostapd wpa-supplicant kmod-mt7921u' \
+    # Download celluar network support \
+    && ssh root@localhost -p 8022 'opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils' \
+    # Download basic GPS support \ 
+    && ssh root@localhost -p 8022 'opkg install kmod-usb-serial usbutils minicom gpsd' \
+    # Add Wireguard support \
+    && ssh root@localhost -p 8022 'opkg install wireguard-tools luci-proto-wireguard' \
+    \
+    # Sync changes into image
+    && ssh root@localhost -p 8022 'sync' \
+    \
     && echo "OPENWRT_VERSION=\"${OPENWRT_VERSION}\"" > /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_IMAGE_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_IMAGE_ID=\"`uuidgen`\"" >> /var/vm/openwrt_metadata.conf \
