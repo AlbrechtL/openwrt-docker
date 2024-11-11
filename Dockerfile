@@ -112,7 +112,6 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     # Boot OpenWrt in order to install additional packages and settings
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \ 
         qemu-system-x86_64 -M pc -smp 2 -nographic -nodefaults -m 256 \
-        -bios /usr/share/qemu/edk2-aarch64-code.fd \
         -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
         -device virtio-blk-pci,drive=hd0 \
         -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::8022-192.168.1.1:22 \
@@ -140,8 +139,18 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     # Add Wireguard support \
     && ssh root@localhost -p 8022 'opkg install wireguard-tools luci-proto-wireguard' \
     \
-    # Sync changes into image
+    # Add default network config
+    && ssh root@localhost -p 8022 "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
+    \
+    # Sync changes into image and kill qemu
     && ssh root@localhost -p 8022 'sync' \
+    && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        killall qemu-system-x86_64; \
+    else \
+        killall qemu-system-aarch64; \
+    fi \
+    \
+    && gzip /var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
     \
     && echo "OPENWRT_VERSION=\"${OPENWRT_VERSION}\"" > /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_IMAGE_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf \
