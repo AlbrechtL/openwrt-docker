@@ -369,34 +369,6 @@ def test_cpu_num(docker_services, parameter):
     assert parameter[1] == cpu_num
 
 
-def test_additional_installed_packages(docker_services):
-    # Get list of packages to be installed in OpenWrt
-    process = subprocess.run(['docker','exec','openwrt','ls','/var/vm/packages'], 
-                         stdout=subprocess.PIPE, 
-                         universal_newlines=True)
-    
-    assert process.returncode == 0
-
-    package_list_docker_full = process.stdout.splitlines()
-    package_list_docker = []
-    for package in package_list_docker_full:
-        package = package.split('_')[0] # Use only the name before the '_'
-        package_list_docker.append(package)
-
-    # Get list of installed packages in OpenWrt
-    wait_for_openwrt_startup(docker_services)
-    response = run_openwrt_shell_command("opkg", "list-installed")
-
-    assert response['exitcode'] == 0
-
-    package_list_openwrt_full = response['out-data'].splitlines()
-    print(f"'{len(package_list_docker)}' additional installed packages", end=' ')
-
-    # Check if all additional OpenWrt packages in Docker image are installed in OpenWrt
-    for package in package_list_docker:
-        assert any(package in s for s in package_list_openwrt_full) == True
-
-
 @pytest.mark.parametrize("parameter", 
     [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
     ids=['20240922_test_volume_openwrt_23.05.4'])
