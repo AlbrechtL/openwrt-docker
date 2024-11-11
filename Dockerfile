@@ -74,10 +74,11 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && cd /tmp/noVNC-${NOVNC_VERSION}\
     && mv app core vendor package.json *.html /usr/share/novnc \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf
-    
+
+COPY ./openwrt_additional /var/vm/openwrt_additional
+
 # Handle different CPUs architectures and choose the correct OpenWrt images
 RUN echo "Building for platform '$TARGETPLATFORM'" \
-    OPKG_EXTRA_ARGS="" \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         if [ "$OPENWRT_VERSION" = "master" ]; then \
             OPENWRT_IMAGE="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz"; \
@@ -104,8 +105,6 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     fi \
     \
     # Get OpenWrt images  \
-    && mkdir /var/vm \ 
-    && mkdir /var/vm/packages \
     && wget $OPENWRT_IMAGE -O /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     && gzip -d /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     \
@@ -139,8 +138,14 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     # Add Wireguard support \
     && ssh root@localhost -p 8022 'opkg install wireguard-tools luci-proto-wireguard' \
     \
-    # Add default network config
+    # Add default network config \
     && ssh root@localhost -p 8022 "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
+    \
+    # Add some files \
+    && ssh root@localhost -p 8022 'opkg install openssh-sftp-server' \
+    && chmod +x /var/vm/openwrt_additional/usr/bin/* \
+    && scp -P 8022 /var/vm/openwrt_additional/usr/bin/* root@localhost:/usr/bin \
+    && ssh root@localhost -p 8022 'opkg remove openssh-sftp-server' \
     \
     # Sync changes into image and kill qemu
     && ssh root@localhost -p 8022 'sync' \
@@ -160,7 +165,6 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
 COPY --from=builder /usr/local/bin/qemu-openwrt-web-backend /usr/local/bin/qemu-openwrt-web-backend
 COPY ./src /run/
 COPY ./web-frontend /var/www/
-COPY ./openwrt_additional /var/vm/openwrt_additional
 
 RUN chmod +x /run/*.sh
 
