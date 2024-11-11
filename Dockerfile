@@ -148,11 +148,11 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && ssh root@localhost -p 8022 'opkg remove openssh-sftp-server' \
     \
     # Sync changes into image and kill qemu
-    && ssh root@localhost -p 8022 'sync' \
+    && ssh root@localhost -p 8022 'sync; halt' \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        killall qemu-system-x86_64; \
+        while pgrep -x "qemu-system-x86_64" >/dev/null; do echo "Wait for exit of qemu ..."; sleep 1; done; \
     else \
-        killall qemu-system-aarch64; \
+        while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Wait for exit of qemu ..."; sleep 1; done \
     fi \
     \
     && gzip /var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
