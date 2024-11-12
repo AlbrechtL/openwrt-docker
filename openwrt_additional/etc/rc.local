@@ -1,5 +1,0 @@
-
-# Remount rootfs to enable sync
-mount -o remount,rw,sync /
-
-exit 0

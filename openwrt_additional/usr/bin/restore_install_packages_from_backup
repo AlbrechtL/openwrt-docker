@@ -1,7 +1,0 @@
-#/bin/sh
-
-echo "Get packages list from repo"
-opkg update
-
-echo "Restore packages"
-grep '\tunknown' /etc/backup/installed_packages.txt | cut -f1 | xargs opkg install
