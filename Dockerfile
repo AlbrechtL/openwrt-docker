@@ -57,15 +57,14 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         multirun \
         bash \
         wget \
+        grep \
         qemu-system-"$CPU_ARCH" \
         qemu-hw-usb-host \
         qemu-hw-usb-redirect \
         nginx \
         nginx-mod-stream \
         netcat-openbsd \
-        tcpdump \
         uuidgen \
-        curl \
         usbutils \
         openssh-client \
     && mkdir -p /usr/share/novnc \
