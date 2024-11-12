@@ -12,7 +12,7 @@ find_squashfs_offset() {
   echo >&2 "Start finding start of squashfs file system in file '"$IMAGE_FILE"' ..."
 
   # Use fdisk to find the squashfs partition
-  local squashfs_start_sectors=`fdisk -l "$IMAGE_FILE" | awk '/^.*squashfs-combined.*.img2/ {print $4}'` # use the 4th ouput as sectors
+  local squashfs_start_sectors=`fdisk -l "$IMAGE_FILE" | awk '/^.*squashfs-combined.*.img2/ {print $2}'` # use the 4th ouput as sectors
 
   if [ -z "$squashfs_start_sectors" ]; then
     echo >&2 "No squashfs-combined*.img2 found"
@@ -57,7 +57,7 @@ find_ext4_offset() {
     return 1
   fi
 
-  actual_offset=$((offset_in_block + OFFSET - SEARCH_BOUNDARY)) # Adjust the offset to the actual position in the original file
+  local actual_offset=$((offset_in_block + OFFSET - SEARCH_BOUNDARY)) # Adjust the offset to the actual position in the original file
   local ext4_start_offset=$((actual_offset - 1080))  # Subtract 1080 bytes from the found offset. ext4 is starting 1080 before 0x53ef
 
   # Show the adjusted actual_offset
@@ -68,24 +68,56 @@ find_ext4_offset() {
   echo $ext4_start_offset
 }
 
+# Function to find the ext4 file system start offset from a OpenWrt given file
+find_f2fs_offset() {
+  local IMAGE_FILE="$1"
+  local SQUASHFS_OFFSET="$2"
+  echo >&2 "Start finding start of j2fs file system in file '$IMAGE_FILE' ..."
+
+  # Define the search boundary (in bytes)
+  local SQUASHFS_SIZE_APPROX=4000000  # This is the size assumtion of squashfs file system that is located before the j2fs
+  local J2FS_MAGIC_KEY="\x10\x20\xf5\xf2"  # This is the magic key identifying the ext4 file system (as hex string)
+
+  local offset_in_block=`dd if="$IMAGE_FILE" bs=1 skip=$((SQUASHFS_OFFSET + SQUASHFS_SIZE_APPROX)) 2>/dev/null | \
+    LANG=C grep -obUaPm 1 "$J2FS_MAGIC_KEY" | cut -d: -f1`
+
+  if [ -z "$offset_in_block" ]; then
+    echo >&2 "j2fs magic key not found in the file."
+    return 1
+  fi
+
+  local actual_offset=$((offset_in_block + SQUASHFS_OFFSET + SQUASHFS_SIZE_APPROX)) # Adjust the offset to the actual position in the original file
+  local j2fs_start_offset=$((actual_offset - 1024))  # Subtract 1024 bytes from the found offset. j2fs is starting 1024 before 0x1020f5f2
+
+  echo >&2 "Found j2fs magic key '$J2FS_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset")"
+  echo >&2 "j2fs file system start at offset: 0x$(printf '%x' "$j2fs_start_offset")"
+
+  echo $j2fs_start_offset
+}
+
 mount_squashfs_combined_image() {
   local IMAGE_FILE="$1"
 
   squashfs_start_offset=$(find_squashfs_offset "$IMAGE_FILE")
-  ext4_start_offset=$(find_ext4_offset "$IMAGE_FILE")
+
+  CPU_ARCH=$(arch)
+  if [ $CPU_ARCH = "aarch64" ]; then
+    start_offset=$(find_f2fs_offset "$IMAGE_FILE" "$squashfs_start_offset")
+  else
+    start_offset=$(find_ext4_offset "$IMAGE_FILE")
+  fi
   
   mkdir -p /tmp/squashfs_dir
-  mkdir -p /tmp/ext4_dir
+  mkdir -p /tmp/userdata_dir
 
-  mount -o offset="$squashfs_start_offset" "$IMAGE_FILE" /tmp/squashfs_dir
-  mount -o offset="$ext4_start_offset" "$IMAGE_FILE" /tmp/ext4_dir
-
-  mount -t overlay -o lowerdir=/tmp/squashfs_dir,upperdir=/tmp/ext4_dir/upper,workdir=/tmp/ext4_dir/work overlay /mnt
+  mount -o offset="$squashfs_start_offset",sizelimit=$((start_offset-squashfs_start_offset)) "$IMAGE_FILE" /tmp/squashfs_dir
+  mount -o offset="$start_offset" "$IMAGE_FILE" /tmp/userdata_dir
+  mount -t overlay -o lowerdir=/tmp/squashfs_dir,upperdir=/tmp/userdata_dir/upper,workdir=/tmp/userdata_dir/work overlay /mnt
 }
 
 umount_squashfs_combined_image() {
   umount /mnt
-  umount /tmp/ext4_dir
+  umount /tmp/userdata_dir
   umount /tmp/squashfs_dir
 }
 

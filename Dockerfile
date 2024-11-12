@@ -67,6 +67,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         uuidgen \
         usbutils \
         openssh-client \
+        util-linux-misc \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
