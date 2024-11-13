@@ -48,7 +48,7 @@ jobs:
           context: .
           push: true
           provenance: false
-          allow: security.insecure
+          allow: security.insecure,network.host
           platforms: |
             linux/x86_64
             linux/arm64
@@ -72,7 +72,7 @@ jobs:
           context: . # TODO: Just for testing
           tags: openwrt-docker:latest
           build-args: OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
-          allow: security.insecure
+          allow: security.insecure,network.host
           outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
 
       - name: Upload artifact
