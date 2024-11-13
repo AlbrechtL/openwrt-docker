@@ -6,122 +6,8 @@ trap - ERR
 . /var/vm/openwrt_metadata.conf
 . /run/helpers.sh
 
-# Function to find the squashfs file system start offset from a OpenWrt given file
-find_squashfs_offset() {
-  local IMAGE_FILE="$1"
-  echo >&2 "Start finding start of squashfs file system in file '"$IMAGE_FILE"' ..."
-
-  # Use fdisk to find the squashfs partition
-  local squashfs_start_sectors=`fdisk -l "$IMAGE_FILE" | awk '/^.*squashfs-combined.*.img2/ {print $2}'` # use the 4th ouput as sectors
-
-  if [ -z "$squashfs_start_sectors" ]; then
-    echo >&2 "No squashfs-combined*.img2 found"
-    return 1
-  fi
-
-  local squashfs_offset=$(( squashfs_start_sectors * 512 )) # Each sector has 512 bytes
-
-  echo >&2 "squashfs file system start at offset 0x$(printf '%x' "$squashfs_offset")"
-
-  echo $squashfs_offset
-}
-
-# Function to find the ext4 file system start offset from a OpenWrt given file
-find_ext4_offset() {
-  local IMAGE_FILE="$1"
-  echo >&2 "Start finding start of ext4 file system in file '$IMAGE_FILE' ..."
-
-  # Define the search boundary (in bytes)
-  local SEARCH_BOUNDARY=200  # This is the search boundary for extracting data before and after 'rootfs_data'
-  local EXT4_MAGIC_KEY="\x53\xef"  # This is the magic key identifying the ext4 file system (as hex string)
-  local ROOTFS_PATTERN="rootfs_data"  # This is the pattern we are searching for in the file
-
-  # Step 1: Find the OFFSET of the first occurrence of 'rootfs_data'
-  local OFFSET=`grep -obam 1 "$ROOTFS_PATTERN" "$IMAGE_FILE" | awk -F':' '{print $1}'`
-
-  if [ -z "$OFFSET" ]; then
-    echo >&2 "'$ROOTFS_PATTERN' not found in the file."
-    return 1
-  fi
-
-  # Output OFFSET in hexadecimal format
-  echo >&2 "Found volume name '$ROOTFS_PATTERN' at offset: 0x$(printf '%x' "$OFFSET")"
-
-  # Step 2: Use dd to extract the bytes and search for the EXT4_MAGIC_KEY
-  # Extract the byte offset from the grep result (this is relative to the start of the dd block)
-  local offset_in_block=`dd if="$IMAGE_FILE" bs=1 skip=$((OFFSET - SEARCH_BOUNDARY)) count=$SEARCH_BOUNDARY 2>/dev/null | 
-    LANG=C grep -obUaPm 1 $EXT4_MAGIC_KEY | cut -d: -f1`
-
-  if [ -z "$offset_in_block" ]; then
-    echo >&2 "ext4 magic key not found in the file."
-    return 1
-  fi
-
-  local actual_offset=$((offset_in_block + OFFSET - SEARCH_BOUNDARY)) # Adjust the offset to the actual position in the original file
-  local ext4_start_offset=$((actual_offset - 1080))  # Subtract 1080 bytes from the found offset. ext4 is starting 1080 before 0x53ef
-
-  # Show the adjusted actual_offset
-  #echo >&2 "Offset in dd block: 0x$(printf '%x' "$offset_in_block")"
-  echo >&2 "Found ext4 magic key '$EXT4_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset")"
-  echo >&2 "ext4 file system start at offset: 0x$(printf '%x' "$ext4_start_offset")"
-
-  echo $ext4_start_offset
-}
-
-# Function to find the ext4 file system start offset from a OpenWrt given file
-find_f2fs_offset() {
-  local IMAGE_FILE="$1"
-  local SQUASHFS_OFFSET="$2"
-  echo >&2 "Start finding start of j2fs file system in file '$IMAGE_FILE' ..."
-
-  # Define the search boundary (in bytes)
-  local SQUASHFS_SIZE_APPROX=4000000  # This is the size assumtion of squashfs file system that is located before the j2fs
-  local J2FS_MAGIC_KEY="\x10\x20\xf5\xf2"  # This is the magic key identifying the ext4 file system (as hex string)
-
-  local offset_in_block=`dd if="$IMAGE_FILE" bs=1 skip=$((SQUASHFS_OFFSET + SQUASHFS_SIZE_APPROX)) 2>/dev/null | \
-    LANG=C grep -obUaPm 1 "$J2FS_MAGIC_KEY" | cut -d: -f1`
-
-  if [ -z "$offset_in_block" ]; then
-    echo >&2 "j2fs magic key not found in the file."
-    return 1
-  fi
-
-  local actual_offset=$((offset_in_block + SQUASHFS_OFFSET + SQUASHFS_SIZE_APPROX)) # Adjust the offset to the actual position in the original file
-  local j2fs_start_offset=$((actual_offset - 1024))  # Subtract 1024 bytes from the found offset. j2fs is starting 1024 before 0x1020f5f2
-
-  echo >&2 "Found j2fs magic key '$J2FS_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset")"
-  echo >&2 "j2fs file system start at offset: 0x$(printf '%x' "$j2fs_start_offset")"
-
-  echo $j2fs_start_offset
-}
-
-mount_squashfs_combined_image() {
-  local IMAGE_FILE="$1"
-
-  squashfs_start_offset=$(find_squashfs_offset "$IMAGE_FILE")
-
-  CPU_ARCH=$(arch)
-  if [ $CPU_ARCH = "aarch64" ]; then
-    start_offset=$(find_f2fs_offset "$IMAGE_FILE" "$squashfs_start_offset")
-  else
-    start_offset=$(find_ext4_offset "$IMAGE_FILE")
-  fi
-  
-  mkdir -p /tmp/squashfs_dir
-  mkdir -p /tmp/userdata_dir
-
-  mount -o offset="$squashfs_start_offset",sizelimit=$((start_offset-squashfs_start_offset)) "$IMAGE_FILE" /tmp/squashfs_dir
-  mount -o offset="$start_offset" "$IMAGE_FILE" /tmp/userdata_dir
-  mount -t overlay -o lowerdir=/tmp/squashfs_dir,upperdir=/tmp/userdata_dir/upper,workdir=/tmp/userdata_dir/work overlay /mnt
-}
-
-umount_squashfs_combined_image() {
-  umount /mnt
-  umount /tmp/userdata_dir
-  umount /tmp/squashfs_dir
-}
-
 SQUASHFS_COMBINED=/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img
+CPU_ARCH=$(arch)
 
 # Migrate settings from old OpenWrt version to new one
 if [ -f /storage/old_version ]; then
@@ -138,20 +24,20 @@ if [ -f /storage/old_version ]; then
       mv /mnt/tmp/openwrt_config.tar.gz  /storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz
       umount /mnt
   else
-      mount_squashfs_combined_image /storage/$OLD_SQUASHFS_COMBINED
+      /run/mount_openwrt_squashfs_combined.sh /storage/$OLD_SQUASHFS_COMBINED $CPU_ARCH
       chroot /mnt/ mkdir -p /var/lock
       chroot /mnt /sbin/sysupgrade -k -b /tmp/openwrt_config.tar.gz
       mv /mnt/tmp/openwrt_config.tar.gz /storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz
-      umount_squashfs_combined_image
+      /run/mount_openwrt_squashfs_combined.sh -u
   fi
 
   # Put config backup to new squashfs-combined
-  mount_squashfs_combined_image $SQUASHFS_COMBINED
+  /run/mount_openwrt_squashfs_combined.sh $SQUASHFS_COMBINED $CPU_ARCH
   mkdir -p /mnt/root/backup
   cp /storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz /mnt/root/backup/config.tar.gz
   chroot /mnt/ mkdir -p /var/lock
   chroot /mnt /sbin/sysupgrade -r /root/backup/config.tar.gz
-  umount_squashfs_combined_image 
+  /run/mount_openwrt_squashfs_combined.sh -u 
 
   # Finally remove old squashfs-combined and old files
   rm /storage/$OLD_SQUASHFS_COMBINED
