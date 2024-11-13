@@ -108,51 +108,56 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && wget $OPENWRT_IMAGE -O /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     && gzip -d /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     \
-    # Boot OpenWrt in order to install additional packages and settings
-    && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \ 
+    # Each CPU archtecture need needs a different SSH port to make a possible to make a parallel build \
+    && SSH_PORT=1022 \
+    \
+    # Boot OpenWrt in order to install additional packages and settings \
+    && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
+        SSH_PORT=1022; \
         qemu-system-x86_64 -M pc -smp 2 -nographic -nodefaults -m 256 \
         -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
         -device virtio-blk-pci,drive=hd0 \
-        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::8022-192.168.1.1:22 \
+        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
         -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
         -daemonize; \
     else \
+        SSH_PORT=2022; \
         qemu-system-aarch64 -M virt -cpu cortex-a53 -smp 2 -nographic -nodefaults -m 256 \
         -bios /usr/share/qemu/edk2-aarch64-code.fd \
         -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
         -device virtio-blk-pci,drive=hd0 \
-        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::8022-192.168.1.1:22 \
+        -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
         -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
         -daemonize; \
     fi \
     \
-    && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p 8022 'opkg update'; do echo "Retrying ssh ..."; sleep 1; done \
+    && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p $SSH_PORT 'opkg update'; do echo "Retrying ssh ..."; sleep 1; done \
     # Download Luci, qemu guest agent and mDNS support \
-    && ssh root@localhost -p 8022 'opkg install qemu-ga luci luci-ssl umdns' \
+    && ssh root@localhost -p $SSH_PORT 'opkg install qemu-ga luci luci-ssl umdns' \
     # Download Wi-Fi access point support and Wi-Fi USB devices support \
-    && ssh root@localhost -p 8022 'opkg install hostapd wpa-supplicant kmod-mt7921u' \
+    && ssh root@localhost -p $SSH_PORT 'opkg install hostapd wpa-supplicant kmod-mt7921u' \
     # Download celluar network support \
-    && ssh root@localhost -p 8022 'opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils' \
+    && ssh root@localhost -p $SSH_PORT 'opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils' \
     # Download basic GPS support \ 
-    && ssh root@localhost -p 8022 'opkg install kmod-usb-serial usbutils minicom gpsd' \
+    && ssh root@localhost -p $SSH_PORT 'opkg install kmod-usb-serial usbutils minicom gpsd' \
     # Add Wireguard support \
-    && ssh root@localhost -p 8022 'opkg install wireguard-tools luci-proto-wireguard' \
+    && ssh root@localhost -p $SSH_PORT 'opkg install wireguard-tools luci-proto-wireguard' \
     \
     # Add default network config \
-    && ssh root@localhost -p 8022 "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
+    && ssh root@localhost -p $SSH_PORT "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
     \
     # Add some files \
-    && ssh root@localhost -p 8022 'opkg install openssh-sftp-server' \
+    && ssh root@localhost -p $SSH_PORT 'opkg install openssh-sftp-server' \
     && chmod +x /var/vm/openwrt_additional/usr/bin/* \
-    && scp -P 8022 /var/vm/openwrt_additional/usr/bin/* root@localhost:/usr/bin \
-    && ssh root@localhost -p 8022 'opkg remove openssh-sftp-server' \
+    && scp -P $SSH_PORT /var/vm/openwrt_additional/usr/bin/* root@localhost:/usr/bin \
+    && ssh root@localhost -p $SSH_PORT 'opkg remove openssh-sftp-server' \
     \
     # Sync changes into image and kill qemu
-    && ssh root@localhost -p 8022 'sync; halt' \
+    && ssh root@localhost -p $SSH_PORT 'sync; halt' \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        while pgrep -x "qemu-system-x86_64" >/dev/null; do echo "Wait for exit of qemu ..."; sleep 1; done; \
+        while pgrep -x "qemu-system-x86_64" >/dev/null; do echo "Wait for exiting of qemu ..."; sleep 1; done; \
     else \
-        while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Wait for exit of qemu ..."; sleep 1; done \
+        while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Wait for exiting of qemu ..."; sleep 1; done \
     fi \
     \
     && gzip /var/vm/squashfs-combined-${OPENWRT_VERSION}.img \

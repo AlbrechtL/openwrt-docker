@@ -48,7 +48,6 @@ jobs:
           context: .
           push: true
           provenance: false
-          allow: security.insecure,network.host
           platforms: |
             linux/x86_64
             linux/arm64
