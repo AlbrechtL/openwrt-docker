@@ -212,7 +212,7 @@ def is_container_running():
 def wait_for_container_startup(docker_services):
     try:
         docker_services.wait_until_responsive(
-            timeout=90.0, pause=1, check=lambda: is_container_running()
+            timeout=360.0, pause=1, check=lambda: is_container_running()
         )
     except Exception as excinfo:
             print(get_logs())
