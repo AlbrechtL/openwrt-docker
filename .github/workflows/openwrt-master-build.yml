@@ -171,7 +171,9 @@ jobs:
           echo $IMAGE
 
           # Mount volume
-          sudo mount /var/lib/docker/volumes/openwrt-docker_data/_data/$IMAGE /mnt
+          wget https://raw.githubusercontent.com/AlbrechtL/openwrt-docker/refs/heads/master/src/mount_openwrt_squashfs_combined.sh
+          chmod +x mount_openwrt_squashfs_combined.sh
+          sudo ./mount_openwrt_squashfs_combined.sh $IMAGE x86_64 $(arch)
 
       - name: Generate OpenWrt SBOM
         uses: anchore/sbom-action@v0
