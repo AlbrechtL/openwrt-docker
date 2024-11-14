@@ -167,7 +167,10 @@ jobs:
           # Mount volume
           wget https://raw.githubusercontent.com/AlbrechtL/openwrt-docker/refs/heads/master/src/mount_openwrt_squashfs_combined.sh
           chmod +x mount_openwrt_squashfs_combined.sh
-          sudo ./mount_openwrt_squashfs_combined.sh "/var/lib/docker/volumes/${IMAGE}" $(arch)
+          sudo ./mount_openwrt_squashfs_combined.sh "/var/lib/docker/volumes/openwrt-docker_data/_data/${IMAGE}" $(arch)
+
+          # Double check if OpenWrt rootfs is mounted
+          [[ ! -f /mnt/etc/openwrt_version  ]] && exit 1
 
       - name: Generate OpenWrt SBOM
         uses: anchore/sbom-action@v0
