@@ -3,6 +3,8 @@
 # mount_openwrt_squashfs_combined.sh - Mounts openwrt-armsr-armv8-generic-squashfs-combined.img 
 # or openwrt-x86-64-generic-squashfs-combined.img filesystem images
 #
+# Copyright Albrecht Lohofener 2024 <albrechtloh@gmx.de>
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
