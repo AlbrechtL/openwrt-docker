@@ -380,8 +380,8 @@ def test_openwrt_migrate_existing_volume(docker_services):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('','','20240922_test_volume_openwrt_23.05.4.tar.gz')], indirect=True,
-    ids=['20240922_test_volume_openwrt_23.05.4'])
+    [('','','20240922_test_volume_openwrt_23.05.4'),('','','20241114_test_volume_openwrt_23.05.5')], indirect=True,
+    ids=['20240922_test_volume_openwrt_23.05.4', '20241114_test_volume_openwrt_23.05.5'])
 def test_openwrt_migrate_settings(docker_services):
     wait_for_openwrt_startup(docker_services)
 
