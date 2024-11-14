@@ -126,6 +126,9 @@ find_f2fs_offset() {
 }
 
 umount_squashfs_combined_image() {
+  umount /mnt/overlay
+  umount /mnt/rom
+  umount /mnt/dev
   umount /mnt
   umount /tmp/userdata_dir
   umount /tmp/squashfs_dir
@@ -169,8 +172,16 @@ fi
 mkdir -p /tmp/squashfs_dir
 mkdir -p /tmp/userdata_dir
 
+# Mount lower and upper file systems
 mount -o offset="$squashfs_start_offset",sizelimit=$((start_offset-squashfs_start_offset)) "$IMAGE_FILE" /tmp/squashfs_dir
 mount -o offset="$start_offset" "$IMAGE_FILE" /tmp/userdata_dir
+
+# Mount overlay
 mount -t overlay -o lowerdir=/tmp/squashfs_dir,upperdir=/tmp/userdata_dir/upper,workdir=/tmp/userdata_dir/work overlay /mnt
+
+# Do some bind mounts that OpenWrt tools like sysupgrade are working properly
+mount -o bind /tmp/userdata_dir /mnt/overlay/
+mount -o bind /tmp/squashfs_dir /mnt/rom/
+mount -o bind /dev /mnt/dev
 
 echo "Image $IMAGE_FILE sucessfully mounted to /mnt"
