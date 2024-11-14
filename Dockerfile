@@ -108,7 +108,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && wget $OPENWRT_IMAGE -O /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     && gzip -d /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     \
-    # Each CPU archtecture need needs a different SSH port to make a possible to make a parallel build \
+    # Each CPU architecture needs a different SSH port to make a possible to make a parallel build \
     && SSH_PORT=1022 \
     \
     # Boot OpenWrt in order to install additional packages and settings \
@@ -131,33 +131,47 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         -daemonize; \
     fi \
     \
-    && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p $SSH_PORT 'opkg update'; do echo "Retrying ssh ..."; sleep 1; done \
+    # OpenWrt master uses apk insted of opkg \
+    && if [ "$OPENWRT_VERSION" = "master" ]; then \
+        PACKAGE_UPDATE="apk update"; \    
+        PACKAGE_INSTALL="apk add"; \
+        PACKAGE_REMOVE="apk del"; \
+        PACKAGE_EXTRA="libudev-zero"; \
+    else \
+        PACKAGE_UPDATE="opkg update"; \
+        PACKAGE_INSTALL="opkg install"; \
+        PACKAGE_REMOVE="opkg remove"; \    
+        PACKAGE_EXTRA=""; \
+    fi \
+    \
+    # Wait for OpenWrt startup and update repo \
+    && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p $SSH_PORT "${PACKAGE_UPDATE}"; do echo "Retrying ssh ..."; sleep 1; done \
     # Download Luci, qemu guest agent and mDNS support \
-    && ssh root@localhost -p $SSH_PORT 'opkg install qemu-ga luci luci-ssl umdns' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} qemu-ga luci luci-ssl umdns ${PACKAGE_EXTRA}" \
     # Download Wi-Fi access point support and Wi-Fi USB devices support \
-    && ssh root@localhost -p $SSH_PORT 'opkg install hostapd wpa-supplicant kmod-mt7921u' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} hostapd wpa-supplicant kmod-mt7921u" \
     # Download celluar network support \
-    && ssh root@localhost -p $SSH_PORT 'opkg install modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils" \
     # Download basic GPS support \ 
-    && ssh root@localhost -p $SSH_PORT 'opkg install kmod-usb-serial usbutils minicom gpsd' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} kmod-usb-serial usbutils minicom gpsd" \
     # Add Wireguard support \
-    && ssh root@localhost -p $SSH_PORT 'opkg install wireguard-tools luci-proto-wireguard' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} wireguard-tools luci-proto-wireguard" \
     \
     # Add default network config \
     && ssh root@localhost -p $SSH_PORT "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
     \
     # Add some files \
-    && ssh root@localhost -p $SSH_PORT 'opkg install openssh-sftp-server' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL}  openssh-sftp-server" \
     && chmod +x /var/vm/openwrt_additional/usr/bin/* \
     && scp -P $SSH_PORT /var/vm/openwrt_additional/usr/bin/* root@localhost:/usr/bin \
-    && ssh root@localhost -p $SSH_PORT 'opkg remove openssh-sftp-server' \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_REMOVE} openssh-sftp-server" \
     \
     # Sync changes into image and kill qemu
     && ssh root@localhost -p $SSH_PORT 'sync; halt' \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        while pgrep -x "qemu-system-x86_64" >/dev/null; do echo "Wait for exiting of qemu ..."; sleep 1; done; \
+        while pgrep -x "qemu-system-x86_64" >/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done; \
     else \
-        while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Wait for exiting of qemu ..."; sleep 1; done \
+        while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done \
     fi \
     \
     && gzip /var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
