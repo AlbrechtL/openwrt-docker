@@ -41,8 +41,7 @@ show_help() {
 # Function to find the squashfs file system start offset from a OpenWrt given file
 find_squashfs_offset() {
   local IMAGE_FILE="$1"
-  echo >&2 "Start finding start of squashfs file system in file '"$IMAGE_FILE"' ..."
-
+  
   # Use fdisk to find the squashfs partition
   local squashfs_start_sectors=`fdisk -l "$IMAGE_FILE" | awk '/^.*squashfs-combined.*.img2/ {print $2}'` # use the 4th ouput as sectors
 
@@ -61,7 +60,6 @@ find_squashfs_offset() {
 # Function to find the ext4 file system start offset from a OpenWrt given file
 find_ext4_offset() {
   local IMAGE_FILE="$1"
-  echo >&2 "Start finding start of ext4 file system in file '$IMAGE_FILE' ..."
 
   # Define the search boundary (in bytes)
   local SEARCH_BOUNDARY=200  # This is the search boundary for extracting data before and after 'rootfs_data'
@@ -155,6 +153,10 @@ fi
 # Assign arguments to variables
 IMAGE_FILE="$1"
 CPU_ARCH="$2"
+
+set -Eeuo pipefail
+
+echo >&2 "Start finding file system offsets in file '"$IMAGE_FILE"' ..."
 
 squashfs_start_offset=$(find_squashfs_offset "$IMAGE_FILE")
 
