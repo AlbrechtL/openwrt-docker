@@ -32,6 +32,7 @@ show_help() {
   echo
   echo "Options:"
   echo "  -u, --umount  Unmounts a previous mounted image"
+  echo "  -o, --offsets Give offsets (comma-separated <squashfs>,<ext4 or f2fs>)"
   echo "  -h, --help    Display this help message"
   echo
   echo "Example:"
@@ -52,7 +53,7 @@ find_squashfs_offset() {
 
   local squashfs_offset=$(( squashfs_start_sectors * 512 )) # Each sector has 512 bytes
 
-  echo >&2 "squashfs file system start at offset 0x$(printf '%x' "$squashfs_offset")"
+  echo >&2 "squashfs file system start at offset 0x$(printf '%x' "$squashfs_offset") ($squashfs_offset)"
 
   echo $squashfs_offset
 }
@@ -75,7 +76,7 @@ find_ext4_offset() {
   fi
 
   # Output OFFSET in hexadecimal format
-  echo >&2 "Found volume name '$ROOTFS_PATTERN' at offset: 0x$(printf '%x' "$OFFSET")"
+  echo >&2 "Found volume name '$ROOTFS_PATTERN' at offset: 0x$(printf '%x' "$OFFSET") ($OFFSET)"
 
   # Step 2: Use dd to extract the bytes and search for the EXT4_MAGIC_KEY
   # Extract the byte offset from the grep result (this is relative to the start of the dd block)
@@ -92,8 +93,8 @@ find_ext4_offset() {
 
   # Show the adjusted actual_offset
   #echo >&2 "Offset in dd block: 0x$(printf '%x' "$offset_in_block")"
-  echo >&2 "Found ext4 magic key '$EXT4_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset")"
-  echo >&2 "ext4 file system start at offset: 0x$(printf '%x' "$ext4_start_offset")"
+  echo >&2 "Found ext4 magic key '$EXT4_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset") ($actual_offset)"
+  echo >&2 "ext4 file system start at offset: 0x$(printf '%x' "$ext4_start_offset") ($ext4_start_offset)"
 
   echo $ext4_start_offset
 }
@@ -102,7 +103,6 @@ find_ext4_offset() {
 find_f2fs_offset() {
   local IMAGE_FILE="$1"
   local SQUASHFS_OFFSET="$2"
-  echo >&2 "Start finding start of j2fs file system in file '$IMAGE_FILE' ..."
 
   # Define the search boundary (in bytes)
   local SQUASHFS_SIZE_APPROX=4000000  # This is the size assumtion of squashfs file system that is located before the j2fs
@@ -119,8 +119,8 @@ find_f2fs_offset() {
   local actual_offset=$((offset_in_block + SQUASHFS_OFFSET + SQUASHFS_SIZE_APPROX)) # Adjust the offset to the actual position in the original file
   local j2fs_start_offset=$((actual_offset - 1024))  # Subtract 1024 bytes from the found offset. j2fs is starting 1024 before 0x1020f5f2
 
-  echo >&2 "Found j2fs magic key '$J2FS_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset")"
-  echo >&2 "j2fs file system start at offset: 0x$(printf '%x' "$j2fs_start_offset")"
+  echo >&2 "Found j2fs magic key '$J2FS_MAGIC_KEY' at offset: 0x$(printf '%x' "$actual_offset") ($actual_offset)"
+  echo >&2 "j2fs file system start at offset: 0x$(printf '%x' "$j2fs_start_offset") ($j2fs_start_offset)"
 
   echo $j2fs_start_offset
 }
@@ -140,9 +140,26 @@ if [[ "$1" == "-h" || "$1" == "--help" ]]; then
   exit 0
 fi
 
-# Check for help option
+# Check for umount option
 if [[ "$1" == "-u" || "$1" == "--umount" ]]; then
   umount_squashfs_combined_image
+  exit 0
+fi
+
+# Check for give offsets option
+if [[ "$1" == "-o" || "$1" == "--offsets" ]]; then
+  IMAGE_FILE="$2"
+  CPU_ARCH="$3"
+
+  squashfs_start_offset=$(find_squashfs_offset "$IMAGE_FILE")
+
+  if [ $CPU_ARCH = "aarch64" ]; then
+    start_offset=$(find_f2fs_offset "$IMAGE_FILE" "$squashfs_start_offset")
+  else
+    start_offset=$(find_ext4_offset "$IMAGE_FILE")
+  fi
+
+  echo "$squashfs_start_offset,$start_offset"
   exit 0
 fi
 
@@ -164,9 +181,9 @@ echo >&2 "Start finding file system offsets in file '"$IMAGE_FILE"' ..."
 squashfs_start_offset=$(find_squashfs_offset "$IMAGE_FILE")
 
 if [ $CPU_ARCH = "aarch64" ]; then
-start_offset=$(find_f2fs_offset "$IMAGE_FILE" "$squashfs_start_offset")
+  start_offset=$(find_f2fs_offset "$IMAGE_FILE" "$squashfs_start_offset")
 else
-start_offset=$(find_ext4_offset "$IMAGE_FILE")
+  start_offset=$(find_ext4_offset "$IMAGE_FILE")
 fi
 
 mkdir -p /tmp/squashfs_dir
