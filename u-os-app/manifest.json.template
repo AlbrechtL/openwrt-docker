@@ -130,12 +130,12 @@
         "select": [
           {
             "label": "Yes",
-            "value": "true"
+            "value": "true",
+            "default": true
           },
           {
             "label": "No",
-            "value": "false",
-            "default": true
+            "value": "false"
           }
         ]
       },
