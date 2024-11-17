@@ -58,7 +58,8 @@ if [ -f /storage/old_version ]; then
      -device virtio-blk-pci,drive=hd2 \
      -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=172.31.1.0/24,hostfwd=tcp::1022-172.31.1.1:22 \
      -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
-     -daemonize
+     & QEMU_PID=$!
+    echo "QEMU started with PID $QEMU_PID"
 
     # Wait until OpenWrt has booted
     until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p 1022 "cat /etc/banner"; do echo "Waiting for OpenWrt boot ..."; sleep 1; done
@@ -107,17 +108,10 @@ if [ -f /storage/old_version ]; then
     ssh root@localhost -p 1022 "chroot /mnt/ mkdir -p /var/lock"
     ssh root@localhost -p 1022 "cp /tmp/openwrt_config.tar.gz /mnt/tmp"
     ssh root@localhost -p 1022 "chroot /mnt /sbin/sysupgrade -r /tmp/openwrt_config.tar.gz"
-    ssh root@localhost -p 1022 "umount /mnt/overlay"
-    ssh root@localhost -p 1022 "umount /mnt/rom"
-    ssh root@localhost -p 1022 "umount /mnt/dev"
-    ssh root@localhost -p 1022 "umount /mnt"
-    ssh root@localhost -p 1022 "umount /tmp/userdata_dir"
-    ssh root@localhost -p 1022 "umount /tmp/squashfs_dir"
-    ssh root@localhost -p 1022 "losetup -d /dev/loop1"
 
     # Stop VM
     ssh root@localhost -p 1022 'sync; halt' 
-    while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done;
+    while kill -0 $QEMU_PID 2>/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done;
 
     # Delete temporary OpenWrt image
     rm /tmp/squashfs-combined-tmp.img
