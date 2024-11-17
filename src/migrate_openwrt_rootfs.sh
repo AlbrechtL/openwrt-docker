@@ -68,7 +68,7 @@ if [ -f /storage/old_version ]; then
 
     if [[ $OLD_SQUASHFS_COMBINED == *"rootfs"* ]]; then
         warn "Using rootfs-<UUID>.img images is deprecated!"
-        ssh root@localhost -p 1022 "mount /dev/vdb2 /mnt"
+        ssh root@localhost -p 1022 "mount /dev/vdb /mnt"
         ssh root@localhost -p 1022 "chroot /mnt/ mkdir -p /var/lock"
         ssh root@localhost -p 1022 "chroot /mnt /sbin/sysupgrade -k -b /tmp/openwrt_config.tar.gz"
         ssh root@localhost -p 1022 "cp /mnt/tmp/openwrt_config.tar.gz /tmp"
