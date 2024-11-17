@@ -44,8 +44,7 @@ if [ -f /storage/old_version ]; then
     # This is a workaround!
    
     # Make a copy from the original OpenWrt image
-    cp /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz /tmp/squashfs-combined-tmp.img.gz
-    gzip -d /tmp/squashfs-combined-tmp.img.gz
+    cp $SQUASHFS_COMBINED /tmp/squashfs-combined-tmp.img
 
     # Boot a temporary OpenWrt
     qemu-system-aarch64 -M virt -cpu host --enable-kvm -smp 2 -nographic -nodefaults -m 256 \
