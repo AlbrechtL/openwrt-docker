@@ -37,7 +37,6 @@ FROM alpine:latest
 
 ARG NOVNC_VERSION="1.5.0" 
 ARG OPENWRT_VERSION="23.05.5"
-ARG VERSION_ARG="0.1"
 ARG TARGETPLATFORM
 ARG OPENWRT_ROOTFS_IMG
 ARG OPENWRT_KERNEL
@@ -181,7 +180,8 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && echo "OPENWRT_VERSION=\"${OPENWRT_VERSION}\"" > /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_IMAGE_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf \
     && echo "OPENWRT_IMAGE_ID=\"`uuidgen`\"" >> /var/vm/openwrt_metadata.conf \
-    && echo "OPENWRT_CPU_ARCH=\"${TARGETPLATFORM}\"" >> /var/vm/openwrt_metadata.conf
+    && echo "OPENWRT_CPU_ARCH=\"${TARGETPLATFORM}\"" >> /var/vm/openwrt_metadata.conf \
+    && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
 COPY --from=builder /usr/local/bin/qemu-openwrt-web-backend /usr/local/bin/qemu-openwrt-web-backend
 COPY ./src /run/
@@ -193,9 +193,6 @@ VOLUME /storage
 EXPOSE 8006
 EXPOSE 8000
 EXPOSE 8022
-
-RUN echo "$VERSION_ARG" > /run/version \
-    && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
 HEALTHCHECK --start-period=10m CMD /run/healthcheck.sh
 

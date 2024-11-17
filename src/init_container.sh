@@ -1,16 +1,14 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+. /var/vm/openwrt_metadata.conf
 . /run/helpers.sh
 
 [ ! -f "/run/init_container.sh" ] && error "Script must run inside Docker container!" && exit 11
 [ "$(id -u)" -ne "0" ] && error "Script must be executed with root privileges." && exit 12
 
-APP="OpenWrt"
-SUPPORT="https://github.com/AlbrechtL/openwrt-docker"
-
-echo "❯ Starting $APP for Docker v$(</run/version)..."
-echo "❯ For support visit $SUPPORT"
+echo "❯ Starting OpenWrt $OPENWRT_VERSION for Docker ..."
+echo "❯ For support visit https://github.com/AlbrechtL/openwrt-docker"
 echo
 
 # Show alpine version
