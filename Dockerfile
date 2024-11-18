@@ -146,8 +146,8 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     \
     # Wait for OpenWrt startup and update repo \
     && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p $SSH_PORT "cat /etc/banner"; do echo "Waiting for OpenWrt boot ..."; sleep 1; done \
-    # Update package repo \
-    && ssh root@localhost -p $SSH_PORT "${PACKAGE_UPDATE}" \
+    # Update package repo. Some some reasons it can fail. So try it until we are successfull. \
+    && until ssh root@localhost -p $SSH_PORT "${PACKAGE_UPDATE}"; do echo "Retrying ${PACKAGE_UPDATE} ..."; sleep 1; done\
     # Download Luci, qemu guest agent and mDNS support \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} qemu-ga luci luci-ssl umdns losetup ${PACKAGE_EXTRA}" \
     # Download Wi-Fi access point support and Wi-Fi USB devices support \
