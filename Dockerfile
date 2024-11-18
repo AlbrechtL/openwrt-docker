@@ -118,7 +118,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         -device virtio-blk-pci,drive=hd0 \
         -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
         -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
-        -daemonize; \
+        & QEMU_PID=$!; \
     else \
         SSH_PORT=2022; \
         qemu-system-aarch64 -M virt -cpu cortex-a53 -nographic -nodefaults -m 256 \
@@ -127,8 +127,9 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         -device virtio-blk-pci,drive=hd0 \
         -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
         -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
-        -daemonize; \
+        & QEMU_PID=$!; \
     fi \
+    && echo "QEMU started with PID $QEMU_PID" \
     \
     # OpenWrt master uses apk insted of opkg \
     && if [ "$OPENWRT_VERSION" = "master" ]; then \
@@ -167,13 +168,9 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && scp -P $SSH_PORT /var/vm/openwrt_additional/usr/bin/* root@localhost:/usr/bin \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_REMOVE} openssh-sftp-server" \
     \
-    # Sync changes into image and kill qemu
+    # Sync changes into image and shutdown qemu \
     && ssh root@localhost -p $SSH_PORT 'sync; halt' \
-    && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
-        while pgrep -x "qemu-system-x86_64" >/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done; \
-    else \
-        while pgrep -x "qemu-system-aarch64" >/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done \
-    fi \
+    && while kill -0 $QEMU_PID 2>/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done \
     \
     && gzip /var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
     \
