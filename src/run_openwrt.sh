@@ -129,7 +129,7 @@ attach_veth_if () {
 
 # Handle dirfferent architectures
 if [ $CPU_ARCH = "aarch64" ]; then
-  CPU_ARGS="-cpu cortex-a53 -M virt -bios /usr/share/qemu/edk2-aarch64-code.fd -vga none -device ramfb"
+  CPU_ARGS="-M virt -bios /usr/share/qemu/edk2-aarch64-code.fd -vga none -device ramfb"
 else
   CPU_ARGS="-M pc -vga std"
 fi
@@ -143,12 +143,11 @@ if [ ! -e /dev/kvm ]; then
     if ! sh -c 'echo -n > /dev/kvm' &> /dev/null; then
       KVM_ERR="(no write access)"
     else
-      CPU_ARGS+=" --enable-kvm -cpu host"
       info "KVM detected"
     fi
 fi
 if [ -n "$KVM_ERR" ]; then
-    info "KVM acceleration not detected $KVM_ERR, this will cause a major loss of performance."
+    error "KVM acceleration not detected $KVM_ERR."
 fi
 
 # Attach physical PHY to container
@@ -212,6 +211,7 @@ info "Booting image using $VERS..."
 
 #************************ FINAL BOOTING ************************
 exec qemu-system-"$CPU_ARCH" \
+--enable-kvm -cpu host \
 -m 256 \
 -nodefaults \
  $CPU_ARGS -smp $CPU_COUNT \
