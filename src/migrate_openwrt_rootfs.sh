@@ -94,12 +94,12 @@ if [ -f /storage/old_version ]; then
   # Delete temporary OpenWrt image
   rm /tmp/squashfs-combined-tmp.img
 
-  # # Finally remove old squashfs-combined and old files
-  # rm /storage/$OLD_SQUASHFS_COMBINED
-  # rm /storage/old_version
-  # if [ -f storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz ]; then
-  #   rm /storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz
-  # fi
+  # Finally remove old squashfs-combined and old files
+  rm /storage/$OLD_SQUASHFS_COMBINED
+  rm /storage/old_version
+  if [ -f storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz ]; then
+    rm /storage/config-`basename $OLD_SQUASHFS_COMBINED.img`.tar.gz
+  fi
 else
   info "squashfs-combined-${OPENWRT_IMAGE_ID}.img is up to date. Nothing to do."
 fi
