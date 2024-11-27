@@ -158,9 +158,12 @@ jobs:
 
       - name: Prepare OpenWrt rootfs
         run: |
+          # Use automated generated image
+          sed -i 's/image: albrechtloh\/openwrt-docker:latest/image: albrechtloh\/openwrt-docker:ci-openwrt-2410-snapshot/g' docker-compose.yml
+
           # Run OpenWrt container for some time to install additional IPKs
           set +e # Enable that the next command can fail
-          timeout --preserve-status 30 docker compose up
+          timeout --preserve-status 60 docker compose up
           set -e # Revert set +e
 
           # Get image from volume
