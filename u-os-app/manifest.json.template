@@ -2,7 +2,7 @@
   "manifestVersion": "0.2",
   "version": "APPVERSION_TO_INSERT",
   "title": "OpenWrt preview",
-  "description": "Open source OpenWrt software router project (https://openwrt.org/). This software router preview requires a UC20-M3000/4000 with enabled KVM Linux kernel feature. Otherwise it will be unusable slow.",
+  "description": "Open source OpenWrt software router project (https://openwrt.org/). This software router preview requires a UC20-M3000/4000 with enabled KVM Linux kernel feature.",
   "logo": "openwrt_logo_text_vertical_blue_and_dark_blue.svg",
   "vendor": {
     "name": "Albrecht Lohofener",
@@ -172,6 +172,30 @@
           {
             "label": "4",
             "value": "4"
+          }
+        ]
+      },
+      {
+        "name": "RAM_COUNT",
+        "label": "Amount of memory",
+        "description": "You can select how much memory OpenWrt can use. Leave it by default if you are unsure. Default is 256 MB.",
+        "select": [
+          {
+            "label": "250 MB",
+            "value": "250",
+            "default": true
+          },
+          {
+            "label": "512 MB",
+            "value": "512"
+          },
+          {
+            "label": "1024 MB",
+            "value": "1024"
+          },
+          {
+            "label": "2048 MB",
+            "value": "2048"
           }
         ]
       }

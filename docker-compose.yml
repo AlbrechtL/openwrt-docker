@@ -13,11 +13,6 @@ services:
         #OPENWRT_VERSION: "master"
 
     environment:
-      #DEBUG: "y"
-
-      # Define number of VM CPUs
-      CPU_COUNT: 2
-
       # Define which physical or virtual interfaces shall be attach direct to OpenWrt
       # If WAN_IF/LAN_IF is missing then "host" mode is selected
       # -
@@ -38,6 +33,16 @@ services:
       # Currently only two USB devices are supported
       #USB_1: "0bda:8153"
       #USB_2: "0e8d:7961"
+
+      # Define number of VM CPUs
+      # If unset -> 1
+      CPU_COUNT: 2
+
+      # Define amount of VM memory in MB
+      # If unset -> 256
+      RAM_COUNT: 256
+
+      #DEBUG: "y"
 
     ports:
       # Port 8006 is console tty web VNC
