@@ -177,12 +177,12 @@
       },
       {
         "name": "RAM_COUNT",
-        "label": "Amount of memory",
+        "label": "Amount of memory in MB",
         "description": "You can select how much memory OpenWrt can use. Leave it by default if you are unsure. Default is 256 MB.",
         "select": [
           {
-            "label": "250 MB",
-            "value": "250",
+            "label": "256 MB",
+            "value": "256",
             "default": true
           },
           {
