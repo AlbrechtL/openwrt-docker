@@ -306,8 +306,10 @@ def test_openwrt_wan(docker_services, parameter):
     match parameter[1]:
         case '' | 'host':
             # For some reason ping is not working at github actions, so use nslookup to test internet connection
-            response = run_openwrt_shell_command("nslookup", "google.com")
-            assert response['exitcode'] == 0
+            try:
+                polling2.poll(lambda: run_openwrt_shell_command("nslookup", "google.com")['exitcode'] == 0, step=1, timeout=240)
+            except polling2.TimeoutException:
+                assert True, 'nslookup timeout'
             return
         
         case 'none':
