@@ -52,7 +52,7 @@ if [ -f /storage/old_version ]; then
       ssh root@localhost -p 1022 "cp /mnt/tmp/openwrt_config.tar.gz /tmp"
       ssh root@localhost -p 1022 "umount /mnt"
   else
-      FILESYSTEM_OFFSETS=$(/run/mount_openwrt_squashfs_combined.sh -o /storage/$OLD_SQUASHFS_COMBINED $CPU_ARCH)
+      FILESYSTEM_OFFSETS=$(/run/mount_openwrt_squashfs_combined.sh -o /storage/$OLD_SQUASHFS_COMBINED)
       WRITEABLE_FS_OFFSET=$(echo $FILESYSTEM_OFFSETS | cut -d',' -f2)
       ssh root@localhost -p 1022 "mount /dev/vdb2 /tmp/squashfs_dir"
       ssh root@localhost -p 1022 "losetup -o $WRITEABLE_FS_OFFSET /dev/loop1 /dev/vdb"
@@ -74,7 +74,7 @@ if [ -f /storage/old_version ]; then
   fi
 
   # Put config backup to new squashfs-combined
-  FILESYSTEM_OFFSETS=$(/run/mount_openwrt_squashfs_combined.sh -o $SQUASHFS_COMBINED $CPU_ARCH)
+  FILESYSTEM_OFFSETS=$(/run/mount_openwrt_squashfs_combined.sh -o $SQUASHFS_COMBINED)
   WRITEABLE_FS_OFFSET=$(echo $FILESYSTEM_OFFSETS | cut -d',' -f2)
   ssh root@localhost -p 1022 "mount /dev/vdc2 /tmp/squashfs_dir"
   ssh root@localhost -p 1022 "losetup -o $WRITEABLE_FS_OFFSET /dev/loop1 /dev/vdc"
