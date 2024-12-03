@@ -117,7 +117,7 @@ find_f2fs_offset() {
 
   # Define the search boundary (in bytes)
   local SQUASHFS_SIZE_APPROX=4000000  # This is the size assumption of squashfs file system that is located before the f2fs
-  local F2FS_MAX_SEARCH_BYTES=100000  # This is number of bytes to search for the f2fs magic key
+  local F2FS_MAX_SEARCH_BYTES=1000000  # This is number of bytes to search for the f2fs magic key
   local F2FS_MAGIC_KEY="\x10\x20\xf5\xf2"  # This is the magic key identifying the ext4 file system (as hex string)
 
   local offset_in_block=`dd if="$IMAGE_FILE" bs=1 skip=$((SQUASHFS_OFFSET + SQUASHFS_SIZE_APPROX)) count=$F2FS_MAX_SEARCH_BYTES 2>/dev/null | \
