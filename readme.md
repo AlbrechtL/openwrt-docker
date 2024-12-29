@@ -11,12 +11,14 @@ This Docker container brings you OpenWrt, a software-based router solution, in a
  - Supports all x86_64 and arm64 Linux based systems
    - x86_64 tested on some Intel and AMD system
    - arm64 tested on a [Raspberry Pi 5](https://www.raspberrypi.com/products/raspberry-pi-5/) and Weidmueller [UC20-M4000](https://eshop.weidmueller.com/en/uc20-m4000/p/2839160000)
- - KVM acceleration
+ - Uses official x86_64 and armsr (arm64) OpenWrt builds
+ - Full system virtualization with qemu
+ - Nearly native speed due KVM CPU acceleration and macvtap virtualized bridged networking
  - Web-based viewer for tty console
  - Attaches two physical Ethernet interfaces (LAN/WAN) exclusively into the docker container
  - Create virtual LAN between OpenWrt and host system (LAN only)
- - USB pass-through e.g. for modem or Wi-Fi
- - Automatic config migration when OpenWrt is updated (experimental)
+ - USB pass-through e.g. for modem or Wi-Fi dongles
+ - Automatic configuration migration when OpenWrt image is updated
 
 ## Pre-installed OpenWrt software packages
 
