@@ -96,6 +96,15 @@ I would like to thanks to following Open Source projects. Without these great wo
 * [Docker](https://www.docker.com/)
 * [Alpine Linux](https://www.alpinelinux.org/)
 
-## Disclaimer: Security Notice
+## Security notice
+1. **Lack of User Management in the Web Interface**
+The web interface does not include built-in user management. Any user who can access the web interface automatically has root access to OpenWrt. To enhance security, it is strongly recommended to place the web interface behind a reverse proxy with proper user authentication and access controls.
 
-This software container is a proof of concept and has not undergone comprehensive cybersecurity assessments. Users are cautioned that potential vulnerabilities may exist, posing risks to system security and data integrity. By deploying or using this container, users accept the associated risks, and the developers disclaim any responsibility for security incidents or data breaches. A thorough security evaluation, including penetration testing and compliance checks, is strongly advised before production deployment. The software is provided without warranty, and users are encouraged to provide feedback for collaborative efforts in addressing security concerns. Users acknowledge reading and understanding this disclaimer, assuming responsibility for ensuring their environment's security.
+2. **Host Root Access Implications**
+By design, any user with root access to the host system also has full control over OpenWrt. Additionally, such users can potentially sniff Ethernet traffic and perform man-in-the-middle (MITM) attacks, posing significant security risks. Ensure that root access to the host is strictly controlled and monitored.
+
+
+3. **Privileged Mode Requirement for OpenWrt Container**
+The OpenWrt container must run in privileged mode to ensure exclusive access to the host's Ethernet interfaces and to enable the reverse proxy for LuCI on the host. This is necessary for proper operation but comes with inherent security considerations.
+
+**Disclaimer:** This software container is a proof of concept and has not undergone comprehensive cybersecurity assessments. Users are cautioned that potential vulnerabilities may exist, posing risks to system security and data integrity. By deploying or using this container, users accept the associated risks, and the developers disclaim any responsibility for security incidents or data breaches. A thorough security evaluation, including penetration testing and compliance checks, is strongly advised before production deployment. The software is provided without warranty, and users are encouraged to provide feedback for collaborative efforts in addressing security concerns. Users acknowledge reading and understanding this disclaimer, assuming responsibility for ensuring their environment's security.
