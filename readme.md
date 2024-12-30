@@ -101,7 +101,7 @@ I would like to thanks to following Open Source projects. Without these great wo
 The web interface does not include built-in user management. Any user who can access the web interface automatically has root access to OpenWrt. To enhance security, it is strongly recommended to place the web interface behind a reverse proxy with proper user authentication and access controls.
 
 2. **Host Root Access Implications:**
-By design, any user with root access to the host system also has full control over OpenWrt. Additionally, such users can potentially sniff Ethernet traffic and perform man-in-the-middle (MITM) attacks, posing significant security risks. Ensure that root access to the host is strictly controlled and monitored.
+By design, any user with root access to the host system also has full control over OpenWrt. Such users can sniff Ethernet traffic and perform man-in-the-middle (MITM) attacks, creating significant security risks. The same applies when OpenWrt runs as a virtual machine directly on the host. To mitigate these risks, strictly control and monitor root access to the host system.
 
 
 3. **Privileged Mode Requirement for OpenWrt Container:**
