@@ -67,6 +67,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         usbutils \
         openssh-client \
         util-linux-misc \
+        iproute2 \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
