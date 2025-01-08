@@ -74,9 +74,19 @@ else
   LUCI_COMMAND="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run. 
 fi
 
+# ******* OpenWrt run command after boot handling *******
+if [[ -z "${OPENWRT_AFTER_BOOT_CMD}" ]]; then
+  OPENWRT_MULTIRUN_CMD="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run. 
+else
+  info "Invoke command \"${OPENWRT_AFTER_BOOT_CMD}\" into OpenWrt after it is booted"
+  OPENWRT_MULTIRUN_CMD="/run/run_command_after_openwrt_boot.sh \"${OPENWRT_AFTER_BOOT_CMD}\""
+fi
+
+
 # Start processes
 exec multirun \
   "qemu-openwrt-web-backend" \
   "nginx" \
   "/run/run_openwrt.sh" \
-  "$LUCI_COMMAND"
+  "$LUCI_COMMAND" \
+  "$OPENWRT_MULTIRUN_CMD"

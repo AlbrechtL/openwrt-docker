@@ -42,6 +42,11 @@ services:
       # If unset -> 256
       RAM_COUNT: 256
 
+      # User command or script to run after OpenWrt is booted
+      # Please note that all commands and script will be executed as root
+      #OPENWRT_AFTER_BOOT_CMD: "cat /etc/banner"
+      #OPENWRT_AFTER_BOOT_CMD: "/usr/bin/fw_wan_open_http"
+
       #DEBUG: "y"
 
     ports:
