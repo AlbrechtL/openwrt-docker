@@ -55,13 +55,13 @@ attach_eth_if () {
   QEMU_IF_MAC=${QEMU_MAC_OUI}${MAC:8} # Replaces the 8 first characters of the original MAC
 
   # Deacticate host interface
-  ip link set $HOST_IF down
+  ip link set $CONTAINER_IF down
 
   # Change MAC address of new interface
   ip link set $QEMU_IF address $QEMU_IF_MAC
 
   # Reactivate interfaces
-  ip link set $QEMU_IF up && ip link set $HOST_IF up
+  ip link set $QEMU_IF up && ip link set $CONTAINER_IF up
 }
 
 # Create veth pairs between host system and Docker container
