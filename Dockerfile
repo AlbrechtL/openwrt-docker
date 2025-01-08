@@ -160,6 +160,8 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} kmod-usb-serial usbutils minicom gpsd" \
     # Add Wireguard support \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} wireguard-tools luci-proto-wireguard" \
+    # Add Power off script support \
+    && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} luci-app-advanced-reboot" \
     \
     # Add default network config \
     && ssh root@localhost -p $SSH_PORT "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
