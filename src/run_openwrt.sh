@@ -55,6 +55,7 @@ attach_eth_if () {
   QEMU_IF_MAC=${QEMU_MAC_OUI}${MAC:8} # Replaces the 8 first characters of the original MAC
 
   # Deacticate host interface
+  # Ensure the interface is down to reliably change the MAC address without issues
   ip link set $CONTAINER_IF down
 
   # Change MAC address of new interface
