@@ -67,7 +67,8 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         usbutils \
         openssh-client \
         util-linux-misc \
-        iproute2 \
+        iproute2  \
+    # It seems that PROFINET packages are not forwarded correctly without the package iproute2. The reason is unknown. \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
     && tar -xf /tmp/novnc.tar.gz -C /tmp/ \

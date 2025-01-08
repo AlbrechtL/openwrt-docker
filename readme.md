@@ -9,7 +9,7 @@ This Docker container brings you OpenWrt, a software-based router solution, in a
 ## Features
 
  - Supports all x86_64 and arm64 Linux based systems
-   - x86_64 tested on some Intel and AMD system
+   - x86_64 tested on some Intel and AMD systems
    - arm64 tested on a [Raspberry Pi 5](https://www.raspberrypi.com/products/raspberry-pi-5/) and Weidmueller [UC20-M4000](https://eshop.weidmueller.com/en/uc20-m4000/p/2839160000)
  - Uses official x86_64 and armsr (arm64) OpenWrt builds
  - Full system virtualization with qemu
