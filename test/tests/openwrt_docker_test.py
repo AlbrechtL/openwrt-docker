@@ -489,3 +489,16 @@ def test_port_8022_ssh(docker_services):
         universal_newlines=True)
     
     assert ('OpenWrt' in process.stdout) == True
+
+
+@pytest.mark.parametrize("parameter", 
+    [('OPENWRT_AFTER_BOOT_CMD','a=$$((1+1));echo The result of 1+1 is $${a}')], indirect=True,
+    ids=['OPENWRT_AFTER_BOOT_CMD="a=$$((1+1));echo The result of 1+1 is $${a}"'])
+def test_openwrt_after_boot_cmd(docker_services):
+    wait_for_specific_log(docker_services, 'Detected OpenWrt is booted')
+
+    wait_for_specific_log(docker_services, 'Command "a=$((1+1));echo The result of 1+1 is ${a}" exit successfully')
+   
+    logs = get_logs()
+    assert ('The result of 1+1 is 2' in logs) == True
+
