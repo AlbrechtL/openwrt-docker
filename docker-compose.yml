@@ -44,8 +44,9 @@ services:
 
       # User command or script to run after OpenWrt is booted
       # Please note that all commands and script will be executed as root
-      #OPENWRT_AFTER_BOOT_CMD: "cat /etc/banner"
-      #OPENWRT_AFTER_BOOT_CMD: "/usr/bin/fw_wan_open_http"
+      #OPENWRT_AFTER_BOOT_CMD: "a=$$((1+1));echo The result of 1+1 is $${a}" # Shell script example
+      #OPENWRT_AFTER_BOOT_CMD: "/usr/bin/fw_wan_open_http" # Example to open HTTP port 80 at WAN side
+      #OPENWRT_AFTER_BOOT_CMD: "cat /etc/banner" # Custom commands example
 
       #DEBUG: "y"
 
