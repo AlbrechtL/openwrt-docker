@@ -58,5 +58,7 @@ fi
 echo "Run command \"$1\""
 /run/qemu_qmp.sh -c "$1"
 
+echo "Command \"$1\" exit successfully"
+
 # Never exit because multirun will exit the container then
 sleep infinity
