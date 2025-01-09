@@ -19,6 +19,7 @@ This Docker container brings you OpenWrt, a software-based router solution, in a
  - Create virtual LAN between OpenWrt and host system (LAN only)
  - USB pass-through e.g. for modem or Wi-Fi dongles
  - Automatic configuration migration when OpenWrt image is updated
+ - Run shell commands inside OpenWrt after boot-up
 
 ## Pre-installed OpenWrt software packages
 
