@@ -36,11 +36,11 @@ services:
 
       # Define number of VM CPUs
       # If unset -> 1
-      CPU_COUNT: 2
+      #CPU_COUNT: 2
 
       # Define amount of VM memory in MB
       # If unset -> 256
-      RAM_COUNT: 256
+      #RAM_COUNT: 256
 
       # User command or script to run after OpenWrt is booted
       # Please note that all commands and script will be executed as root
