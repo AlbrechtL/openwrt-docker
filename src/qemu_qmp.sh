@@ -71,17 +71,17 @@ while getopts ":hvrqsSVRc" option; do
          exit;;
       c) # Run shell command inside OpenWrt, package qemu-ga needs to be installed
          # Execute command in OpenWrt
-         INPUT_DATA=`echo "$2" | base64`
+         INPUT_DATA=`echo "$2" | base64 -w 0`
          RETURN_JSON=`echo '{"execute": "guest-exec", "arguments": { "path": "/bin/sh", "input-data": "'${INPUT_DATA}'", "capture-output": true }}' | nc -w 1 -U /run/qga.sock`         
          PID=`echo $RETURN_JSON | sed -n 's/.*"pid": \([0-9]*\).*/\1/p'` # Process return and extract PID
-         #echo >&2 "PID: $PID"
-         [ -z "$PID" ] && exit 1
+         #echo >&2 "RETURN_JSON: $RETURN_JSON"
+         [ -z "$PID" ] && echo >&2 "Command error: PID is empty! RETURN_JSON: $RETURN_JSON" && exit 1
          while true; do # Wait for command exit
             RETURN_JSON=`echo '{"execute": "guest-exec-status", "arguments": { "pid": '${PID}'}}' | nc -w 1 -U /run/qga.sock`
             #echo >&2 "RETURN_JSON: $RETURN_JSON"
             export EXITCODE=`echo $RETURN_JSON | sed -n 's/.*"exitcode": \([0-9]*\).*/\1/p'`
-            export OUT_DATA=`echo $RETURN_JSON | sed -n 's/.*"out-data": "\([^"]*\).*/\1/p' | base64 -d`
-            export ERR_DATA=`echo $RETURN_JSON | sed -n 's/.*"err-data": "\([^"]*\).*/\1/p' | base64 -d`
+            export OUT_DATA=`echo $RETURN_JSON | sed -n 's/.*"out-data": "\([^"]*\).*/\1/p' | base64 -d -w 0`
+            export ERR_DATA=`echo $RETURN_JSON | sed -n 's/.*"err-data": "\([^"]*\).*/\1/p' | base64 -d -w 0`
             export EXITED=`echo $RETURN_JSON | sed -n 's/.*"exited": \(true\|false\).*/\1/p'`
             if [ "$EXITED" = "true" ]; then
                break
