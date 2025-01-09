@@ -27,4 +27,8 @@ qemu-system-x86_64 -M pc -nographic -nodefaults -m 256 --enable-kvm \
 -device virtio-blk-pci,drive=hd0 \
 -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
 -device virtio-net,netdev=qwan0 -netdev user,id=qwan0 \
+-qmp unix:/run/qmp-sock,server=on,wait=off \
+-chardev socket,path=/run/qga.sock,server=on,wait=off,id=qga0 \
+-device virtio-serial \
+-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
 -serial stdio

@@ -4,3 +4,4 @@ test/__pycache__/
 test/tests/.pytest_cache/
 .venv
 web-backend/target
+dev_tools/*.img
