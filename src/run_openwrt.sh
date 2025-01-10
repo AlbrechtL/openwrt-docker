@@ -143,7 +143,7 @@ attach_pci_device () {
   info "Preparing PCI pass-through for device $PCI_DEVICE ..."
 
   if [ ! -e "$PCI_PATH" ]; then
-      echo "Error: PCI device $PCI_DEVICE not found"
+      error "Error: PCI device $PCI_DEVICE not found"
       exit 1
   fi
 
@@ -162,12 +162,9 @@ attach_pci_device () {
 
   # Bind to vfio-pci
   echo "vfio-pci" > "$PCI_PATH/driver_override"
-  echo "$PCI_DEVICE" > /sys/bus/pci/drivers/vfio-pci/bind
-
-  # Verify binding
-  if [ "$(basename "$(readlink "$PCI_PATH/driver" 2>/dev/null)")" != "vfio-pci" ]; then
-      echo "Failed to bind $PCI_DEVICE to vfio-pci"
-      exit 1
+  if ! echo "$PCI_DEVICE" > /sys/bus/pci/drivers/vfio-pci/bind 2>/dev/null; then
+    error "Failed to bind PCI device $PCI_DEVICE to vfio-pci. Please double check if your system supports IOMMU and if CPU virtualization features (e.g. Intel VT-d) is enabled in your bios."
+    exit 1
   fi
 
   echo "Successfully bound $PCI_DEVICE to vfio-pci"

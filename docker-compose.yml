@@ -36,7 +36,7 @@ services:
 
       # PCI and PCIe pass-through
       # Host system requirements
-      #  - IOMMU CPU feature has to enabled in bios
+      #  - IOMMU CPU virtualization feature (e.g. Intel VT-d) has to enabled in bios
       #  - Host kernel has to switch on intel_iommu=on or amd_iommu=on
       #  - Host kernel module 'vfio-pci' has to exists
       #  - Ubuntu 24.04 is working by default
