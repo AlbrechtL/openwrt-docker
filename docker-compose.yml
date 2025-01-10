@@ -28,11 +28,20 @@ services:
       # Make LuCI OpenWrt web interface accessible via host LAN
       FORWARD_LUCI: "true" 
 
-      # USB passthrough
+      # USB pass-through
       # Format <vendorID>:<productID> like 'lsusb' is given
       # Currently only two USB devices are supported
       #USB_1: "0bda:8153"
       #USB_2: "0e8d:7961"
+
+      # PCI and PCIe pass-through
+      # Host system requirements
+      #  - IOMMU CPU feature has to enabled in bios
+      #  - Host kernel has to switch on intel_iommu=on or amd_iommu=on
+      #  - Host kernel module 'vfio-pci' has to exists
+      #  - Ubuntu 24.04 is working by default
+      # Format <bus:device.function> like 'lspci' is given
+      #PCI_1: "00:1f.6"
 
       # Define number of VM CPUs
       # If unset -> 1
@@ -48,6 +57,7 @@ services:
       #OPENWRT_AFTER_BOOT_CMD: "/usr/bin/fw_wan_open_http; /usr/bin/fw_wan_open_ssh" # Example to execute two commands
       #OPENWRT_AFTER_BOOT_CMD: "cat /etc/banner" # Custom commands example
       #OPENWRT_AFTER_BOOT_CMD: "a=$$((1+1)); echo The result of 1+1 is $${a}" # Shell script example
+      #OPENWRT_AFTER_BOOT_CMD: '[ -f /etc/first_boot_over ] || { touch /etc/first_boot_over; echo "Crazy first boot"; }' # Example to run a command only once
 
       #DEBUG: "y"
 
@@ -61,7 +71,7 @@ services:
       # Use script /usr/bin/fw_wan_open_ssh to open the port. Works only if WAN_IF=host
       #- 8022:8022
     stop_grace_period: 2m
-    restart: on-failure
+    #restart: on-failure
     
     # The following settings are mandatory to run the container
     devices:

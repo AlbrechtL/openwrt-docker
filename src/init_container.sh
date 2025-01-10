@@ -45,13 +45,19 @@ echo "* Content of /var/vm/openwrt_metadata.conf *" > /var/www/system_info.txt
 cat /var/vm/openwrt_metadata.conf >> /var/www/system_info.txt
 echo $'\n' >> /var/www/system_info.txt
 
-echo "* Enviroment variables *" >> /var/www/system_info.txt
+echo "* Environment variables *" >> /var/www/system_info.txt
 export >> /var/www/system_info.txt
 echo $'\n' >> /var/www/system_info.txt
 
 echo "* USB devices *" >> /var/www/system_info.txt
 set +e # Enable that the next command can fail
 lsusb >> /var/www/system_info.txt
+echo $'\n' >> /var/www/system_info.txt
+set -e # Revert set +a
+
+echo "* PCI devices *" >> /var/www/system_info.txt
+set +e # Enable that the next command can fail
+lspci >> /var/www/system_info.txt
 set -e # Revert set +a
 
 # ******* nginx handling *******
@@ -85,6 +91,7 @@ fi
 
 # Start processes
 exec multirun \
+  "/run/cleanup_container.sh" \
   "qemu-openwrt-web-backend" \
   "nginx" \
   "/run/run_openwrt.sh" \

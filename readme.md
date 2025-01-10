@@ -18,6 +18,7 @@ This Docker container brings you OpenWrt, a software-based router solution, in a
  - Attaches two physical Ethernet interfaces (LAN/WAN) exclusively into the docker container
  - Create virtual LAN between OpenWrt and host system (LAN only)
  - USB pass-through e.g. for modem or Wi-Fi dongles
+ - PCI pass-through e.g. for Wi-Fi dongles or PCIe Ethernet cards
  - Automatic configuration migration when OpenWrt image is updated
  - Run shell commands inside OpenWrt after boot-up
 

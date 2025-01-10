@@ -135,6 +135,44 @@ attach_veth_if () {
   fi
 }
 
+# Prepare PCI device for qemu
+attach_pci_device () {
+  local PCI_DEVICE=$1
+  local PCI_PATH="/sys/bus/pci/devices/$PCI_DEVICE"
+
+  info "Preparing PCI pass-through for device $PCI_DEVICE ..."
+
+  if [ ! -e "$PCI_PATH" ]; then
+      echo "Error: PCI device $PCI_DEVICE not found"
+      exit 1
+  fi
+
+  # Unbind from current driver
+  local DRIVER=$(basename "$(readlink "$PCI_PATH/driver")" 2>/dev/null)
+  if [ "$DRIVER" ]; then
+      echo "Unbinding $PCI_DEVICE from $DRIVER"
+      echo "$PCI_DEVICE" > "$PCI_PATH/driver/unbind"
+  fi
+
+  # Ensure vfio-pci module is loaded
+  if ! lsmod | grep -q '^vfio_pci ' ; then
+      echo "Loading vfio-pci kernel module"
+      nsenter --target 1 --uts --net --ipc --mount modprobe vfio-pci
+  fi
+
+  # Bind to vfio-pci
+  echo "vfio-pci" > "$PCI_PATH/driver_override"
+  echo "$PCI_DEVICE" > /sys/bus/pci/drivers/vfio-pci/bind
+
+  # Verify binding
+  if [ "$(basename "$(readlink "$PCI_PATH/driver" 2>/dev/null)")" != "vfio-pci" ]; then
+      echo "Failed to bind $PCI_DEVICE to vfio-pci"
+      exit 1
+  fi
+
+  echo "Successfully bound $PCI_DEVICE to vfio-pci"
+}
+
 # Handle dirfferent architectures
 if [ $CPU_ARCH = "aarch64" ]; then
   CPU_ARGS="-M virt -bios /usr/share/qemu/edk2-aarch64-code.fd -vga none -device ramfb"
@@ -212,6 +250,20 @@ fi
 
 USB_ARGS="${USB_1_ARGS} ${USB_2_ARGS}"
 
+# Attaching PCI devices
+PCI_ARGS=""
+PCI_1_ARGS=""
+if [[ -z "$PCI_1" ]]; then
+  PCI_1_ARGS=""
+else
+  PCI_SLOT="0000:$PCI_1"
+  attach_pci_device "$PCI_SLOT"
+  PCI_1_ARGS="-device vfio-pci,host=$PCI_SLOT"
+fi
+
+PCI_ARGS="${PCI_1_ARGS}"
+
+
 info "Booting image using $VERS..."
 
 # See qemu command if debug is enabled
@@ -230,9 +282,8 @@ exec qemu-system-"$CPU_ARCH" \
  $LAN_ARGS \
  $WAN_ARGS \
  $USB_ARGS \
+ $PCI_ARGS \
  -qmp unix:/run/qmp-sock,server=on,wait=off \
  -chardev socket,path=/run/qga.sock,server=on,wait=off,id=qga0 \
  -device virtio-serial \
  -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0
-
-# -kernel /var/vm/kernel.bin -append "root=fe00 console=tty0" \
