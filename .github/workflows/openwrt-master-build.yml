@@ -226,7 +226,7 @@ jobs:
       - name: Install VMs
         run: |
           set -x
-          sudo snap install multipass --edge # Edge is necessary to get 1.15 dev because of networks support
+          sudo snap install multipass # multipass >= 1.15 because of networks support
           sudo chmod a+w /var/snap/multipass/common/multipass_socket # Fix 'multipass socket access denied'
           multipass find
 
