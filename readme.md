@@ -21,6 +21,7 @@ This Docker container brings you OpenWrt, a software-based router solution, in a
  - PCI pass-through e.g. for Wi-Fi dongles or PCIe Ethernet cards
  - Automatic configuration migration when OpenWrt image is updated
  - Run shell commands inside OpenWrt after boot-up
+ - Automated tests and SBOM generation during container image build process
 
 ## Pre-installed OpenWrt software packages
 
