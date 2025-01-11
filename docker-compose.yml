@@ -13,24 +13,37 @@ services:
         #OPENWRT_VERSION: "master"
 
     environment:
-      # Define which physical or virtual interfaces shall be attach direct to OpenWrt
-      # If WAN_IF/LAN_IF is missing then "host" mode is selected
-      # -
-      WAN_IF: "host" # Usage of container host Ethernet connection as WAN. WARNING: Bad performace because of user space Ethernet implementation.
-      #WAN_IF: "none" # No WAN interface defined. This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
+      # Define which physical or virtual WAN Ethernet interfaces shall be attach direct to OpenWrt
+      # If unset -> host
+      WAN_IF: "host" # Usage of container host Ethernet connection as WAN.
+                     # WARNING: Bad performance because of user space Ethernet implementation (SLIRP).
+                     # QEMUs default network configuration network: 10.0.2.0/24 incl. DHCP, DNS, NAT
+                     # See https://wiki.qemu.org/Documentation/Networking for more details
+      #WAN_IF: "none" # No WAN interface defined.
+                    # This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
       #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
-      # -
-      #LAN_IF: "host" # Usage of container host Ethernet connection as LAN. WARNING: Bad performace because of user space Ethernet implementation.
-      LAN_IF: "veth" # veth pair between OpenWrt and host system. The host Ethernet interface IP is fixed to 172.31.1.2/24
-      #LAN_IF: "veth,nofixedip" # veth pair between OpenWrt and host system. No host Ethernet interface configuration
+      
+      # Define which physical or virtual LAN Ethernet interfaces shall be attach direct to OpenWrt
+      # If unset -> host
+      #LAN_IF: "host" # Usage of container host Ethernet connection as LAN.
+                     # WARNING: Bad performance because of user space Ethernet implementation (SLIRP).
+                     # QEMUs network configuration network: 192.168.1.0/24
+                     # To be usable add to the OpenWrt LAN interface an IP address in the range 192.168.1.10-192.168.1.255 (recommend is 192.168.1.15)
+                     # See https://wiki.qemu.org/Documentation/Networking for more details
+      LAN_IF: "veth" # veth pair between OpenWrt and host system.
+                     # The host Ethernet interface IP is fixed to 172.31.1.2/24
+      #LAN_IF: "veth,nofixedip" # veth pair between OpenWrt and host system.
+                               # No host Ethernet interface configuration
       #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
 
       # Make LuCI OpenWrt web interface accessible via host LAN
+      # If unset -> false
       FORWARD_LUCI: "true" 
 
       # USB pass-through
       # Format <vendorID>:<productID> like 'lsusb' is given
       # Currently only two USB devices are supported
+      # If unset -> disabled
       #USB_1: "0bda:8153"
       #USB_2: "0e8d:7961"
 
@@ -41,6 +54,7 @@ services:
       #  - Host kernel module 'vfio-pci' has to exists
       #  - Ubuntu 24.04 is working by default
       # Format <bus:device.function> like 'lspci' is given
+      # If unset -> disabled
       #PCI_1: "00:1f.6"
 
       # Define number of VM CPUs
@@ -48,32 +62,66 @@ services:
       #CPU_COUNT: 2
 
       # Define amount of VM memory in MB
+      # Below 256 MB OpenWrt will not work, most likely
       # If unset -> 256
-      #RAM_COUNT: 256
+      #RAM_COUNT: 1024
 
       # User command or script to run after OpenWrt is booted
       # Please note that all commands and script will be executed as root
+      # If unset -> disabled
       #OPENWRT_AFTER_BOOT_CMD: "/usr/bin/fw_wan_open_http" # Example to open HTTP port 80 at WAN side
       #OPENWRT_AFTER_BOOT_CMD: "/usr/bin/fw_wan_open_http; /usr/bin/fw_wan_open_ssh" # Example to execute two commands
       #OPENWRT_AFTER_BOOT_CMD: "cat /etc/banner" # Custom commands example
       #OPENWRT_AFTER_BOOT_CMD: "a=$$((1+1)); echo The result of 1+1 is $${a}" # Shell script example
       #OPENWRT_AFTER_BOOT_CMD: '[ -f /etc/first_boot_over ] || { touch /etc/first_boot_over; echo "Crazy first boot"; }' # Example to run a command only once
 
+      # Enable debugging mode.
+      # Currently it show the final qemu command
+      # This function will be removed in further versions
+      # If unset -> disabled
       #DEBUG: "y"
 
     ports:
-      # Port 8006 is console tty web VNC
+      # Container web page (TTY console to OpenWrt, some convenience features) port
       - 8006:8006
-      # Port 8000 is available only when Docker WAN network is used.
-      # Use script /usr/bin/fw_wan_open_http to open the port. Works only if WAN_IF=host
+      
+      # OpenWrt LuCI web interface port (HTTP only)
+      # It is not recommended to use this feature if you have the option to use veth (see the recommendation below).
+      # Requirements:
+      #  - Set WAN_IF="host"
+      #  - In OpenWrt run the script "/usr/bin/fw_wan_open_http" to open port 80 at WAN side
+      # Recommendation: 
+      #  - Don't use 8000:8000
+      #  - Set LAN_IF="veth"
+      #  - Access OpenWrt LuCI web interface at 172.31.1.1:443 (HTTPS) or 172.31.1.1:80 (HTTP)
+      #  - Advantages:
+      #      * Access OpenWrt via the LAN side instead of the WAN side
+      #      * No firewall adaption necessary
+      #      * For convenience the OpenWrt LuCI web interface is also available port 9000 (HTTPS, FORWARD_LUCI="true" )
       #- 8000:8000
-      # SSH
-      # Use script /usr/bin/fw_wan_open_ssh to open the port. Works only if WAN_IF=host
+
+      # OpenWrt SSH port
+      # It is not recommended to use this feature if you have the option to use veth (see the recommendation below).
+      # Requirements:
+      #  - Set WAN_IF="host"
+      #  - In OpenWrt run the script "/usr/bin/fw_wan_open_ssh" to open port 22 at WAN side
+      # Recommendation:
+      #  - Don't use 8022:8022
+      #  - Set LAN_IF="veth"
+      #  - Access OpenWrt SSH at 172.31.1.1:22
+      #  - Advantages:
+      #      * Access OpenWrt via the LAN side instead of the WAN side
+      #      * No firewall adaption necessary
       #- 8022:8022
-    stop_grace_period: 2m
+
+    # It is not recommend to restart this container automatically.
+    # If the container stops it intended by the user or something really serious happens.
     #restart: on-failure
     
-    # The following settings are mandatory to run the container
+    # Give the container some time to shutdown
+    stop_grace_period: 2m
+
+    # The following settings are mandatory to run the OpenWrt container
     devices:
       - /dev/kvm
     device_cgroup_rules:
