@@ -18,4 +18,4 @@ trap 'error "Status $? while: $BASH_COMMAND (line $LINENO/$BASH_LINENO)"' ERR
 : "${FORWARD_LUCI:=""}"   # Make LuCI OpenWrt web interface accessible via host LAN
 : "${OPENWRT_AFTER_BOOT_CMD:=""}"   # User command or script to run after OpenWrt is booted
 : "${IS_U_OS_APP:=""}"    # By default this container is not a u-OS app 
-: "${DEBUG:="N"}"         # Disable debugging
+: "${DEBUG:="n"}"         # Disable debugging
