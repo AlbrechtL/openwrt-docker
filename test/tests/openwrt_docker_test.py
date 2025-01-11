@@ -502,3 +502,19 @@ def test_openwrt_after_boot_cmd(docker_services):
     logs = get_logs()
     assert ('The result of 1+1 is 2' in logs) == True
 
+
+@pytest.mark.parametrize("parameter", 
+    [('PCI_1','00:05.0')], indirect=True,
+    ids=['PCI_1="00:05.0"'])
+def test_pci_passthrough_fail(docker_services):
+    wait_for_specific_log(docker_services, 'Preparing PCI pass-through for device 0000:00:05.0')
+    time.sleep(1)
+
+    # Verify unbinding from host driver
+    assert ('Unbinding 0000:00:05.0 from virtio-pci' in get_logs()) == True
+
+    # Verify loading of vfio-pci kernel module
+    assert ('Loading vfio-pci kernel module' in get_logs()) == True
+
+    # It has to fail because IOMMU is not available in multipass (run via Github Actions)
+    assert ('ERROR: Failed to bind PCI device 0000:00:05.0 to vfio-pci.' in get_logs()) == True
