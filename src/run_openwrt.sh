@@ -164,6 +164,7 @@ attach_pci_device () {
   echo "vfio-pci" > "$PCI_PATH/driver_override"
   if ! echo "$PCI_DEVICE" > /sys/bus/pci/drivers/vfio-pci/bind 2>/dev/null; then
     error "Failed to bind PCI device $PCI_DEVICE to vfio-pci. Please double check if your system supports IOMMU and if CPU virtualization features (e.g. Intel VT-d) is enabled in your bios."
+    sleep 10 # Wait 10 seconds before the container stops. This is important for the automated tests to access the logs before they will be deleted
     exit 1
   fi
 
