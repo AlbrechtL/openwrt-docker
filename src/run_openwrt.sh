@@ -20,7 +20,7 @@ attach_eth_if () {
   HOST_IF=$1
   CONTAINER_IF=$2
   QEMU_IF=$3
-  # Privilige=true and pid=host mode necessary
+  # Privileged=true and pid=host mode necessary
   # Sources
   # * https://serverfault.com/questions/688483/assign-physical-interface-to-docker-exclusively
   # * https://medium.com/lucjuggery/a-container-to-access-the-shell-of-the-host-2c7c227c64e9
