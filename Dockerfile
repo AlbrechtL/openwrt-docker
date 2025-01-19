@@ -83,21 +83,21 @@ COPY ./openwrt_additional /var/vm/openwrt_additional
 RUN echo "Building for platform '$TARGETPLATFORM'" \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         if [ "$OPENWRT_VERSION" = "master" ]; then \
-            OPENWRT_IMAGE="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-x86-64-generic-squashfs-combined.img.gz"; \
+            OPENWRT_IMAGE="https://downloads.openwrt.org/snapshots/targets/x86/64/openwrt-x86-64-generic-squashfs-combined-efi.img.gz"; \
         elif [ "$OPENWRT_VERSION" = "24.10-SNAPSHOT" ]; then \
             wget https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/version.buildinfo; \
             VERSION_BUILDINFO=`cat version.buildinfo`; \
-            OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-x86-64-generic-squashfs-combined.img.gz"; \
+            OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-x86-64-generic-squashfs-combined-efi.img.gz"; \
         else \
             OPENWRT_IMAGE="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-squashfs-combined.img.gz"; \
         fi; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         if [ "$OPENWRT_VERSION" = "master" ]; then \
-          OPENWRT_IMAGE="https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-squashfs-combined.img.gz"; \
+          OPENWRT_IMAGE="https://downloads.openwrt.org/snapshots/targets/armsr/armv8/openwrt-armsr-armv8-generic-squashfs-combined-efi.img.gz"; \
         elif [ "$OPENWRT_VERSION" = "24.10-SNAPSHOT" ]; then \
             wget https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/version.buildinfo; \
             VERSION_BUILDINFO=`cat version.buildinfo`; \
-            OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv8-generic-squashfs-combined.img.gz"; \
+            OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv8-generic-squashfs-combined-efi.img.gz"; \
         else \
             OPENWRT_IMAGE="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-squashfs-combined.img.gz"; \
         fi; \
