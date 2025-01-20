@@ -13,7 +13,7 @@ trap - ERR
 CPU_ARCH=$(arch)
 
 VERS=$(qemu-system-"$CPU_ARCH" --version | head -n 1 | cut -d '(' -f 1)
-FILE=/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img
+FILE=/storage/$(cat /storage/current_version)
 
 # Attach physical interfaces to Docker container
 attach_eth_if () {
