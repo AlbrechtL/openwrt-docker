@@ -48,6 +48,11 @@ Currently, three images are available. For all of these images automated tests a
 * `albrechtloh/openwrt-docker:openwrt-2410-snapshot` Latest OpenWrt 24.10 snapshot version
 * `albrechtloh/openwrt-docker:openwrt-master-snapshot` Latest OpenWrt master version
 
+## Support
+We really want to help you using this container image.
+* If you run into a bug or if you request a feature open a new issue here: https://github.com/AlbrechtL/openwrt-docker/issues
+* For anything else start a new discussion here: https://github.com/AlbrechtL/openwrt-docker/discussions
+
 ## Screenshots
 
 VNC console in web browser
