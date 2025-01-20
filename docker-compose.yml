@@ -76,10 +76,9 @@ services:
       #OPENWRT_AFTER_BOOT_CMD: '[ -f /etc/first_boot_over ] || { touch /etc/first_boot_over; echo "Crazy first boot"; }' # Example to run a command only once
 
       # Enable debugging mode.
-      # Currently it show the final qemu command
-      # This function will be removed in further versions
+      # Showing the final qemu command
       # If unset -> disabled
-      #DEBUG: "y"
+      #DEBUG: "true"
 
     ports:
       # Container web page (TTY console to OpenWrt, some convenience features) port

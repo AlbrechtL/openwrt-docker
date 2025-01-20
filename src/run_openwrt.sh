@@ -265,7 +265,15 @@ PCI_ARGS="${PCI_1_ARGS}"
 info "Booting image using $VERS..."
 
 # See qemu command if debug is enabled
-[[ "$DEBUG" == [Yy1]* ]] && set -x
+if [[ -z "${DEBUG}" ]]; then
+  DEBUG_ARGS=""
+else
+  set -x # Show final qemu command
+
+  # Not working as expected grub output will delete previous log messages
+  #DEBUG_ARGS="-serial stdio" # Show OpenWrt kernel message in container log
+  DEBUG_ARGS=""
+fi
 
 #************************ FINAL BOOTING ************************
 exec qemu-system-"$CPU_ARCH" \
@@ -284,4 +292,5 @@ exec qemu-system-"$CPU_ARCH" \
  -qmp unix:/run/qmp-sock,server=on,wait=off \
  -chardev socket,path=/run/qga.sock,server=on,wait=off,id=qga0 \
  -device virtio-serial \
- -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0
+ -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
+ $DEBUG_ARGS
