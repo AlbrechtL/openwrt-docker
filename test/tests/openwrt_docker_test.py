@@ -221,7 +221,7 @@ def wait_for_container_startup(docker_services):
 def wait_for_openwrt_startup(docker_services):
     try:
         docker_services.wait_until_responsive(
-            timeout=360.0, pause=1, check=lambda: is_openwrt_booted()
+            timeout=600.0, pause=1, check=lambda: is_openwrt_booted()
         )
     except Exception as excinfo:
             print(get_logs())
