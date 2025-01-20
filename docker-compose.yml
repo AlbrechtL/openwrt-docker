@@ -75,6 +75,17 @@ services:
       #OPENWRT_AFTER_BOOT_CMD: "a=$$((1+1)); echo The result of 1+1 is $${a}" # Shell script example
       #OPENWRT_AFTER_BOOT_CMD: '[ -f /etc/first_boot_over ] || { touch /etc/first_boot_over; echo "Crazy first boot"; }' # Example to run a command only once
 
+      # When a user pulls a new OpenWrt container image most likely also a new OpenWrt image is included.
+      # During the first container startup the new OpenWrt image will be automatically used.
+      # The settings data from the previous OpenWrt image will be automatically copied. This is done by the OpenWrt sysupgrade command.
+      # With this option this can be disabled.
+      # It is useful for the following use cases
+      #  * To upgrade OpenWrt internally with owut https://openwrt.org/docs/guide-user/installation/sysupgrade.owut
+      #  * To upgrade OpenWrt internally with sysupgrade (CLI or LuCI)
+      #  * To stick to previous used OpenWrt image and version
+      # If unset -> disabled (OpenWrt auto upgrade is enabled)
+      #DISABLE_OPENWRT_AUTO_UPGRADE: "true"
+
       # Enable debugging mode.
       # Showing the final qemu command
       # If unset -> disabled

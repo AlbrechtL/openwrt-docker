@@ -518,3 +518,12 @@ def test_pci_passthrough_fail(docker_services):
 
     # It has to fail because IOMMU is not available in multipass (run via Github Actions)
     assert ('ERROR: Failed to bind PCI device 0000:00:05.0 to vfio-pci.' in get_logs()) == True
+
+
+@pytest.mark.parametrize("parameter", 
+    [('DISABLE_OPENWRT_AUTO_UPGRADE','true')], indirect=True,
+    ids=['DISABLE_OPENWRT_AUTO_UPGRADE="true"'])
+def test_openwrt_migrate_existing_volume(docker_services):
+    wait_for_specific_log(docker_services, 'Booting image using QEMU emulator')
+
+    assert ('OpenWrt upgrade check is disabled' in get_logs()) == True
