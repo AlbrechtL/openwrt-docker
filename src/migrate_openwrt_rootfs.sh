@@ -23,7 +23,7 @@ if [[ $DISABLE_OPENWRT_AUTO_UPGRADE != "true" ]]; then
     if [ $CPU_ARCH = "aarch64" ]; then
       qemu_command="qemu-system-aarch64 -M virt -bios /usr/share/qemu/edk2-aarch64-code.fd"
     else
-      qemu_command="qemu-system-x86_64 -M pc"
+      qemu_command="qemu-system-x86_64 -M pc -bios /usr/share/ovmf/bios.bin"
     fi
 
     # Boot a temporary OpenWrt
@@ -105,5 +105,6 @@ if [[ $DISABLE_OPENWRT_AUTO_UPGRADE != "true" ]]; then
     info "squashfs-combined-${OPENWRT_IMAGE_ID}.img is up to date. Nothing to do."
   fi
 else
-  info "OpenWrt upgrade check is disabled. Using squashfs-combined-${OPENWRT_IMAGE_ID}.img. Nothing to do."
+  OLD_SQUASHFS_COMBINED=`cat /storage/old_version`
+  info "OpenWrt upgrade check is disabled. Using "$OLD_SQUASHFS_COMBINED". Nothing to do."
 fi

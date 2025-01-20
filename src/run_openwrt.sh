@@ -175,7 +175,7 @@ attach_pci_device () {
 if [ $CPU_ARCH = "aarch64" ]; then
   CPU_ARGS="-M virt -bios /usr/share/qemu/edk2-aarch64-code.fd -vga none -device ramfb"
 else
-  CPU_ARGS="-M pc -vga std"
+  CPU_ARGS="-M pc -bios /usr/share/ovmf/bios.bin -vga std"
 fi
 
 # Check KVM

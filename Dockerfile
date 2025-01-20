@@ -46,8 +46,10 @@ ARG OPENWRT_ROOTFS_TAR
 RUN echo "Building for platform '$TARGETPLATFORM'" \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         CPU_ARCH="x86_64"; \
+        APK_EXTRA="ovmf"; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         CPU_ARCH="aarch64"; \
+        APK_EXTRA=""; \
     else \
         echo "Error: CPU architecture $TARGETPLATFORM is not supported"; \
         exit 1; \
@@ -69,6 +71,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         openssh-client \
         util-linux-misc \
         iproute2  \
+        "$APK_EXTRA" \
     # It seems that PROFINET packages are not forwarded correctly without the package iproute2. The reason is unknown. \
     && mkdir -p /usr/share/novnc \
     && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
@@ -117,6 +120,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && if [ "$TARGETPLATFORM" = "linux/amd64" ]; then \
         SSH_PORT=1022; \
         qemu-system-x86_64 -M pc -nographic -nodefaults -m 256 \
+        -bios /usr/share/ovmf/bios.bin \
         -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=/var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
         -device virtio-blk-pci,drive=hd0 \
         -device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24,hostfwd=tcp::$SSH_PORT-192.168.1.1:22 \
