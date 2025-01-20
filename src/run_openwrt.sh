@@ -265,13 +265,13 @@ PCI_ARGS="${PCI_1_ARGS}"
 info "Booting image using $VERS..."
 
 # See qemu command if debug is enabled
-if [[ -z "${DEBUG}" ]]; then
-  DEBUG_ARGS=""
-else
+if [[ $DEBUG = "true" ]]; then
   set -x # Show final qemu command
 
   # Not working as expected grub output will delete previous log messages
   #DEBUG_ARGS="-serial stdio" # Show OpenWrt kernel message in container log
+  DEBUG_ARGS=""
+else
   DEBUG_ARGS=""
 fi
 
