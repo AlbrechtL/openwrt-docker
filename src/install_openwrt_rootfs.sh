@@ -8,7 +8,7 @@ trap - ERR
 
 # Check if squashfs-combined is in volume
 FILE=/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img
-if [[ $DISABLE_OPENWRT_AUTO_UPGRADE != "true" ]]; then
+if [[ ($DISABLE_OPENWRT_AUTO_UPGRADE != "true") ||  (! -f /storage/current_version) ]]; then
   if [ -f "$FILE" ]; then
       info "$FILE exists. Nothing to do."
   else 
