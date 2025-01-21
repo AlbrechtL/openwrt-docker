@@ -92,7 +92,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
             VERSION_BUILDINFO=`cat version.buildinfo`; \
             OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/x86/64/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-x86-64-generic-squashfs-combined-efi.img.gz"; \
         else \
-            OPENWRT_IMAGE="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-squashfs-combined.img.gz"; \
+            OPENWRT_IMAGE="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/x86/64/openwrt-${OPENWRT_VERSION}-x86-64-generic-squashfs-combined-efi.img.gz"; \
         fi; \
     elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         if [ "$OPENWRT_VERSION" = "master" ]; then \
