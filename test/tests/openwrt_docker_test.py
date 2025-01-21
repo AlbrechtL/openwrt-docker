@@ -222,8 +222,8 @@ def wait_for_openwrt_startup(docker_services):
     try:
         docker_services.wait_until_responsive(
             # It seems to be that the free GitHub actions runners are really busy sometimes. Use a huge timeout here
-            # 600 s = 10 minutes are not enough. Let's use 20 minutes = 1200 s
-            timeout=1200.0, pause=1, check=lambda: is_openwrt_booted()
+            # 600 s = 10 minutes are not enough. Let's use 30 minutes = 1800 s
+            timeout=1800.0, pause=1, check=lambda: is_openwrt_booted()
         )
     except Exception as excinfo:
             print(get_logs())
