@@ -221,7 +221,9 @@ def wait_for_container_startup(docker_services):
 def wait_for_openwrt_startup(docker_services):
     try:
         docker_services.wait_until_responsive(
-            timeout=600.0, pause=1, check=lambda: is_openwrt_booted()
+            # It seems to be that the free GitHub actions runners are really busy sometimes. Use a huge timeout here
+            # 600 s = 10 minutes are not enough. Let's use 20 minutes = 1200 s
+            timeout=1200.0, pause=1, check=lambda: is_openwrt_booted()
         )
     except Exception as excinfo:
             print(get_logs())
@@ -495,6 +497,7 @@ def test_port_8022_ssh(docker_services):
     [('OPENWRT_AFTER_BOOT_CMD','a=$$((1+1));echo The result of 1+1 is $${a}')], indirect=True,
     ids=['OPENWRT_AFTER_BOOT_CMD="a=$$((1+1));echo The result of 1+1 is $${a}"'])
 def test_openwrt_after_boot_cmd(docker_services):
+    wait_for_openwrt_startup(docker_services)
     wait_for_specific_log(docker_services, 'Detected OpenWrt is booted')
 
     wait_for_specific_log(docker_services, 'Command "a=$((1+1));echo The result of 1+1 is ${a}" exit successfully')
@@ -521,9 +524,9 @@ def test_pci_passthrough_fail(docker_services):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('DISABLE_OPENWRT_AUTO_UPGRADE','true')], indirect=True,
-    ids=['DISABLE_OPENWRT_AUTO_UPGRADE="true"'])
-def test_openwrt_migrate_existing_volume(docker_services):
+    [('DISABLE_OPENWRT_AUTO_UPGRADE','true','20241114_test_volume_openwrt_23.05.5')], indirect=True,
+    ids=['DISABLE_OPENWRT_AUTO_UPGRADE="true" with 20241114_test_volume_openwrt_23.05.5'])
+def test_disable_openwrt_auto_upgrade(docker_services):
     wait_for_specific_log(docker_services, 'Booting image using QEMU emulator')
 
     assert ('OpenWrt upgrade check is disabled' in get_logs()) == True
