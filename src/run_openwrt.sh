@@ -270,7 +270,8 @@ if [[ $DEBUG = "true" ]]; then
 
   # Not working as expected grub output will delete previous log messages
   #DEBUG_ARGS="-serial stdio" # Show OpenWrt kernel message in container log
-  DEBUG_ARGS=""
+  # Use a TCP connection as a workaround
+  DEBUG_ARGS="-serial tcp:localhost:4555"
 else
   DEBUG_ARGS=""
 fi

@@ -87,7 +87,7 @@ services:
       #DISABLE_OPENWRT_AUTO_UPGRADE: "true"
 
       # Enable debugging mode.
-      # Showing the final qemu command
+      # Showing the final qemu command and OpenWrt bootlog
       # If unset -> disabled
       #DEBUG: "true"
 
