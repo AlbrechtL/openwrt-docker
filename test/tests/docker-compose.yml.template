@@ -27,6 +27,8 @@ services:
       #USB_1: "0bda:8153"
       #USB_2: "0e8d:7961"
 
+      DEBUG: "true"
+
     ports:
       # Port 8006 is console tty web VNC
       - 8006:8006
