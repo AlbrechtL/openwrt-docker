@@ -29,7 +29,7 @@ if [[ $DEBUG = "true" ]]; then
  nc -l -p 4555 | sed 's/[^[:print:]]//g' |
  while IFS= read -r line; do
     echo $line
- done
+ done & wait
 fi
 
 sleep infinity & wait
