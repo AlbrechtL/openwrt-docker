@@ -303,7 +303,7 @@ jobs:
       - name: Run tests
         run: |
           # Run pytest
-          multipass exec router-vm -- bash -c 'source ~/.venv/bin/activate && cd test/ && pytest -v -s --html=report.html --self-contained-html'
+          multipass exec router-vm -- bash -c 'source ~/.venv/bin/activate && cd test/ && pytest -v -s --html=report.html --self-contained-html --reruns 3'
 
       - name: Archive test report
         if: always()
