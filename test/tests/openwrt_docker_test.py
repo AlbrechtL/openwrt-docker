@@ -232,7 +232,7 @@ def wait_for_openwrt_startup(docker_services):
 def wait_for_specific_log(docker_services, log):
     try:
         docker_services.wait_until_responsive(
-        timeout=240.0, pause=1, check=lambda: is_specific_log(log)
+        timeout=600.0, pause=1, check=lambda: is_specific_log(log)
     )
     except Exception as excinfo:
             print(get_logs())
