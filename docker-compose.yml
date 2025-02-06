@@ -2,14 +2,13 @@ services:
   openwrt:
     container_name: openwrt
     image: albrechtloh/openwrt-docker:latest # for latest OpenWrt stable version
-    #image: albrechtloh/openwrt-docker:openwrt-2410-snapshot # for latest OpenWrt 24.10 snapshot version
     #image: albrechtloh/openwrt-docker:openwrt-master-snapshot # for latest OpenWrt master version
-    #image: openwrt-docker
+    #mage: openwrt-docker
     build:
       context: .
       dockerfile: Dockerfile
       args: 
-        OPENWRT_VERSION: "23.05.4"
+        OPENWRT_VERSION: "24.10.0"
         #OPENWRT_VERSION: "master"
 
     environment:

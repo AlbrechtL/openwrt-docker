@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  OPENWRT_VERSION: 23.05.5
+  OPENWRT_VERSION: 24.10.0
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
         uses: pierotofy/set-swap-space@master
         with:
           swap-size-gb: 10
-          
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
         

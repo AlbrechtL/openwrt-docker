@@ -36,7 +36,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
 FROM alpine:latest
 
 ARG NOVNC_VERSION="1.5.0" 
-ARG OPENWRT_VERSION="23.05.5"
+ARG OPENWRT_VERSION="24.10.0"
 ARG TARGETPLATFORM
 ARG OPENWRT_ROOTFS_IMG
 ARG OPENWRT_KERNEL
@@ -102,7 +102,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
             VERSION_BUILDINFO=`cat version.buildinfo`; \
             OPENWRT_IMAGE="https://downloads.openwrt.org/releases/24.10-SNAPSHOT/targets/armsr/armv8/openwrt-24.10-snapshot-${VERSION_BUILDINFO}-armsr-armv8-generic-squashfs-combined-efi.img.gz"; \
         else \
-            OPENWRT_IMAGE="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-squashfs-combined.img.gz"; \
+            OPENWRT_IMAGE="https://archive.openwrt.org/releases/${OPENWRT_VERSION}/targets/armsr/armv8/openwrt-${OPENWRT_VERSION}-armsr-armv8-generic-squashfs-combined-efi.img.gz"; \
         fi; \
     else \
         echo "Error: CPU architecture $TARGETPLATFORM is not supported"; \

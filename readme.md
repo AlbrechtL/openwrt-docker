@@ -44,8 +44,7 @@ Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/ma
 Images are available at https://hub.docker.com/r/albrechtloh/openwrt-docker.
 
 Currently, three images are available. For all of these images automated tests are applied.
-* `albrechtloh/openwrt-docker:latest` Latest OpenWrt stable version e.g. 24.05.5
-* `albrechtloh/openwrt-docker:openwrt-2410-snapshot` Latest OpenWrt 24.10 snapshot version
+* `albrechtloh/openwrt-docker:latest` Latest OpenWrt stable version e.g. 24.10.0
 * `albrechtloh/openwrt-docker:openwrt-master-snapshot` Latest OpenWrt master version
 
 ## Support
@@ -85,9 +84,9 @@ Clone this repo and run
 docker build -t openwrt-docker .
 ```
 
-If you like to specify a specific OpenWrt version, you can do
+If you like to specify a specific OpenWrt version, you can do (minimum version 24.10.0)
 ```bash
-docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="23.05.4"
+docker build -t openwrt-docker . --build-arg OPENWRT_VERSION="24.10.0"
 ```
 or for the latest development master. The `--no-cache` option is necessary to get always the newest version.
 ```bash
