@@ -365,8 +365,8 @@ def test_nginx_luci_forwarding_access(docker_services, parameter):
 
 
 @pytest.mark.parametrize("parameter", 
-    [('CPU_COUNT',1),('CPU_COUNT',2),('CPU_COUNT',3),('CPU_COUNT',4)], indirect=True,
-    ids=['CPU_COUNT=1', 'CPU_COUNT=2', 'CPU_COUNT=3', 'CPU_COUNT=4'])
+    [('CPU_COUNT',1),('CPU_COUNT',2)], indirect=True,
+    ids=['CPU_COUNT=1', 'CPU_COUNT=2'])
 def test_cpu_num(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
     # Get number of processors

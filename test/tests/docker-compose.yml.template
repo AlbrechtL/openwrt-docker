@@ -8,7 +8,7 @@ services:
       #IS_U_OS_APP: "true"
 
       # Define number of VM CPUs
-      CPU_COUNT: 2
+      #CPU_COUNT: 2
 
       # Define which physical or virtual interfaces shall be attach direct to OpenWrt
       WAN_IF: "host" # Usage of container host Ethernet connection as WAN. WARNING: Bad performace because of user space Ethernet implementation.
