@@ -8,10 +8,16 @@ cleanup() {
     # Add your cleanup commands here
 
     if [ -n "$PCI_1" ]; then
-        echo "Attaching PCI device $PCI_1 back to the host"
-        echo 1 > /sys/bus/pci/devices/0000:$PCI_1/remove    
-        echo 1 > /sys/bus/pci/rescan  
+        if [[ "$PCI_1" == 0000:* ]]; then
+            PCI_SLOT="$PCI_1"
+        else
+            PCI_SLOT="0000:$PCI_1"
+        fi
+        echo "Attaching PCI device $PCI_SLOT back to the host"
+        echo 1 > /sys/bus/pci/devices/$PCI_SLOT/remove
+        echo 1 > /sys/bus/pci/rescan
     fi
+
 
     echo "Cleanup complete."
     exit 0
