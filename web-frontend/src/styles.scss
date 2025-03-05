@@ -1,0 +1,49 @@
+/* You can add global styles to this file, and also import other style files */
+
+@use "@angular/material" as mat;
+
+@include mat.core();
+
+// Customize the entire app. Change :root to your selector if you want to scope the styles.
+:root {
+  @include mat.sidenav-overrides((
+    container-divider-color: var(--mat-sys-outline-variant),
+    container-shape: 0px,
+  ));
+
+  @include mat.toolbar-overrides((
+    container-background-color: var(--mat-sys-tertiary-container),
+  ));
+}
+
+html {
+  color-scheme: light dark;
+  @include mat.theme((
+    color: mat.$azure-palette,
+    typography: Roboto,
+    density: 0
+  ));
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+}
+
+// html {
+//   @include mat.theme((
+//     color: (
+//       theme-type: light,
+//       primary: mat.$azure-palette,
+//       tertiary: mat.$blue-palette,
+//     ),
+//     typography: Roboto,
+//     density: 0,
+//   ));
+// }
