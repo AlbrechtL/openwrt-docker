@@ -252,7 +252,7 @@ USB_ARGS="${USB_1_ARGS} ${USB_2_ARGS}"
 PCI_ARGS=""
 PCI_1_ARGS=""
 if [[ -n "$PCI_1" ]]; then
-  if [[ "$PCI_1" == 0000:* ]]; then
+  if [[ "$PCI_1" =~ ^[0-9]{4}: ]]; then
     PCI_SLOT="$PCI_1"
   else
     PCI_SLOT="0000:$PCI_1"
