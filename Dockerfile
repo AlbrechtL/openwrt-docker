@@ -2,7 +2,7 @@
 # Build stage for rust backend
 ########################################################################################################################
 
-FROM rust:alpine AS builder
+FROM rust:alpine AS build-backend
 
 ARG TARGETPLATFORM
 
@@ -31,11 +31,23 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
     fi
 
 ########################################################################################################################
+# Build stage for angular frontend
+########################################################################################################################
+
+FROM node:latest as build-frontend
+
+WORKDIR /usr/local/app
+COPY ./web-frontend /usr/local/app/
+
+RUN npm install
+RUN npm run build
+
+########################################################################################################################
 # OpenWrt image
 ########################################################################################################################
 FROM alpine:latest
 
-ARG NOVNC_VERSION="1.5.0" 
+ARG NOVNC_VERSION="1.5.0"
 ARG OPENWRT_VERSION="24.10.0"
 ARG TARGETPLATFORM
 ARG OPENWRT_ROOTFS_IMG
@@ -140,14 +152,14 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     \
     # OpenWrt master uses apk insted of opkg \
     && if [ "$OPENWRT_VERSION" = "master" ]; then \
-        PACKAGE_UPDATE="apk update"; \    
+        PACKAGE_UPDATE="apk update"; \
         PACKAGE_INSTALL="apk add"; \
         PACKAGE_REMOVE="apk del"; \
         PACKAGE_EXTRA="libudev-zero"; \
     else \
         PACKAGE_UPDATE="opkg update"; \
         PACKAGE_INSTALL="opkg install"; \
-        PACKAGE_REMOVE="opkg remove"; \    
+        PACKAGE_REMOVE="opkg remove"; \
         PACKAGE_EXTRA=""; \
     fi \
     \
@@ -163,7 +175,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} hostapd wpa-supplicant kmod-mt7921u" \
     # Download celluar network support \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} modemmanager kmod-usb-net-qmi-wwan luci-proto-modemmanager qmi-utils" \
-    # Download basic GPS support \ 
+    # Download basic GPS support \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} kmod-usb-serial minicom gpsd" \
     # Add Wireguard support \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} wireguard-tools luci-proto-wireguard" \
@@ -191,9 +203,10 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && echo "OPENWRT_CPU_ARCH=\"${TARGETPLATFORM}\"" >> /var/vm/openwrt_metadata.conf \
     && echo "CONTAINER_CREATE_DATETIME=\"`date`\"" >> /var/vm/openwrt_metadata.conf
 
-COPY --from=builder /usr/local/bin/qemu-openwrt-web-backend /usr/local/bin/qemu-openwrt-web-backend
+COPY --from=build-backend /usr/local/bin/qemu-openwrt-web-backend /usr/local/bin/qemu-openwrt-web-backend
+COPY --from=build-frontend /usr/local/app/dist/openwrt-docker-web-gui /var/www/
+COPY ./web-frontend/nginx* /var/www/
 COPY ./src /run/
-COPY ./web-frontend /var/www/
 
 RUN chmod +x /run/*.sh
 
