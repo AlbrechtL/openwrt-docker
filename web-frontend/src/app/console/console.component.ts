@@ -1,4 +1,10 @@
 import { Component } from '@angular/core';
+// @ts-expect-error no types
+import RFB from '@novnc/novnc/lib/rfb';
+
+// TODO, see following issue
+// https://github.com/novnc/noVNC/pull/1944
+// https://github.com/novnc/noVNC/issues/1943
 
 @Component({
   selector: 'app-console',
@@ -9,37 +15,17 @@ import { Component } from '@angular/core';
 export class ConsoleComponent {
   title = "vnc-client";
 
-  public rfb: RFB;
+  public rfb: any;
 
   startClient() {
     console.log("Starting !!!");
 
-    // Read parameters specified in the URL query string
-    // By default, use the host and port of server that served this file
-    const host = window.location.hostname;
-    const port = "6080";
-    const password = "foobar"; // password of your vnc server
-    const path = "websockify";
-    // Build the websocket URL used to connect
-    let url = "ws";
-
-    if (window.location.protocol === "https:") {
-      url = "wss";
-    } else {
-      url = "ws";
-    }
-
-    url += "://" + host;
-    if (port) {
-      url += ":" + port;
-    }
-    url += "/" + path;
-
-    console.log("URL: ", url);
-
     // Creating a new RFB object will start a new connection
-    this.rfb = new RFB(document.getElementById("screen"), url, {
-      credentials: { password: password },
-    });
+    //this.rfb = new RFB(document.getElementById("screen"), url);
+    const container: HTMLElement | null = document.getElementById('vnc-screen');
+    if (container) {
+      const rfb = new RFB(container, "ws://127.0.0.1:5700");
+      //rfb.scaleViewport = true;
+    }
   }
 }
