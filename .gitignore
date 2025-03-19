@@ -5,6 +5,8 @@ test/tests/.pytest_cache/
 .venv
 web-backend/target
 dev_tools/*.img
+web-frontend/node_modules
+web-frontend/.angular/cache
 
 # Compiled output
 /dist
@@ -35,7 +37,6 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-/.angular/cache
 .sass-cache/
 /connect.lock
 /coverage
