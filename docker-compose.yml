@@ -3,7 +3,7 @@ services:
     container_name: openwrt
     image: albrechtloh/openwrt-docker:latest # for latest OpenWrt stable version
     #image: albrechtloh/openwrt-docker:openwrt-master-snapshot # for latest OpenWrt master version
-    #mage: openwrt-docker
+    #image: openwrt-docker
     build:
       context: .
       dockerfile: Dockerfile
@@ -53,8 +53,10 @@ services:
       #  - Host kernel module 'vfio-pci' has to exists
       #  - Ubuntu 24.04 is working by default
       # Format <bus:device.function> like 'lspci' is given
+      # optional <domain:bus:device.function> like 'lspci' is given
       # If unset -> disabled
       #PCI_1: "00:1f.6"
+      #PCI_1: "0000:00:1f.6"
 
       # Define number of VM CPUs
       # If unset -> 1

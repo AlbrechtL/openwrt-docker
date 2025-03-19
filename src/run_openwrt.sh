@@ -251,10 +251,12 @@ USB_ARGS="${USB_1_ARGS} ${USB_2_ARGS}"
 # Attaching PCI devices
 PCI_ARGS=""
 PCI_1_ARGS=""
-if [[ -z "$PCI_1" ]]; then
-  PCI_1_ARGS=""
-else
-  PCI_SLOT="0000:$PCI_1"
+if [[ -n "$PCI_1" ]]; then
+  if [[ "$PCI_1" =~ ^[0-9]{4}: ]]; then
+    PCI_SLOT="$PCI_1"
+  else
+    PCI_SLOT="0000:$PCI_1"
+  fi
   attach_pci_device "$PCI_SLOT"
   PCI_1_ARGS="-device vfio-pci,host=$PCI_SLOT"
 fi
