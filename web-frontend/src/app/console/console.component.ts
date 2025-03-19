@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
+import {MatButtonModule} from '@angular/material/button';
 // @ts-expect-error no types
 import RFB from '@novnc/novnc/lib/rfb';
 
@@ -8,24 +9,44 @@ import RFB from '@novnc/novnc/lib/rfb';
 
 @Component({
   selector: 'app-console',
-  imports: [],
+  imports: [MatButtonModule],
   templateUrl: './console.component.html',
   styleUrl: './console.component.scss'
 })
-export class ConsoleComponent {
+export class ConsoleComponent implements AfterViewInit {
   title = "vnc-client";
 
   public rfb: any;
 
-  startClient() {
-    console.log("Starting !!!");
+  constructor(private el: ElementRef, private renderer: Renderer2) {}
 
-    // Creating a new RFB object will start a new connection
-    //this.rfb = new RFB(document.getElementById("screen"), url);
+  ngAfterViewInit(): void {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.startClient();
+        }
+      });
+    }, { threshold: 0.1 });
+
+    observer.observe(this.el.nativeElement);
+  }
+
+  startClient() {
     const container: HTMLElement | null = document.getElementById('vnc-screen');
     if (container) {
-      const rfb = new RFB(container, "ws://127.0.0.1:5700");
-      //rfb.scaleViewport = true;
+      // Creating a new RFB object will start a new connection
+      if (this.rfb === undefined) {
+        console.log("Connect to qemu");
+        this.rfb = new RFB(container, "ws://127.0.0.1:5700");
+        this.rfb.scaleViewport = true;
+      }
+      else {
+        console.log("Already connected to qemu, so reconnect");
+        this.rfb.disconnect();
+        this.rfb = new RFB(container, "ws://127.0.0.1:5700");
+        this.rfb.scaleViewport = true;
+      }
     }
   }
 }

@@ -1,10 +1,7 @@
-<p>A VNC console should be seen now</p>
-<button type="submit" (click)="startClient()">Start Vnc Client</button>
-
 <div>
-  <div id="vnc-screen" class="content">
+  <div id="vnc-screen" style="height: 80vh; margin-bottom: 10px;">
     <!-- This is where the remote screen will appear -->
   </div>
 </div>
 
-<p>End of VNC console</p>
+<button mat-stroked-button (click)="startClient()">Reconnect</button>
