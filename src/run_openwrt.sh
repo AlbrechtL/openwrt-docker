@@ -278,22 +278,30 @@ else
   DEBUG_ARGS=""
 fi
 
-#************************ FINAL BOOTING ************************
-exec qemu-system-"$CPU_ARCH" \
+# Prepare qemu command
+CMD="qemu-system-$CPU_ARCH \
 --enable-kvm -cpu host \
 -m $RAM_COUNT \
 -nodefaults \
- $CPU_ARGS -smp $CPU_COUNT \
+$CPU_ARGS -smp $CPU_COUNT \
 -display vnc=:0,websocket=5700 \
 -blockdev driver=raw,node-name=hd0,cache.direct=on,file.driver=file,file.filename=${FILE} \
 -device virtio-blk-pci,drive=hd0 \
 -device qemu-xhci -device usb-kbd \
- $LAN_ARGS \
- $WAN_ARGS \
- $USB_ARGS \
- $PCI_ARGS \
- -qmp unix:/run/qmp-sock,server=on,wait=off \
- -chardev socket,path=/run/qga.sock,server=on,wait=off,id=qga0 \
- -device virtio-serial \
- -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
- $DEBUG_ARGS
+$LAN_ARGS \
+$WAN_ARGS \
+$USB_ARGS \
+$PCI_ARGS \
+-qmp unix:/run/qmp-sock,server=on,wait=off \
+-chardev socket,path=/run/qga.sock,server=on,wait=off,id=qga0 \
+-device virtio-serial \
+-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
+$DEBUG_ARGS"
+
+# Put qemu argument into system_info.txt file
+echo $'\n' >> /var/www/system_info.txt
+echo "* qemu command *" >> /var/www/system_info.txt
+echo $CMD >> /var/www/system_info.txt
+
+#************************ FINAL BOOTING ************************
+exec $CMD
