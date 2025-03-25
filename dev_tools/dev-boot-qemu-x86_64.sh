@@ -32,3 +32,9 @@ qemu-system-x86_64 -M pc -nographic -nodefaults -m 256 --enable-kvm \
 -device virtio-serial \
 -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
 -serial stdio
+
+
+#-nodefaults \
+#-vga std \
+#-display vnc=:0,websocket=5700
+
