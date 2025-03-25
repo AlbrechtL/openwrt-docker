@@ -27,6 +27,7 @@ server {
 
     location / {
       root /var/www/browser;
+      try_files $uri $uri/ /index.html;
     }
 
     location /websockify {
