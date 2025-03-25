@@ -1,28 +1,20 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { MatTableModule, MatTable } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
-import { MatSortModule, MatSort } from '@angular/material/sort';
-import { SystemInformationDataSource, SystemInformationItem } from './system-information-datasource';
+import { Component } from '@angular/core';
+import { BackendCommunicationService } from '../backend-communication.service';
+
 
 @Component({
   selector: 'app-system-information',
   templateUrl: './system-information.component.html',
   styleUrl: './system-information.component.scss',
-  standalone: true,
-  imports: [MatTableModule, MatPaginatorModule, MatSortModule]
+  imports: []
 })
-export class SystemInformationComponent implements AfterViewInit {
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatTable) table!: MatTable<SystemInformationItem>;
-  dataSource = new SystemInformationDataSource();
+export class SystemInformationComponent {
+  containerInfo?: string;
 
-  /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['id', 'name'];
-
-  ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.table.dataSource = this.dataSource;
+  constructor(private service: BackendCommunicationService) {
+    this.service.getContainerInfo().subscribe(response => {
+      this.containerInfo = response;
+    })
   }
+
 }

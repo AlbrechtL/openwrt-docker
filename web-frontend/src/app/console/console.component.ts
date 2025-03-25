@@ -1,7 +1,10 @@
 import { Component, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
 // @ts-expect-error no types
 import RFB from '@novnc/novnc/lib/rfb';
+
+import { BackendCommunicationService } from '../backend-communication.service';
+
 
 // TODO, see following issue
 // https://github.com/novnc/noVNC/pull/1944
@@ -18,7 +21,7 @@ export class ConsoleComponent implements AfterViewInit {
 
   public rfb: any;
 
-  constructor(private el: ElementRef, private renderer: Renderer2) {}
+  constructor(private el: ElementRef, private renderer: Renderer2, private service: BackendCommunicationService) { }
 
   ngAfterViewInit(): void {
     const observer = new IntersectionObserver((entries) => {
@@ -70,5 +73,9 @@ export class ConsoleComponent implements AfterViewInit {
         this.rfb.scaleViewport = true;
       }
     }
+  }
+
+  rebootOpenWrt() {
+    this.service.gracefulReboot().subscribe();
   }
 }
