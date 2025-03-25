@@ -5,7 +5,12 @@ import { ConsoleComponent } from './console/console.component';
 import { InfoComponent } from './info/info.component';
 
 export const routes: Routes = [
-    {
+  { // Redirect to 'status' by default
+    path: '',
+    redirectTo: 'status',
+    pathMatch: 'full'
+  },
+  {
     path: 'status',
     component: StatusComponent,
     title: 'Status'
