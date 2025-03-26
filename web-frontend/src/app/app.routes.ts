@@ -7,7 +7,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 export const routes: Routes = [
   { // Redirect to 'status' by default
     path: '',
-    redirectTo: 'status',
+    redirectTo: 'dashboard',
     pathMatch: 'full'
   },
   {
