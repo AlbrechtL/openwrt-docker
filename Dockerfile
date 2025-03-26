@@ -47,7 +47,6 @@ RUN npm run build
 ########################################################################################################################
 FROM alpine:latest
 
-ARG NOVNC_VERSION="1.5.0"
 ARG OPENWRT_VERSION="24.10.0"
 ARG TARGETPLATFORM
 ARG OPENWRT_ROOTFS_IMG
@@ -85,11 +84,6 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
         iproute2  \
         "$APK_EXTRA" \
     # It seems that PROFINET packages are not forwarded correctly without the package iproute2. The reason is unknown. \
-    && mkdir -p /usr/share/novnc \
-    && wget https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.tar.gz -O /tmp/novnc.tar.gz -q \
-    && tar -xf /tmp/novnc.tar.gz -C /tmp/ \
-    && cd /tmp/noVNC-${NOVNC_VERSION}\
-    && mv app core vendor package.json *.html /usr/share/novnc \
     && sed -i 's/^worker_processes.*/worker_processes 1;daemon off;/' /etc/nginx/nginx.conf
 
 COPY ./openwrt_additional /var/vm/openwrt_additional
