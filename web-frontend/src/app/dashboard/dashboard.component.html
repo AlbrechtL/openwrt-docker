@@ -1,5 +1,5 @@
 <div class="grid-container">
-  <mat-grid-list cols="2" rowHeight="300px">
+  <mat-grid-list cols="2" rowHeight="280px">
     <mat-grid-tile [colspan]="1" [rowspan]="1">
       <mat-card class="dashboard-card">
         <mat-card-header>
@@ -7,18 +7,18 @@
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
           @if (openwrtVersion) {
-            <mat-list role="list">
-              <mat-list-item role="listitem">
-                <mat-icon matListItemIcon>router</mat-icon>
-                {{ openwrtVersion }}
-              </mat-list-item>
-              <mat-list-item role="listitem">
-                <mat-icon matListItemIcon>info</mat-icon>
-                Linux kernel {{ openWrtKernel }}
-              </mat-list-item>
-            </mat-list>
+          <mat-list role="list">
+            <mat-list-item role="listitem">
+              <mat-icon matListItemIcon>router</mat-icon>
+              {{ openwrtVersion }}
+            </mat-list-item>
+            <mat-list-item role="listitem">
+              <mat-icon matListItemIcon>info</mat-icon>
+              Linux kernel {{ openWrtKernel }}
+            </mat-list-item>
+          </mat-list>
           } @else {
-            <mat-spinner [diameter]="50"></mat-spinner>
+          <mat-spinner [diameter]="50"></mat-spinner>
           }
         </mat-card-content>
       </mat-card>
@@ -40,16 +40,16 @@
               LAN: {{ lan }}
             </mat-list-item>
             @for (usbDevice of usb; track usbDevice) {
-              <mat-list-item role="listitem">
-                <mat-icon matListItemIcon>usb</mat-icon>
-                USB: {{ usbDevice }}
-              </mat-list-item>
+            <mat-list-item role="listitem">
+              <mat-icon matListItemIcon>usb</mat-icon>
+              USB: {{ usbDevice }}
+            </mat-list-item>
             }
             @for (pciDevice of pci; track pciDevice) {
-              <mat-list-item role="listitem">
-                <mat-icon matListItemIcon>memory</mat-icon>
-                PCI: {{ pciDevice }}
-              </mat-list-item>
+            <mat-list-item role="listitem">
+              <mat-icon matListItemIcon>memory</mat-icon>
+              PCI: {{ pciDevice }}
+            </mat-list-item>
             }
           </mat-list>
         </mat-card-content>
@@ -60,16 +60,20 @@
     <mat-grid-tile [colspan]="2" [rowspan]="1">
       <mat-card class="dashboard-card">
         <mat-card-header>
-          <mat-card-title>Ethernet interfaces</mat-card-title>
+          <mat-card-title>IP addresses</mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
           <mat-list role="list">
             @if (ethernetInterfaces) {
               @for (ethernetInterface of ethernetInterfaces; track ethernetInterface) {
-                <mat-list-item role="listitem">
-                  <mat-icon matListItemIcon>settings_ethernet</mat-icon>
-                  {{ ethernetInterface.ifname }}: {{ ethernetInterface.address }}
-                </mat-list-item>
+                <!-- Filter out loopback device and interface with no IP -->
+                @if (ethernetInterface.ifname !=='lo' && ethernetInterface.addr_info.length !== 0) {
+                  <mat-list-item role="listitem">
+                    <mat-icon matListItemIcon>settings_ethernet</mat-icon>
+                    <span matListItemTitle>{{ ethernetInterface.ifname }} ({{ ethernetInterface.address }})</span>
+                    <span matListItemLine>@for (ipAddress of ethernetInterface.addr_info; track $index) {{{ ipAddress.local }} } </span>
+                  </mat-list-item>
+                }
               }
             } @else {
               <mat-spinner [diameter]="50"></mat-spinner>

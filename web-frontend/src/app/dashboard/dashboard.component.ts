@@ -48,7 +48,7 @@ export class DashboardComponent {
       this.pci = response.pci;
     });
 
-    this.service.getOpenWrtIpAddresses().subscribe(response => {
+    this.service.pollOpenWrtIpAddresses().subscribe(response => {
       this.ethernetInterfaces = response.ethernetInterfaces;
     });
   }

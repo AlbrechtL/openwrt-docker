@@ -18,8 +18,8 @@ interface AttachedHardware {
   providedIn: 'root'
 })
 export class BackendCommunicationService {
-  urlPrefix: string = 'http://localhost:8006'; // Just for development
-  //urlPrefix: string = '';
+  //urlPrefix: string = 'http://localhost:8006'; // Just for development
+  urlPrefix: string = '';
 
   constructor(private http: HttpClient) { }
 
@@ -114,7 +114,7 @@ export class BackendCommunicationService {
     return this.http.get<any>(this.urlPrefix + '/api/get_openwrt_ip_addresses').pipe(
       tap(response => console.log('Fetched OpenWrt IP addresses: ', response)),
       map(response => {
-        let tmpEthernetInterfaces= '';
+        let tmpEthernetInterfaces= 'Unknown';
         if (response['combined_output'] !== '\n') {
           try {
             response['combined_output'] = JSON.parse(response['combined_output']);
@@ -128,5 +128,26 @@ export class BackendCommunicationService {
         };
       })
     );
+  }
+
+  pollOpenWrtIpAddresses(intervalMs: number = 1000): Observable<any> {
+    return new Observable(observer => {
+      const poll = () => {
+        this.getOpenWrtIpAddresses().subscribe({
+          next: (response) => {
+            if (response.ethernetInterfaces !== 'Unknown') {
+              observer.next(response);
+              observer.complete();
+            } else {
+              setTimeout(poll, intervalMs);
+            }
+          },
+          error: (error) => {
+            observer.error(error);
+          }
+        });
+      };
+      poll();
+    });
   }
 }
