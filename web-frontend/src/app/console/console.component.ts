@@ -65,7 +65,7 @@ export class ConsoleComponent implements AfterViewInit {
     }
     url += "/" + path;
 
-    url = "ws://localhost:8006/websockify" // Just for development
+    //url = "ws://localhost:8006/websockify" // Just for development
 
     console.log("URL: ", url);
 

@@ -1,5 +1,5 @@
 .vnc-console {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 170px);
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -8,4 +8,8 @@
   position: absolute;
   top: 5px;
   right: 10px;
+}
+
+.vnc-card {
+  margin: 10px;
 }
