@@ -84,6 +84,8 @@ export class ConsoleComponent implements AfterViewInit {
         this.rfb.disconnect();
         this.rfb = new RFB(container, url);
         this.rfb.scaleViewport = true;
+        this.rfb.background = "unset";
+        this.rfb.showDotCursor = true;
       }
     }
   }
