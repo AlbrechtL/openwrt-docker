@@ -1,1 +1,38 @@
-<p>info works!</p>
+<mat-action-list>
+  <mat-list-item>
+    <mat-icon matListItemIcon>info</mat-icon>
+    <span matListItemTitle>Version</span>
+    <span matListItemLine>Integrated OpenWrt: "{{ openWrtVersion }}"</span>
+    <span matListItemLine>Build data: "{{ containerBuildDate }}"</span>
+  </mat-list-item>
+  <mat-divider></mat-divider>
+  <a mat-list-item href="https://github.com/AlbrechtL/openwrt-docker" target="_blank">
+    <mat-icon matListItemIcon>language</mat-icon>
+    <span matListItemTitle>Project website</span>
+    <span matListItemLine>https://github.com/AlbrechtL/openwrt-docker</span>
+  </a>
+  <mat-divider></mat-divider>
+  <a mat-list-item href="https://github.com/AlbrechtL/openwrt-docker/discussions" target="_blank">
+    <mat-icon matListItemIcon>help</mat-icon>
+    <span matListItemTitle>Help</span>
+    <span matListItemLine>https://github.com/AlbrechtL/openwrt-docker/discussions</span>
+  </a>
+  <mat-divider></mat-divider>
+  <a mat-list-item href="https://github.com/AlbrechtL/openwrt-docker/issues" target="_blank">
+    <mat-icon matListItemIcon>bug_report</mat-icon>
+    <span matListItemTitle>Report an issue</span>
+    <span matListItemLine>https://github.com/AlbrechtL/openwrt-docker/issues</span>
+  </a>
+  <mat-divider></mat-divider>
+  <a mat-list-item href="https://github.com/AlbrechtL/openwrt-docker" target="_blank">
+    <mat-icon matListItemIcon>code</mat-icon>
+    <span matListItemTitle>Browse the source code</span>
+    <span matListItemLine>https://github.com/AlbrechtL/openwrt-docker</span>
+  </a>
+  <mat-divider></mat-divider>
+  <button mat-list-item (click)="openLicenseDialog()">
+    <mat-icon matListItemIcon>assured_workload</mat-icon>
+    <span matListItemTitle>Licenses</span>
+    <span matListItemLine>Show</span>
+  </button>
+</mat-action-list>

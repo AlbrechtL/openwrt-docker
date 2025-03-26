@@ -14,12 +14,17 @@ interface AttachedHardware {
   pci: string[];
 }
 
+interface ContainerVersion {
+  containerBuildDate: string;
+  openWrtVersion: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class BackendCommunicationService {
-  //urlPrefix: string = 'http://localhost:8006'; // Just for development
-  urlPrefix: string = '';
+  urlPrefix: string = 'http://localhost:8006'; // Just for development
+  //urlPrefix: string = '';
 
   constructor(private http: HttpClient) { }
 
@@ -149,5 +154,21 @@ export class BackendCommunicationService {
       };
       poll();
     });
+  }
+
+  // TODO TODO TODO: Implement an API call for getting attached hardware
+  getVersion(): Observable<ContainerVersion> {
+    return this.http.get<any>(this.urlPrefix + '/api/get_container_info').pipe(
+      map(response => {
+        const text = response['combined_output']
+        const tmpOpenWrtVersion = text.match(/OPENWRT_VERSION="([^"]+)"/)[1];
+        const tmpContainerBuildDate= text.match(/CONTAINER_CREATE_DATETIME="([^"]+)"/)[1];
+
+        return {
+          containerBuildDate: tmpContainerBuildDate,
+          openWrtVersion: tmpOpenWrtVersion
+        }
+      })
+    );
   }
 }
