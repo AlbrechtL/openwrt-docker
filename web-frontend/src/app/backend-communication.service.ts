@@ -7,12 +7,19 @@ interface OpenWrtInfo {
   kernelVersion: string;
 }
 
+interface AttachedHardware {
+  wan: string;
+  lan: string;
+  usb: string[];
+  pci: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class BackendCommunicationService {
-  //urlPrefix: string = 'http://localhost:8006'; // Just for development
-  urlPrefix: string = '';
+  urlPrefix: string = 'http://localhost:8006'; // Just for development
+  //urlPrefix: string = '';
 
   constructor(private http: HttpClient) { }
 
@@ -69,6 +76,36 @@ export class BackendCommunicationService {
     return this.http.get<any>(this.urlPrefix + '/api/get_container_info').pipe(
       map(response => {
         return response['combined_output'];
+      })
+    );
+  }
+
+  // TODO TODO TODO: Implement an API call for getting attached hardware
+  getAttachedHardware(): Observable<AttachedHardware> {
+    return this.http.get<any>(this.urlPrefix + '/api/get_container_info').pipe(
+      map(response => {
+        const text = response['combined_output']
+        const tmpLan = text.match(/declare -x LAN_IF="([^"]+)"/)[1];
+        const tmpWan = text.match(/declare -x WAN_IF="([^"]+)"/)[1];
+
+        const tmpUsb = [];
+        const tmpUsb1 = text.match(/declare -x USB_1="([^"]+)"/);
+        const tmpUsb2 = text.match(/declare -x USB_2="([^"]+)"/);
+        if (tmpUsb1) tmpUsb.push(tmpUsb1[1]);
+        if (tmpUsb2) tmpUsb.push(tmpUsb2[1]);
+
+        const tmpPci = [];
+        const tmpPci1 = text.match(/declare -x PCI_1="([^"]+)"/);
+        const tmpPci2 = text.match(/declare -x PCI_2="([^"]+)"/);
+        if (tmpPci1) tmpPci.push(tmpPci1[1]);
+        if (tmpPci2) tmpPci.push(tmpPci2[1]);
+
+        return {
+          lan: tmpLan,
+          wan: tmpWan,
+          usb: tmpUsb,
+          pci: tmpPci
+        };
       })
     );
   }
