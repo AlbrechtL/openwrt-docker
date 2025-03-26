@@ -1,5 +1,9 @@
 import { Component, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
+
 // @ts-expect-error no types
 import RFB from '@novnc/novnc/lib/rfb';
 
@@ -12,7 +16,12 @@ import { BackendCommunicationService } from '../backend-communication.service';
 
 @Component({
   selector: 'app-console',
-  imports: [MatButtonModule],
+  imports: [
+    MatMenuModule,
+    MatIconModule,
+    MatButtonModule,
+    MatCardModule
+  ],
   templateUrl: './console.component.html',
   styleUrl: './console.component.scss'
 })
@@ -56,6 +65,8 @@ export class ConsoleComponent implements AfterViewInit {
     }
     url += "/" + path;
 
+    url = "ws://localhost:8006/websockify" // Just for development
+
     console.log("URL: ", url);
 
     const container: HTMLElement | null = document.getElementById('vnc-screen');
@@ -65,6 +76,8 @@ export class ConsoleComponent implements AfterViewInit {
         console.log("Connect to qemu");
         this.rfb = new RFB(container, url);
         this.rfb.scaleViewport = true;
+        this.rfb.background = "unset";
+        this.rfb.showDotCursor = true;
       }
       else {
         console.log("Already connected to qemu, so reconnect");

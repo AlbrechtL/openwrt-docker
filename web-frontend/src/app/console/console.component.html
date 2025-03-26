@@ -1,10 +1,19 @@
-<div>
-  <div id="vnc-screen" style="height: 80vh; margin-bottom: 10px;">
-    <!-- This is where the remote screen will appear -->
-  </div>
-</div>
-
-<div class="row">
-  <button mat-stroked-button (click)="startClient()">Reconnect console</button>
-  <button mat-stroked-button (click)="rebootOpenWrt()">Reboot OpenWrt</button>
-</div>
+<mat-card class="dashboard-card">
+  <mat-card-header>
+    <mat-card-title>
+      VNC console
+      <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" xPosition="before">
+        <button mat-menu-item (click)="startClient()">VNC reconnect</button>
+        <button mat-menu-item (click)="rebootOpenWrt()">Reboot OpenWrt</button>
+      </mat-menu>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div id="vnc-screen" class="vnc-console">
+      <!-- This is where the remote screen will appear -->
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -1,7 +1,11 @@
-.row {
-  display: flex;
+.vnc-console {
+  height: calc(100vh - 150px);
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
-.mat-mdc-button-base {
-  margin: 0 8px 0 0;
+.more-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
 }
