@@ -109,4 +109,24 @@ export class BackendCommunicationService {
       })
     );
   }
+
+  getOpenWrtIpAddresses(): Observable<any> {
+    return this.http.get<any>(this.urlPrefix + '/api/get_openwrt_ip_addresses').pipe(
+      tap(response => console.log('Fetched OpenWrt IP addresses: ', response)),
+      map(response => {
+        let tmpEthernetInterfaces= '';
+        if (response['combined_output'] !== '\n') {
+          try {
+            response['combined_output'] = JSON.parse(response['combined_output']);
+            tmpEthernetInterfaces = response['combined_output'];
+          } catch (error) {
+            //console.error('Error parsing combined_output:', error);
+          }
+        }
+        return {
+          ethernetInterfaces: tmpEthernetInterfaces,
+        };
+      })
+    );
+  }
 }

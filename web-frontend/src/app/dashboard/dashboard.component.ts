@@ -33,6 +33,8 @@ export class DashboardComponent {
   usb?: string[];
   pci?: string[];
 
+  ethernetInterfaces?: any;
+
   constructor(private service: BackendCommunicationService) {
     this.service.pollOpenWrtInfo().subscribe(response => {
       this.openwrtVersion = response.version;
@@ -44,6 +46,10 @@ export class DashboardComponent {
       this.lan = response.lan;
       this.usb = response.usb;
       this.pci = response.pci;
+    });
+
+    this.service.getOpenWrtIpAddresses().subscribe(response => {
+      this.ethernetInterfaces = response.ethernetInterfaces;
     });
   }
 }

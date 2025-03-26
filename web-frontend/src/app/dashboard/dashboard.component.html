@@ -9,7 +9,7 @@
           @if (openwrtVersion) {
             <mat-list role="list">
               <mat-list-item role="listitem">
-                <mat-icon matListItemIcon>computer</mat-icon>
+                <mat-icon matListItemIcon>router</mat-icon>
                 {{ openwrtVersion }}
               </mat-list-item>
               <mat-list-item role="listitem">
@@ -27,7 +27,7 @@
     <mat-grid-tile [colspan]="1" [rowspan]="1">
       <mat-card class="dashboard-card">
         <mat-card-header>
-          <mat-card-title>Attached hardware</mat-card-title>
+          <mat-card-title>Attached devices</mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
           <mat-list role="list">
@@ -50,6 +50,29 @@
                 <mat-icon matListItemIcon>memory</mat-icon>
                 PCI: {{ pciDevice }}
               </mat-list-item>
+            }
+          </mat-list>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+
+    <mat-grid-tile [colspan]="2" [rowspan]="1">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>Ethernet interfaces</mat-card-title>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+          <mat-list role="list">
+            @if (ethernetInterfaces) {
+              @for (ethernetInterface of ethernetInterfaces; track ethernetInterface) {
+                <mat-list-item role="listitem">
+                  <mat-icon matListItemIcon>settings_ethernet</mat-icon>
+                  {{ ethernetInterface.ifname }}: {{ ethernetInterface.address }}
+                </mat-list-item>
+              }
+            } @else {
+              <mat-spinner [diameter]="50"></mat-spinner>
             }
           </mat-list>
         </mat-card-content>
