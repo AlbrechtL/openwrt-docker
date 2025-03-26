@@ -2,6 +2,8 @@
 // TODO: I expect that this code needs some refactoring
 
 use std::process::Command;
+use std::sync::{Mutex};
+use lazy_static::lazy_static;
 use tide::{Request, Response, StatusCode, Next};
 use serde::Serialize;
 use std::str;
@@ -14,6 +16,9 @@ struct JsonResponse {
     combined_output: String,
 }
 
+lazy_static! {
+  static ref run_mutex: Mutex<i32> = Mutex::new(0i32);
+}
 // Middleware for adding CORS headers
 fn cors_middleware<'a>(
     req: Request<()>,
@@ -40,6 +45,8 @@ async fn handle_options(_req: Request<()>) -> tide::Result {
 }
 
 async fn run_command(command: &str, args: &[&str]) -> JsonResponse {
+    let my_lock = run_mutex.lock().unwrap();
+
     let output = Command::new(command)
         .args(args)
         .output()
@@ -96,6 +103,14 @@ async fn endpoint_factory_reset(_req: Request<()>) -> tide::Result {
     Ok(res)
 }
 
+async fn endpoint_get_ip_addr(_req: Request<()>) -> tide::Result {
+  let response_data = run_command("/run/qemu_qmp.sh", &["-c", "ip -json addr"]).await;
+  let mut res = Response::new(StatusCode::Ok);
+  res.set_body(serde_json::to_string(&response_data)?);
+  res.insert_header("Content-Type", "application/json");
+  Ok(res)
+}
+
 fn main() -> tide::Result<()> {
     async_std::task::block_on(async {
         println!("*******************************************");
@@ -113,6 +128,7 @@ fn main() -> tide::Result<()> {
         app.at("/get_openwrt_info").get(endpoint_get_openwrt_info).options(handle_options);
         app.at("/get_container_info").get(endpoint_get_container_info).options(handle_options);
         app.at("/factory_reset").get(endpoint_factory_reset).options(handle_options);
+        app.at("/get_openwrt_ip_addresses").get(endpoint_get_ip_addr).options(handle_options);
 
         // Start the server at localhost:8080
         app.listen("127.0.0.1:8080").await?;
