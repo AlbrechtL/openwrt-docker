@@ -39,6 +39,10 @@ FROM node:latest as build-frontend
 WORKDIR /usr/local/app
 COPY ./web-frontend /usr/local/app/
 
+# See https://github.com/nodejs/docker-node/issues/1668
+RUN npm update -g npm
+RUN npm ci --no-audit --maxsockets 1
+
 RUN npm install
 RUN npm run build
 
