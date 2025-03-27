@@ -1,0 +1,1 @@
+Sources: router_48dp_1F1F1F_FILL0_wght400_GRAD0_opsz48 https://fonts.google.com/icons?hl=de&selected=Material+Symbols+Outlined:router:FILL@0;wght@400;GRAD@0;opsz@48&icon.size=48&icon.color=%231f1f1f&icon.query=router&icon.platform=web
