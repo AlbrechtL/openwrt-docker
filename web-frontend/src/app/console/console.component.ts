@@ -45,28 +45,8 @@ export class ConsoleComponent implements AfterViewInit {
   }
 
   startClient() {
-    // Read parameters specified in the URL query string
-    // By default, use the host and port of server that served this file
-    const host = window.location.hostname;
-    const port = window.location.port;
-    const path = "websockify";
-    // Build the websocket URL used to connect
-    let url = "ws";
-
-    if (window.location.protocol === "https:") {
-      url = "wss";
-    } else {
-      url = "ws";
-    }
-
-    url += "://" + host;
-    if (port) {
-      url += ":" + port;
-    }
-    url += "/" + path;
-
-    //url = "ws://localhost:8006/websockify" // Just for development
-
+    //let url = "ws://localhost:8006/websockify" // Just for development
+    let url = window.location.origin + '/websockify';
     console.log("URL: ", url);
 
     const container: HTMLElement | null = document.getElementById('vnc-screen');
