@@ -44,7 +44,7 @@ RUN npm update -g npm
 RUN npm ci --no-audit --maxsockets 1
 
 RUN npm install
-RUN npm run build
+RUN npm run build -- "--base-href='./'"
 
 ########################################################################################################################
 # OpenWrt image
