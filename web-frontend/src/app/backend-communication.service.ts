@@ -23,8 +23,8 @@ interface ContainerVersion {
   providedIn: 'root'
 })
 export class BackendCommunicationService {
-  urlPrefix: string = 'http://localhost:8006'; // Just for development
-  //urlPrefix: string = '';
+  //urlPrefix: string = 'http://localhost:8006'; // Just for development
+  urlPrefix: string = '';
 
   constructor(private http: HttpClient) { }
 
