@@ -419,11 +419,10 @@ def test_alpine_version_output(docker_services):
     print(f"'Version: {version[2]}'", end=' ')
 
 
-def test_novnc(docker_services):
+def test_frontend(docker_services):
     wait_for_openwrt_startup(docker_services)
-    # Here we only test if novnc is running, not if the connection to qemu is successful. To test this selenium is necessary.
-    response = requests.get("http://localhost:8006/novnc")
-    assert ('<title>noVNC</title>' in response.content.decode()) == True
+    response = requests.get("http://localhost:8006")
+    assert ('<title>OpenwrtDockerWebGui</title>' in response.content.decode()) == True
 
 
 def test_api_reboot(docker_services):
@@ -455,6 +454,10 @@ def test_api_get_factory_reset(docker_services):
     response = requests.get("http://localhost:8006/api/factory_reset")
     assert ('{"command":"/run/factory_reset.sh []"' in response.content.decode()) == True
 
+def test_api_get_openwrt_ip_addresses(docker_services):
+    wait_for_container_startup(docker_services)
+    response = requests.get("http://localhost:8006/api/get_openwrt_ip_addresses")
+    assert ('{"command":"/run/qemu_qmp.sh [\"-c\", \"ip -json addr\"]"' in response.content.decode()) == True
 
 def test_mdns(docker_services):
     wait_for_openwrt_startup(docker_services)
