@@ -52,12 +52,15 @@ We really want to help you using this container image.
 * If you run into a bug or if you request a feature open a new issue here: https://github.com/AlbrechtL/openwrt-docker/issues
 * For anything else start a new discussion here: https://github.com/AlbrechtL/openwrt-docker/discussions
 
-## Screenshots
+## Web UI screenshots
 
-VNC console in web browser
-![VNC console in web browser](pictures/qemu_openwrt_vnc_console.png)
+**Dashboard**
+![Dashboard](pictures/qemu_openwrt_dashboard.png)
 
-OpenWrt LUCI web interface
+**VNC console**
+![VNC console](pictures/qemu_openwrt_vnc_console.png)
+
+**OpenWrt LUCI web interface**
 ![OpenWrt LUCI web interface](pictures/qemu_openwrt_luci.png)
 
 ## Platform specific tips and tricks
