@@ -457,7 +457,7 @@ def test_api_get_factory_reset(docker_services):
 def test_api_get_openwrt_ip_addresses(docker_services):
     wait_for_container_startup(docker_services)
     response = requests.get("http://localhost:8006/api/get_openwrt_ip_addresses")
-    assert ('{"command":"/run/qemu_qmp.sh [\"-c\", \"ip -json addr\"]"' in response.content.decode()) == True
+    assert ('{"command":"/run/qemu_qmp.sh [\\"-c\\", \\"ip -json addr\\"]"' in response.content.decode()) == True
 
 def test_mdns(docker_services):
     wait_for_openwrt_startup(docker_services)
