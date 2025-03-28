@@ -31,15 +31,6 @@ if [ ! -d "$STORAGE" ]; then
   error "Storage folder ($STORAGE) not found!" && exit 13
 fi
 
-# Check u-OS app
-if [[ -z "${IS_U_OS_APP}" ]]; then
-  info "Detected generic container"
-  cp -f /var/www/nginx.conf.generic /etc/nginx/http.d/web.conf
-else
-  info "Detected u-OS app"
-  cp -f  /var/www/nginx.conf.u-os-app /etc/nginx/http.d/web.conf
-fi
-
 # Generate page for meta information
 echo "* Content of /var/vm/openwrt_metadata.conf *" > /var/www/system_info.txt
 cat /var/vm/openwrt_metadata.conf >> /var/www/system_info.txt
@@ -61,6 +52,7 @@ lspci >> /var/www/system_info.txt
 set -e # Revert set +a
 
 # ******* nginx handling *******
+cp -f /var/www/nginx.conf /etc/nginx/http.d/web.conf
 cp -r /var/www/* /run/shm
 
 # ******* LuCi forwarding handling *******
@@ -77,12 +69,12 @@ else
   if [[ $FORWARD_LUCI = "true" ]]; then
     warn "LuCI forwarding is only available if environment variable is set to LAN_IF: 'veth'. Currently LAN_IF=$LAN_IF."
   fi
-  LUCI_COMMAND="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run. 
+  LUCI_COMMAND="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run.
 fi
 
 # ******* OpenWrt run command after boot handling *******
 if [[ -z "${OPENWRT_AFTER_BOOT_CMD}" ]]; then
-  OPENWRT_MULTIRUN_CMD="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run. 
+  OPENWRT_MULTIRUN_CMD="sh -c 'sleep infinity'" # TODO: Find something better. Multirun needs something to run.
 else
   info "Invoke command '${OPENWRT_AFTER_BOOT_CMD}' into OpenWrt after it is booted"
   OPENWRT_MULTIRUN_CMD="/run/run_command_after_openwrt_boot.sh '${OPENWRT_AFTER_BOOT_CMD}'"

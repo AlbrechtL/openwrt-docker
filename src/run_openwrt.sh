@@ -103,6 +103,8 @@ attach_veth_if () {
 
   # Only as u-OS app
   if [[ -n "${IS_U_OS_APP}" ]]; then
+    info "Detected u-OS app"
+
     # Check if u-OS webserver is already configured
     if  ! nsenter --target 1 --uts --net --ipc --mount grep -q "app-openwrt0" "/usr/lib/uc-http-server/ucu.yml" ; then
       info "Adding app-openwrt0 to /usr/lib/uc-http-server/ucu.yml ..."
