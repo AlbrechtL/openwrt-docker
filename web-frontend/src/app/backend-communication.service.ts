@@ -171,4 +171,12 @@ export class BackendCommunicationService {
       })
     );
   }
+
+  getLuciButtonJson(): Observable<any> {
+    return this.http.get<any>(this.urlPrefix + '/api/get_luci_web_button_json').pipe(
+      map(response => {
+        return response['combined_output'];
+      })
+    );
+  }
 }

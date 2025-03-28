@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args: 
+      args:
         OPENWRT_VERSION: "24.10.0"
         #OPENWRT_VERSION: "master"
 
@@ -21,7 +21,7 @@ services:
       #WAN_IF: "none" # No WAN interface defined.
                     # This is useful if OpenWrt WAN acts a USB Wi-Fi client or as USB cellular modem
       #WAN_IF: "enx00e04c0407a6" # Use this option to define a specific physical Ethernet interface
-      
+
       # Define which physical or virtual LAN Ethernet interfaces shall be attach direct to OpenWrt
       # If unset -> host
       #LAN_IF: "host" # Usage of container host Ethernet connection as LAN.
@@ -35,9 +35,15 @@ services:
                                # No host Ethernet interface configuration
       #LAN_IF: "enx00e04d68033f" # Use this option to define a specific physical Ethernet interface
 
-      # Make LuCI OpenWrt web interface accessible via host LAN
+      # Make LuCI OpenWrt web interface accessible via host LAN at the address "https://<host-ip>:9000"
       # If unset -> false
-      FORWARD_LUCI: "true" 
+      FORWARD_LUCI: "true"
+
+      # With this option you can adapt the "OpenWrt LuCI web interface" button to your needs.
+      # The main use case is when the LuCI web interface is accessible at a different URL.
+      # Format is JSON '{"name":"<your button name>", "url":"<your URL>", "tooltip":"<your tooltip text>"}'
+      # If unset -> default URL (https://<host-ip>:9000)
+      #LUCI_WEB_BUTTON_JSON: '{"name":"Custom OpenWrt LuCI web interface", "url":"https://192.168.2.1", "tooltip":"My custom LuCI tooltip"}'
 
       # USB pass-through
       # Format <vendorID>:<productID> like 'lsusb' is given
@@ -95,13 +101,13 @@ services:
     ports:
       # Container web page (TTY console to OpenWrt, some convenience features) port
       - 8006:8006
-      
+
       # OpenWrt LuCI web interface port (HTTP only)
       # It is not recommended to use this feature if you have the option to use veth (see the recommendation below).
       # Requirements:
       #  - Set WAN_IF="host"
       #  - In OpenWrt run the script "/usr/bin/fw_wan_open_http" to open port 80 at WAN side
-      # Recommendation: 
+      # Recommendation:
       #  - Don't use 8000:8000
       #  - Set LAN_IF="veth"
       #  - Access OpenWrt LuCI web interface at 172.31.1.1:443 (HTTPS) or 172.31.1.1:80 (HTTP)
@@ -128,7 +134,7 @@ services:
     # It is not recommend to restart this container automatically.
     # If the container stops it intended by the user or something really serious happens.
     #restart: on-failure
-    
+
     # Give the container some time to shutdown
     stop_grace_period: 2m
 
@@ -147,4 +153,4 @@ services:
 
 volumes:
   data:
-    
+

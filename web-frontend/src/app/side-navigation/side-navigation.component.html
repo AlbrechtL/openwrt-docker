@@ -26,18 +26,13 @@
         <span class="example-spacer"></span>
         <button mat-flat-button
                 #tooltip="matTooltip"
-                matTooltip='Requirements: LAN="veth", FORWARD_LUCI="true",
-                default OpenWrt DHCP LAN settings,
-                configured "veth-openwrt0" Ethernet interface in host system.
-                Internally a reverse proxy is forwarding the web interface from "host-ip:9000" to "172.31.1.1:80"'
+                matTooltip="{{ LuciButtonTooltip }}"
                 (click)="openLuCI()">
-          OpenWrt LuCI web interface
+          {{ LuciButtonText }}
         </button>
     </mat-toolbar>
     <div class="content-container">
       <router-outlet />
     </div>
-
-
   </mat-sidenav-content>
 </mat-sidenav-container>

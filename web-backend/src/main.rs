@@ -45,7 +45,7 @@ async fn handle_options(_req: Request<()>) -> tide::Result {
 }
 
 async fn run_command(command: &str, args: &[&str]) -> JsonResponse {
-    let my_lock = run_mutex.lock().unwrap();
+    let _my_lock = run_mutex.lock().unwrap();
 
     let output = Command::new(command)
         .args(args)
@@ -111,6 +111,14 @@ async fn endpoint_get_ip_addr(_req: Request<()>) -> tide::Result {
   Ok(res)
 }
 
+async fn endpoint_get_luci_web_button_json(_req: Request<()>) -> tide::Result {
+  let response_data = run_command("sh", &["-c", "echo $LUCI_WEB_BUTTON_JSON"]).await;
+  let mut res = Response::new(StatusCode::Ok);
+  res.set_body(serde_json::to_string(&response_data)?);
+  res.insert_header("Content-Type", "application/json");
+  Ok(res)
+}
+
 fn main() -> tide::Result<()> {
     async_std::task::block_on(async {
         println!("*******************************************");
@@ -129,6 +137,7 @@ fn main() -> tide::Result<()> {
         app.at("/get_container_info").get(endpoint_get_container_info).options(handle_options);
         app.at("/factory_reset").get(endpoint_factory_reset).options(handle_options);
         app.at("/get_openwrt_ip_addresses").get(endpoint_get_ip_addr).options(handle_options);
+        app.at("/get_luci_web_button_json").get(endpoint_get_luci_web_button_json).options(handle_options);
 
         // Start the server at localhost:8080
         app.listen("127.0.0.1:8080").await?;

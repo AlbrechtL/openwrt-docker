@@ -16,7 +16,8 @@ trap 'error "Status $? while: $BASH_COMMAND (line $LINENO/$BASH_LINENO)"' ERR
 : "${USB_2:=""}"          # USB 2 vendor and device ID
 : "${PCI_1:=""}"          # PCI 1 slot (first number in lspci)
 : "${FORWARD_LUCI:=""}"   # Make LuCI OpenWrt web interface accessible via host LAN
-: "${OPENWRT_AFTER_BOOT_CMD:=""}"   # User command or script to run after OpenWrt is booted
+: "${LUCI_WEB_BUTTON_JSON:=""}"   # Adapt the "OpenWrt LuCI web interface" button to your needs.
+: "${OPENWRT_AFTER_BOOT_CMD:=""}" # User command or script to run after OpenWrt is booted
 : "${DISABLE_OPENWRT_AUTO_UPGRADE:=""}"  # Disables the OpenWrt upgrade check every container startup
-: "${IS_U_OS_APP:=""}"    # By default this container is not a u-OS app 
+: "${IS_U_OS_APP:=""}"    # By default this container is not a u-OS app
 : "${DEBUG:=""}"          # Disable debugging
