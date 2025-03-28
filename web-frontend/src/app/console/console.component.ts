@@ -45,8 +45,14 @@ export class ConsoleComponent implements AfterViewInit {
   }
 
   startClient() {
-    //let url = "ws://localhost:8006/websockify" // Just for development
-    let url = window.location.origin + '/websockify';
+    // TODO: Not ideal because it depends that the URL contains "console".
+    // But I didn't find a way how to detect if the frontend runs behind a reverse proxy.
+    let href = window.location.href;
+    let url = href.replace(/console/gi, "websockify");
+
+    // Just for development
+    //let url = "ws://localhost:8006/websockify"
+
     console.log("URL: ", url);
 
     const container: HTMLElement | null = document.getElementById('vnc-screen');
