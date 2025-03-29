@@ -32,10 +32,12 @@ Because OpenWrt doesn't provide a user installed package update mechanism, all r
  - Wireguard
  - mDNS support
 
-### Supported USB devices
+### Integrated device drivers
 
  - Mediathek MT7961AU Wi-Fi 6 AX chip-set based devices e.g. (FENVI 1800Mbps WiFi 6 USB Adapter)
- - SIMCOM SIM8262E-M2 based devices (Multi-Band 5G NR/LTE-FDD/LTE-TDD/HSPA+ modem)
+ - SIMCOM SIM8262E-M2 based devices (Multi-Band 5G NR/LTE-FDD/LTE-TDD/HSPA+ USB modem)
+
+All other drivers for USB and PCIe devices needs to be installed via the OpenWrt software repository.
 
 ## Usage
 
@@ -105,16 +107,21 @@ I would like to thanks to following Open Source projects. Without these great wo
 * [noVNC](https://novnc.com/)
 * [Docker](https://www.docker.com/)
 * [Alpine Linux](https://www.alpinelinux.org/)
+* [Angular](https://angular.dev/)
+* [Angular Material](https://material.angular.io/)
 
 ## Security notice
-1. **Lack of User Management in the Web Interface:**
+1. **Unencrypted Communication Between Web Frontend and Web Backend:**
+The communication between the frontend and backend occurs over an unencrypted HTTP channel. This exposes sensitive data to potential attackers and manipulation, especially on untrusted networks. To enhance security, it is highly recommended to use a reverse proxy to upgrade the channel to HTTPS (TLS encryption) to secure communication and prevent unauthorized access.
+
+2. **Lack of User Management in the Web Interface:**
 The web interface does not include built-in user management. Any user who can access the web interface automatically has root access to OpenWrt. To enhance security, it is strongly recommended to place the web interface behind a reverse proxy with proper user authentication and access controls.
 
-2. **Host Root Access Implications:**
+3. **Host Root Access Implications:**
 By design, any user with root access to the host system also has full control over OpenWrt. Such users can sniff Ethernet traffic and perform man-in-the-middle (MITM) attacks, creating significant security risks. The same applies when OpenWrt runs as a virtual machine directly on the host. To mitigate these risks, strictly control and monitor root access to the host system.
 
 
-3. **Privileged Mode Requirement for OpenWrt Container:**
+4. **Privileged Mode Requirement for OpenWrt Container:**
 The OpenWrt container must run in privileged mode to ensure exclusive access to the host's Ethernet interfaces and to enable the reverse proxy for LuCI on the host. This is necessary for proper operation but comes with inherent security considerations.
 
 **Disclaimer:** This software container is a proof of concept and has not undergone comprehensive cybersecurity assessments. Users are cautioned that potential vulnerabilities may exist, posing risks to system security and data integrity. By deploying or using this container, users accept the associated risks, and the developers disclaim any responsibility for security incidents or data breaches. A thorough security evaluation, including penetration testing and compliance checks, is strongly advised before production deployment. The software is provided without warranty, and users are encouraged to provide feedback for collaborative efforts in addressing security concerns. Users acknowledge reading and understanding this disclaimer, assuming responsibility for ensuring their environment's security.
