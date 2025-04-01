@@ -14,6 +14,9 @@
   <mat-card-content>
     <div id="vnc-screen" class="vnc-console">
       <!-- This is where the remote screen will appear -->
+      @if (!vncConnected) {
+        <mat-spinner [diameter]="50"></mat-spinner>
+    }
     </div>
   </mat-card-content>
 </mat-card>
