@@ -34,7 +34,7 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
 # Build stage for angular frontend
 ########################################################################################################################
 
-FROM node:latest as build-frontend
+FROM node:latest AS build-frontend
 
 WORKDIR /usr/local/app
 COPY ./web-frontend /usr/local/app/
