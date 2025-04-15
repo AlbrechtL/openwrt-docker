@@ -4,12 +4,6 @@ services:
     image: albrechtloh/openwrt-docker:latest # for latest OpenWrt stable version
     #image: albrechtloh/openwrt-docker:openwrt-master-snapshot # for latest OpenWrt master version
     #image: openwrt-docker
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        OPENWRT_VERSION: "24.10.0"
-        #OPENWRT_VERSION: "master"
 
     environment:
       # Define which physical or virtual WAN Ethernet interfaces shall be attach direct to OpenWrt
