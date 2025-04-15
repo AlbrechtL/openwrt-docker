@@ -5,14 +5,11 @@ on:
     branches:
       - master
 
-env:
-  OPENWRT_VERSION: 24.10.0
-
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    
+
     services:
       registry:
         image: registry:2
@@ -30,7 +27,7 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-        
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -53,7 +50,7 @@ jobs:
           platforms: |
             linux/x86_64
             linux/arm64
-          build-args: | 
+          build-args: |
             OPENWRT_VERSION=${{ env.OPENWRT_VERSION }}
             BUILDKIT_MULTI_PLATFORM=1
           tags: |
@@ -107,7 +104,7 @@ jobs:
           mv u-os-app/manifest.json.template u-os-app/manifest.json
           sed -i 's/APPVERSION_TO_INSERT/'"$APP_VERSION"'/g' u-os-app/manifest.json
           cat u-os-app/manifest.json | grep version
-        
+
           echo "***** Run uc-aom-packager to create the u-OS app *****"
           # uc-aom-packager accepts only multiarch images. "--build-arg BUILDKIT_MULTI_PLATFORM=1" has to set to ensure that.
           # uc-aom-packager needs to Docker registry credentials in a clear text file. Because of security concerns we use a local registry without credentials here.
@@ -144,7 +141,7 @@ jobs:
     name: SBOM generation
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -209,7 +206,7 @@ jobs:
     name: Test
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -268,7 +265,7 @@ jobs:
           multipass exec router-vm -- find .
           multipass exec router-vm -- bash -c 'python -m venv ~/.venv'
           multipass exec router-vm -- bash -c 'source ~/.venv/bin/activate && pip install -r test/requirements.txt'
-          
+
           echo '******** router-vm IPs ********'
           multipass exec router-vm -- ip addr
 
@@ -340,4 +337,4 @@ jobs:
           docker buildx imagetools create \
             --tag albrechtloh/openwrt-docker:openwrt-${{ env.OPENWRT_VERSION }}-$GIT_HASH \
             --tag albrechtloh/openwrt-docker:latest \
-            albrechtloh/openwrt-docker:ci-openwrt-stable 
+            albrechtloh/openwrt-docker:ci-openwrt-stable
