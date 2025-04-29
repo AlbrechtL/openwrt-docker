@@ -2,6 +2,10 @@
   margin: 20px;
 }
 
+.dashboard-grid-list {
+  height: calc(100vh - 120px);
+}
+
 .dashboard-card {
   position: absolute;
   top: 15px;
@@ -18,4 +22,5 @@
 
 .dashboard-card-content {
   text-align: left;
+  overflow: auto;
 }
