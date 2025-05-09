@@ -253,6 +253,7 @@ USB_ARGS="${USB_1_ARGS} ${USB_2_ARGS}"
 # Attaching PCI devices
 PCI_ARGS=""
 PCI_1_ARGS=""
+PCI_2_ARGS=""
 if [[ -n "$PCI_1" ]]; then
   if [[ "$PCI_1" =~ ^[0-9]{4}: ]]; then
     PCI_SLOT="$PCI_1"
@@ -263,7 +264,17 @@ if [[ -n "$PCI_1" ]]; then
   PCI_1_ARGS="-device vfio-pci,host=$PCI_SLOT"
 fi
 
-PCI_ARGS="${PCI_1_ARGS}"
+if [[ -n "$PCI_2" ]]; then
+  if [[ "$PCI_2" =~ ^[0-9]{4}: ]]; then
+    PCI_SLOT="$PCI_2"
+  else
+    PCI_SLOT="0000:$PCI_2"
+  fi
+  attach_pci_device "$PCI_SLOT"
+  PCI_2_ARGS="-device vfio-pci,host=$PCI_SLOT"
+fi
+
+PCI_ARGS="${PCI_1_ARGS} ${PCI_2_ARGS}"
 
 
 info "Booting image using $VERS..."

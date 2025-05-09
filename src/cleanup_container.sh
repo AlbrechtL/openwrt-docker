@@ -18,6 +18,17 @@ cleanup() {
         echo 1 > /sys/bus/pci/rescan
     fi
 
+     if [ -n "$PCI_2" ]; then
+        if [[ "$PCI_2" =~ ^[0-9]{4}: ]]; then
+            PCI_SLOT="$PCI_2"
+        else
+            PCI_SLOT="0000:$PCI_2"
+        fi
+        echo "Attaching PCI device $PCI_SLOT back to the host"
+        echo 1 > /sys/bus/pci/devices/$PCI_SLOT/remove
+        echo 1 > /sys/bus/pci/rescan
+    fi
+
 
     echo "Cleanup complete."
     exit 0

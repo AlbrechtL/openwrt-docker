@@ -41,7 +41,7 @@ services:
 
       # USB pass-through
       # Format <vendorID>:<productID> like 'lsusb' is given
-      # Currently only two USB devices are supported
+      # Currently, up to two USB devices are supported
       # If unset -> disabled
       #USB_1: "0bda:8153"
       #USB_2: "0e8d:7961"
@@ -54,9 +54,10 @@ services:
       #  - Ubuntu 24.04 is working by default
       # Format <bus:device.function> like 'lspci' is given
       # optional <domain:bus:device.function> like 'lspci' is given
+      # Currently, up to two PCI devices are supported
       # If unset -> disabled
       #PCI_1: "00:1f.6"
-      #PCI_1: "0000:00:1f.6"
+      #PCI_2: "0000:00:1f.6"
 
       # Define number of VM CPUs
       # If unset -> 1
