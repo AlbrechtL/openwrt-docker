@@ -193,7 +193,7 @@ if [ ! -e /dev/kvm ]; then
     fi
 fi
 if [ -n "$KVM_ERR" ]; then
-    error "KVM acceleration not detected $KVM_ERR."
+    error "KVM acceleration not detected $KVM_ERR. Please check if your host system is supporting kernel virtual machine (KVM) and if your enabled the CPU virtualization feature in your bios."
 fi
 
 # Attach physical PHY to container
