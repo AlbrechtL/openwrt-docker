@@ -71,17 +71,19 @@ We really want to help you using this container image.
 * Yes, but only `LAN_IF="host"` and `WAN_IF="host"` is supported because WSL doesn't support the `macvtab` driver.
 * See issue https://github.com/AlbrechtL/openwrt-docker/issues/5 for details.
 
+#### Does the Raspberry Pi 5 supports PCI pass-through?
+Unfortunately not. Please see https://github.com/AlbrechtL/openwrt-docker/issues/38#issuecomment-2864155732 for details.
+
 #### A have a board with two Ethernet ports and I want to use one as OpenWrt LAN and one as OpenWrt WAN without losing the access to the host Linux system.
 * The easiest is to add simply a 3rd Ethernet port to the system, e.g. a USB-Ethernet dongle.
 * You can also create a bridge in at the host and use the option `LAN_IF: "veth,nofixedip"`. See https://github.com/AlbrechtL/openwrt-docker/issues/8 for details.
 
-#### Which Weidmueller u-OS version is supported?
-* You need the u-OS version "u-OS 2.1.1-preview-kvm" to run OpenWrt correctly. Unfortunately, this version is not public available. If you are interested, feel free to fill out the contact form at https://www.weidmueller.com/int/solutions/technologies/edge_computing_u_os/index.jsp.
-* This special u-OS version is necessary because we need the `kvm` and `macvtab` driver enabled in the Linux kernel.
-
 #### In the `LAN_IF: "veth"` mode the host virtual Ethernet interface IP address is fixed to 172.31.1.2/24. How can I change it?
 You can use the option `nofixedip` e.g. `LAN_IF: "veth,nofixedip"` to avoid that an IP address is set after interface creation. But it is your responsibility to configure the Ethernet interface correctly. The OpenWrt LuCI web interface forwarding is only working correctly when the virtual Ethernet interfaces are configured correctly. Furthermore, the OpenWrt LuCI web interface forwarding is expecting OpenWrt at the IP address 172.31.1.1.
 
+#### Which Weidmueller u-OS version is supported?
+* You need the u-OS version "u-OS 2.1.1-preview-kvm" to run OpenWrt correctly. Unfortunately, this version is not public available. If you are interested, feel free to fill out the contact form at https://www.weidmueller.com/int/solutions/technologies/edge_computing_u_os/index.jsp.
+* This special u-OS version is necessary because we need the `kvm` and `macvtab` driver enabled in the Linux kernel.
 
 ## Build and run
 Clone this repo and run
