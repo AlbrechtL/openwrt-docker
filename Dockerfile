@@ -181,7 +181,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL} luci-app-advanced-reboot" \
     \
     # Add default network config \
-    && ssh root@localhost -p $SSH_PORT "uci set network.lan.ipaddr='172.31.1.1'; uci commit network" \
+    && ssh root@localhost -p $SSH_PORT "uci set network.lan.ipaddr='172.31.1.1/24'; uci commit network" \
     \
     # Add some files \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_INSTALL}  openssh-sftp-server" \
