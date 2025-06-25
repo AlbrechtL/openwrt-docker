@@ -6,7 +6,7 @@ on:
       - master
 
 env:
-  OPENWRT_VERSION: 24.10.1
+  OPENWRT_VERSION: 24.10.2
 
 jobs:
   build:
