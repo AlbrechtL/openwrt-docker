@@ -65,6 +65,21 @@ We really want to help you using this container image.
 **OpenWrt LUCI web interface**
 ![OpenWrt LUCI web interface](pictures/qemu_openwrt_luci.png)
 
+## Example hardware set up
+
+![Raspberry Pi 5](pictures/raspberry_pi5_intel_i210.jpg)
+
+**Ethernet connections**
+* Orange: Raspberry OS host
+* Green: WAN
+* Yellow: LAN
+
+**Components**
+* Raspberry OS
+* Raspberry Pi 5 
+* GeeekPi P02 PCIe Slot for Raspberry Pi 5
+* Intel i210 server network card
+
 ## Platform specific tips and tricks
 
 #### Does it run under MS Windows WSL?
