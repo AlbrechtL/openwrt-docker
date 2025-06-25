@@ -78,7 +78,7 @@ We really want to help you using this container image.
 * Raspberry OS
 * Raspberry Pi 5 
 * GeeekPi P02 PCIe Slot for Raspberry Pi 5
-* Intel i210 server network card
+* Intel i350 server network card
 
 ## Platform specific tips and tricks
 
