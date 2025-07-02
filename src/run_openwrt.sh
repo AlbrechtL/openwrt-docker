@@ -105,13 +105,13 @@ attach_veth_if () {
   if [[ -n "${IS_U_OS_APP}" ]]; then
     info "Detected u-OS app"
 
-    # Check if u-OS webserver is already configured
-    if  ! nsenter --target 1 --uts --net --ipc --mount grep -q "app-openwrt0" "/usr/lib/uc-http-server/ucu.yml" ; then
-      info "Adding app-openwrt0 to /usr/lib/uc-http-server/ucu.yml ..."
-      nsenter --target 1 --uts --net --ipc --mount mount -o remount,rw /
-      nsenter --target 1 --uts --net --ipc --mount sed -i "s/, 'usb-x1'/, 'usb-x1', 'app-openwrt0'/g" /usr/lib/uc-http-server/ucu.yml
-      nsenter --target 1 --uts --net --ipc --mount mount -o remount,ro /
-    fi
+ #   # Check if u-OS webserver is already configured
+ #   if  ! nsenter --target 1 --uts --net --ipc --mount grep -q "app-openwrt0" "/usr/lib/uc-http-server/ucu.yml" ; then
+ #     info "Adding app-openwrt0 to /usr/lib/uc-http-server/ucu.yml ..."
+ #     nsenter --target 1 --uts --net --ipc --mount mount -o remount,rw /
+ #     nsenter --target 1 --uts --net --ipc --mount sed -i "s/, 'usb-x1'/, 'usb-x1', 'app-openwrt0'/g" /usr/lib/uc-http-server/ucu.yml
+ #     nsenter --target 1 --uts --net --ipc --mount mount -o remount,ro /
+ #   fi
 
     if ! nsenter --target 1 --uts --net --ipc --mount sh -c "test -f /var/lib/systemd/network/app-openwrt0.network"; then
       info "Creating /var/lib/systemd/network/app-openwrt0.network ..."
