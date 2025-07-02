@@ -133,7 +133,7 @@ attach_veth_if () {
     nsenter --target 1 --uts --net --ipc --mount ip link add name app-openwrt0 type bridge
     nsenter --target 1 --uts --net --ipc --mount ip link set dev app-openwrt0 up
     nsenter --target 1 --uts --net --ipc --mount ip link set veth-openwrt0 master app-openwrt0
-    nsenter --target 1 --uts --net --ipc --mount systemctl restart uc-http-server
+#    nsenter --target 1 --uts --net --ipc --mount systemctl restart uc-http-server
   fi
 }
 
