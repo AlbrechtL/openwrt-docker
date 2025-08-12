@@ -123,6 +123,9 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && wget $OPENWRT_IMAGE -O /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     && gzip -d /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     \
+    # 4k align the openwrt image so qemu doesn't complain about resize errors \
+    && dd if=/dev/zero of="/var/vm/squashfs-combined-${OPENWRT_VERSION}.img" seek="128" obs=1M count=0 \
+    \
     # Each CPU architecture needs a different SSH port to make a possible to make a parallel build \
     && SSH_PORT=1022 \
     \

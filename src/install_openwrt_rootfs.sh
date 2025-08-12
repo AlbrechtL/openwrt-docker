@@ -20,8 +20,9 @@ if [[ ($DISABLE_OPENWRT_AUTO_UPGRADE != "true") ||  (! -f /storage/current_versi
       if [[ -n "$IMAGE_SIZE_ON_INIT" ]]; then
           # Check if IMAGE_SIZE_ON_INIT is greater than 511
           if [[ "$IMAGE_SIZE_ON_INIT" -gt 511 ]]; then
-              info "Resize OpenWrt to $IMAGE_SIZE_ON_INIT MB"
-              dd if=/dev/zero of="/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img" seek="$IMAGE_SIZE_ON_INIT" obs=1MB count=0
+              info "Resize OpenWrt to $IMAGE_SIZE_ON_INIT MiB"
+              ## M (ie 1024x1024) aligns the image on 4k blocks and prevents qemu "Cannot get 'write' permission without 'resize'" errors
+              dd if=/dev/zero of="/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img" seek="$IMAGE_SIZE_ON_INIT" obs=1M count=0
           else
               error "Error: IMAGE_SIZE_ON_INIT must be greater than 511."
               rm /storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img

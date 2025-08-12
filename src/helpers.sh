@@ -20,6 +20,6 @@ trap 'error "Status $? while: $BASH_COMMAND (line $LINENO/$BASH_LINENO)"' ERR
 : "${LUCI_WEB_BUTTON_JSON:=""}"   # Adapt the "OpenWrt LuCI web interface" button to your needs.
 : "${OPENWRT_AFTER_BOOT_CMD:=""}" # User command or script to run after OpenWrt is booted
 : "${DISABLE_OPENWRT_AUTO_UPGRADE:=""}"  # Disables the OpenWrt upgrade check every container startup
-: "${IMAGE_SIZE_ON_INIT:=""}"  # New OpenWrt disk image size
+: "${IMAGE_SIZE_ON_INIT:=""}"  # New OpenWrt disk image size in MiB
 : "${IS_U_OS_APP:=""}"    # By default this container is not a u-OS app
 : "${DEBUG:=""}"          # Disable debugging
