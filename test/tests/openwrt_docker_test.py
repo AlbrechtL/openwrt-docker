@@ -273,7 +273,7 @@ def test_openwrt_lan(docker_services, parameter):
 
         case 'veth,nofixedip':
             # Get all IPv4 addresses
-            process = subprocess.run(['sh','-c',r'ip addr show veth-openwrt0 | grep -oP "(?<=inet\s)\d+(\.\d+){3}"'],
+            process = subprocess.run(['sh','-c',r'ip addr show env-openwrt0 | grep -oP "(?<=inet\s)\d+(\.\d+){3}"'],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 universal_newlines=True)

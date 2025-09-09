@@ -37,7 +37,7 @@ export class SideNavigationComponent {
   LuciButtonUrl: string = "https://" + window.location.hostname + ":9000"; // ToDo make port 9000 configurable
   LuciButtonTooltip: string = 'Requirements: LAN="veth", FORWARD_LUCI="true", \
         default OpenWrt DHCP LAN settings, \
-        configured "veth-openwrt0" Ethernet interface in host system. \
+        configured "env-openwrt0" Ethernet interface in host system. \
         Internally a reverse proxy is forwarding the web interface from "host-ip:9000" to "172.31.1.1:80"';
 
   private breakpointObserver = inject(BreakpointObserver);

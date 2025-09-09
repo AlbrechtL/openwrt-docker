@@ -176,7 +176,7 @@ LAN_IF_OPTION=$(echo $LAN_IF | cut -d',' -f2)
 if [[ -z "${LAN_IF_NAME}" || $LAN_IF_NAME = "host" ]]; then
   LAN_ARGS="-device virtio-net,netdev=qlan0 -netdev user,id=qlan0,net=192.168.1.0/24"
 elif [[ $LAN_IF_NAME = "veth" ]]; then
-  attach_veth_if veth-openwrt0 veth1 qlan1 $LAN_IF_OPTION
+  attach_veth_if env-openwrt0 veth1 qlan1 $LAN_IF_OPTION
   exec 30<>/dev/tap$(cat /sys/class/net/qlan1/ifindex)
   LAN_ARGS="-device virtio-net-pci,netdev=hostnet0,mac=$(cat /sys/class/net/qlan1/address) \
     -netdev tap,fd=30,id=hostnet0"
