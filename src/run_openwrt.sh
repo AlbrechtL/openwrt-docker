@@ -105,8 +105,8 @@ attach_veth_if () {
   if [[ -n "${IS_U_OS_APP}" ]]; then
     info "Detected u-OS app"
 
-    # TODO add some u-OS specific settings if needed.
-
+    nsenter --target 1 --uts --net --ipc --mount nmcli con mod env-openwrt0 ipv4.addresses "172.31.1.2/24"
+    nsenter --target 1 --uts --net --ipc --mount nmcli con up env-openwrt0
   fi
 }
 
