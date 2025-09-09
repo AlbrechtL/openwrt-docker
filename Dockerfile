@@ -123,6 +123,25 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && wget $OPENWRT_IMAGE -O /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     && gzip -d /var/vm/squashfs-combined-${OPENWRT_VERSION}.img.gz \
     \
+    # 4k align the OpenWrt image so qemu doesn't complain about resize errors \
+    # Get current size in bytes \
+    && size=$(stat -c%s "/var/vm/squashfs-combined-${OPENWRT_VERSION}.img") \
+    # ceil to MB \
+    && size_mb=$(( (size + 1024*1024 - 1) / (1024*1024) ))  \
+    && echo "Current size: ${size_mb} MiB " \
+    # Decide target size \
+    && if [ "$size_mb" -le 128 ]; then \
+        target_mb=128; \
+    elif [ "$size_mb" -le 256 ]; then \
+        target_mb=256; \
+    elif [ "$size_mb" -le 512 ]; then \
+        target_mb=512; \
+    elif [ "$size_mb" -le 1024 ]; then \
+        target_mb=1024; \
+    fi \
+    && echo "Extending /var/vm/squashfs-combined-${OPENWRT_VERSION}.img to ${target_mb} MiB..." \
+    && dd if=/dev/zero of="/var/vm/squashfs-combined-${OPENWRT_VERSION}.img" seek="${target_mb}" obs=1M count=0 \
+    \
     # Each CPU architecture needs a different SSH port to make a possible to make a parallel build \
     && SSH_PORT=1022 \
     \
