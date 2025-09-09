@@ -20,7 +20,7 @@ if [[ ($DISABLE_OPENWRT_AUTO_UPGRADE != "true") ||  (! -f /storage/current_versi
       if [[ -n "$IMAGE_SIZE_ON_INIT" ]]; then
           # Check if IMAGE_SIZE_ON_INIT is greater than 511
           if [[ "$IMAGE_SIZE_ON_INIT" -gt 511 ]]; then
-              info "Resize OpenWrt to $IMAGE_SIZE_ON_INIT MB"
+              info "Resize OpenWrt to $IMAGE_SIZE_ON_INIT MiB"
               dd if=/dev/zero of="/storage/squashfs-combined-${OPENWRT_IMAGE_ID}.img" seek="$IMAGE_SIZE_ON_INIT" obs=1MB count=0
           else
               error "Error: IMAGE_SIZE_ON_INIT must be greater than 511."

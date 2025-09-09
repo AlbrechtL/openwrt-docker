@@ -94,7 +94,7 @@ services:
       #    Follow: https://openwrt.org/docs/guide-user/advanced/expand_root
       #  * If you want to resize the OpenWrt after the container first time run
       #    Follow: https://github.com/AlbrechtL/openwrt-docker/issues/34#issuecomment-2795886248
-      # Value: Size im MB (minimal 512)
+      # Value: Size im MiB (minimal 512)
       # If unset -> no resize (OpenWrt default image size)
       #IMAGE_SIZE_ON_INIT: "512"
 
