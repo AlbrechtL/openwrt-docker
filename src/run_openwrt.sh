@@ -105,35 +105,8 @@ attach_veth_if () {
   if [[ -n "${IS_U_OS_APP}" ]]; then
     info "Detected u-OS app"
 
- #   # Check if u-OS webserver is already configured
- #   if  ! nsenter --target 1 --uts --net --ipc --mount grep -q "app-openwrt0" "/usr/lib/uc-http-server/ucu.yml" ; then
- #     info "Adding app-openwrt0 to /usr/lib/uc-http-server/ucu.yml ..."
- #     nsenter --target 1 --uts --net --ipc --mount mount -o remount,rw /
- #     nsenter --target 1 --uts --net --ipc --mount sed -i "s/, 'usb-x1'/, 'usb-x1', 'app-openwrt0'/g" /usr/lib/uc-http-server/ucu.yml
- #     nsenter --target 1 --uts --net --ipc --mount mount -o remount,ro /
- #   fi
+    # TODO add some u-OS specific settings if needed.
 
-    if ! nsenter --target 1 --uts --net --ipc --mount sh -c "test -f /var/lib/systemd/network/app-openwrt0.network"; then
-      info "Creating /var/lib/systemd/network/app-openwrt0.network ..."
-      nsenter --target 1 --uts --net --ipc --mount sh -c "echo '[Match]' > /var/lib/systemd/network/app-openwrt0.network"
-      nsenter --target 1 --uts --net --ipc --mount sh -c "echo 'Name=app-openwrt0' >> /var/lib/systemd/network/app-openwrt0.network"
-      nsenter --target 1 --uts --net --ipc --mount sh -c "echo '[Network]' >> /var/lib/systemd/network/app-openwrt0.network"
-      nsenter --target 1 --uts --net --ipc --mount sh -c "echo 'DHCP=yes' >> /var/lib/systemd/network/app-openwrt0.network"
-      nsenter --target 1 --uts --net --ipc --mount mount -o remount,rw /
-      nsenter --target 1 --uts --net --ipc --mount cp /var/lib/systemd/network/app-openwrt0.network /usr/lib/systemd/network/app-openwrt0.network
-      nsenter --target 1 --uts --net --ipc --mount mount -o remount,ro /
-    fi
-
-    if nsenter --target 1 --uts --net --ipc --mount ip link show app-openwrt0  &> /dev/null; then
-      info "Deleting previous app-openwrt0 Ethernet device ..."
-      nsenter --target 1 --uts --net --ipc --mount ip link del app-openwrt0
-    fi
-
-    info "Adding a bridge app-openwrt0 as workaround because uc-http-server cannot handle veths peer_ifindex "@ifXX" e.g. veth-openwrt0@if32"
-    nsenter --target 1 --uts --net --ipc --mount ip link add name app-openwrt0 type bridge
-    nsenter --target 1 --uts --net --ipc --mount ip link set dev app-openwrt0 up
-    nsenter --target 1 --uts --net --ipc --mount ip link set veth-openwrt0 master app-openwrt0
-#    nsenter --target 1 --uts --net --ipc --mount systemctl restart uc-http-server
   fi
 }
 
