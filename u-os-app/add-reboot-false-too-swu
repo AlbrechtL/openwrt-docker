@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Usage check
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <original_swu_file>"
+    exit 1
+fi
+
+ORIGINAL_SWU="$1"
+
+# Check if the original SWU file exists
+if [ ! -f "$ORIGINAL_SWU" ]; then
+    echo "Error: File '$ORIGINAL_SWU' not found!"
+    exit 1
+fi
+
+# Extract base name and extension
+BASENAME=$(basename "$ORIGINAL_SWU" .swu)
+MODIFIED_SWU="${BASENAME}_modified.swu"
+TMP_DIR="swu_temp"
+
+# Prepare temp directory
+rm -rf "$TMP_DIR"
+mkdir "$TMP_DIR"
+cd "$TMP_DIR" || exit 1
+
+# Unpack the original SWU file
+echo "Unpacking $ORIGINAL_SWU..."
+cpio -id < "../$ORIGINAL_SWU"
+
+# Modify sw-description
+echo "Modifying sw-description..."
+
+# Check if reboot line exists
+if ! grep -q 'reboot = false;' sw-description; then
+    # Insert reboot line after bootloader_transaction_marker line
+    sed -i '/bootloader_transaction_marker = false;/a\    reboot = false;' sw-description
+    echo "Inserted 'reboot = false;' into sw-description."
+else
+    echo "'reboot = false;' already present in sw-description."
+fi
+
+# Repack the SWU file
+echo "Repacking into $MODIFIED_SWU..."
+for i in sw-description payload.tar; do
+    echo "$i"
+done | cpio -ov -H crc > "../$MODIFIED_SWU"
+
+# Cleanup
+cd ..
+rm -rf "$TMP_DIR"
+
+echo "Done. Modified SWU file: $MODIFIED_SWU"
