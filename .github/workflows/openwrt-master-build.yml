@@ -33,7 +33,7 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-        
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
@@ -112,7 +112,7 @@ jobs:
           mv u-os-app/manifest.json.template u-os-app/manifest.json
           sed -i 's/APPVERSION_TO_INSERT/'"$APP_VERSION"'/g' u-os-app/manifest.json
           cat u-os-app/manifest.json | grep version
-        
+
           echo "***** Run uc-aom-packager to create the u-OS app *****"
           # uc-aom-packager accepts only multiarch images. "--build-arg BUILDKIT_MULTI_PLATFORM=1" has to set to ensure that.
           # uc-aom-packager needs to Docker registry credentials in a clear text file. Because of security concerns we use a local registry without credentials here.
@@ -142,7 +142,9 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: OpenWrt u-OS app
-          path: u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
+          path: |
+            u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
+            u-os-app/u-os-app-openwrt_*.swu/linux-amd64/*.swu
           if-no-files-found: error
 
 
@@ -150,7 +152,7 @@ jobs:
     name: SBOM generation
     needs: build
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -263,7 +265,7 @@ jobs:
         run: |
           multipass exec router-vm -- docker load --input openwrt-docker-image.tar
           multipass exec router-vm -- docker image ls -a
-    
+
       - name: Prepare VMs
         run: |
           # By default portainer is running at port 9000. But we need port 9000
@@ -276,7 +278,7 @@ jobs:
           multipass exec router-vm -- find .
           multipass exec router-vm -- bash -c 'python -m venv ~/.venv'
           multipass exec router-vm -- bash -c 'source ~/.venv/bin/activate && pip install -r test/requirements.txt'
-          
+
           echo '******** router-vm IPs ********'
           multipass exec router-vm -- ip addr
 
@@ -349,4 +351,4 @@ jobs:
         run: |
           docker buildx imagetools create \
             --tag albrechtloh/openwrt-docker:openwrt-master-snapshot  \
-            albrechtloh/openwrt-docker:ci-openwrt-master-snapshot 
+            albrechtloh/openwrt-docker:ci-openwrt-master-snapshot

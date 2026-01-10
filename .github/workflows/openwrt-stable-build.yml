@@ -137,7 +137,9 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: OpenWrt u-OS app
-          path: u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
+          path: |
+            u-os-app/u-os-app-openwrt_*.swu/linux-arm64/*.swu
+            u-os-app/u-os-app-openwrt_*.swu/linux-amd64/*.swu
           if-no-files-found: error
 
   sbom:
