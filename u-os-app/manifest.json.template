@@ -43,7 +43,7 @@
       "to": ""
     }
   },
-  "platform": ["uca, "ucu"],
+  "platform": ["uca", "ucu"],
   "environments": {
     "edgenode": {
       "type": "docker-compose",
