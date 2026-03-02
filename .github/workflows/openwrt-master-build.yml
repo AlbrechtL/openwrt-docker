@@ -80,7 +80,7 @@ jobs:
           outputs: type=docker,dest=/tmp/openwrt-docker-image.tar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: OpenWrt Docker Image
           path: /tmp/openwrt-docker-image.tar
@@ -139,7 +139,7 @@ jobs:
 
       - name: Archive artifacts (OpenWrt u-OS app)
         if: always() && steps.create_u-os-app.outcome == 'success'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: OpenWrt u-OS app
           path: |
@@ -210,7 +210,7 @@ jobs:
           output-file: web-backend_sbom.json
 
       - name: Archive artifacts (SBOMs)
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Software Bill of Material (SBOM)
           path: ./*.json
@@ -329,7 +329,7 @@ jobs:
 
       - name: Archive test report
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Test report
           path: test/*.html
