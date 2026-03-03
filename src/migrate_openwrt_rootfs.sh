@@ -88,7 +88,7 @@ if [ -f /storage/old_version ]; then
   ssh root@localhost -p 1022 "chroot /mnt /sbin/sysupgrade -r /tmp/openwrt_config.tar.gz"
 
   # Stop VM
-  ssh root@localhost -p 1022 'sync; halt' 
+  ssh root@localhost -p 1022 'sync; poweroff'
   while kill -0 $QEMU_PID 2>/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done;
 
   # Delete temporary OpenWrt image

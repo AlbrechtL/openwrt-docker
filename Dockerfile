@@ -209,7 +209,7 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     && ssh root@localhost -p $SSH_PORT "${PACKAGE_REMOVE} openssh-sftp-server" \
     \
     # Sync changes into image and shutdown qemu \
-    && ssh root@localhost -p $SSH_PORT 'sync; halt' \
+    && ssh root@localhost -p $SSH_PORT 'sync; poweroff' \
     && while kill -0 $QEMU_PID 2>/dev/null; do echo "Waiting for qemu exit ..."; sleep 1; done \
     \
     && gzip /var/vm/squashfs-combined-${OPENWRT_VERSION}.img \
