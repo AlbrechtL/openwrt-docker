@@ -51,7 +51,7 @@ RUN npm run build -- "--base-href='./'"
 ########################################################################################################################
 FROM alpine:latest
 
-ARG OPENWRT_VERSION="24.10.5"
+ARG OPENWRT_VERSION="25.12.0"
 ARG TARGETPLATFORM
 ARG OPENWRT_ROOTFS_IMG
 ARG OPENWRT_KERNEL
@@ -167,18 +167,11 @@ RUN echo "Building for platform '$TARGETPLATFORM'" \
     fi \
     && echo "QEMU started with PID $QEMU_PID" \
     \
-    # OpenWrt master uses apk insted of opkg \
-    && if [ "$OPENWRT_VERSION" = "master" ]; then \
-        PACKAGE_UPDATE="apk update"; \
-        PACKAGE_INSTALL="apk add"; \
-        PACKAGE_REMOVE="apk del"; \
-        PACKAGE_EXTRA="libudev-zero"; \
-    else \
-        PACKAGE_UPDATE="opkg update"; \
-        PACKAGE_INSTALL="opkg install"; \
-        PACKAGE_REMOVE="opkg remove"; \
-        PACKAGE_EXTRA=""; \
-    fi \
+    # OpenWrt uses apk now \
+    && PACKAGE_UPDATE="apk update" \
+    && PACKAGE_INSTALL="apk add" \
+    && PACKAGE_REMOVE="apk del" \
+    && PACKAGE_EXTRA="libudev-zero" \
     \
     # Wait for OpenWrt startup and update repo \
     && until ssh -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new root@localhost -p $SSH_PORT "cat /etc/banner"; do echo "Waiting for OpenWrt boot ..."; sleep 1; done \
