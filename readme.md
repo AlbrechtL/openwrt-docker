@@ -40,14 +40,17 @@ Because OpenWrt doesn't provide a user installed package update mechanism, all r
 All other drivers for USB and PCIe devices needs to be installed via the OpenWrt software repository.
 
 ## Usage
+This project uses Docker and Docker Compose to run OpenWrt in a containerized environment. If you are not familiar with Docker or Docker Compose, please refer to the [official Docker documentation](https://docs.docker.com/get-started/) for guidance on installation and usage before proceeding.
 
 Adapt [`docker-compose.yml`](https://github.com/AlbrechtL/openwrt-docker/blob/master/docker-compose.yml) to your needs and run `docker compose up`.
 
-Images are available at https://hub.docker.com/r/albrechtloh/openwrt-docker.
+Ready to use images are available at https://hub.docker.com/r/albrechtloh/openwrt-docker.
 
 Currently, three images are available. For all of these images automated tests are applied.
 * `albrechtloh/openwrt-docker:latest` Latest OpenWrt stable version e.g. 24.10.0
 * `albrechtloh/openwrt-docker:openwrt-master-snapshot` Latest OpenWrt master version
+
+After successfully starting the container, the web interface is accessible at [http://localhost:8006/dashboard](http://localhost:8006/dashboard) in the default configuration.
 
 ## Support
 We really want to help you using this container image.
