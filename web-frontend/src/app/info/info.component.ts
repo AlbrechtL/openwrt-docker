@@ -11,6 +11,7 @@ import { BackendCommunicationService } from '../backend-communication.service';
   selector: 'app-info',
   imports: [MatListModule, MatDividerModule, MatIconModule, MatDialogModule],
   templateUrl: './info.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './info.component.scss'
 })
 export class InfoComponent {

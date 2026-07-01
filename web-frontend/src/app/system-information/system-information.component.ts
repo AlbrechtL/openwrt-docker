@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { BackendCommunicationService } from '../backend-communication.service';
 
 
@@ -6,6 +6,7 @@ import { BackendCommunicationService } from '../backend-communication.service';
   selector: 'app-system-information',
   templateUrl: './system-information.component.html',
   styleUrl: './system-information.component.scss',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: []
 })
 export class SystemInformationComponent {

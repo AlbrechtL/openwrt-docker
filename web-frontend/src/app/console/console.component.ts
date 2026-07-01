@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
@@ -25,6 +25,7 @@ import { BackendCommunicationService } from '../backend-communication.service';
     MatProgressSpinnerModule
   ],
   templateUrl: './console.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './console.component.scss'
 })
 export class ConsoleComponent implements AfterViewInit, OnDestroy {
