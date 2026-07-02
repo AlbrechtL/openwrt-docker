@@ -234,7 +234,7 @@ jobs:
         run: |
           set -x
           sudo snap install multipass # multipass >= 1.15 because of networks support
-          sudo chmod a+w /var/snap/multipass/common/multipass_socket # Fix 'multipass socket access denied'
+          #sudo chmod a+w /var/snap/multipass/common/multipass_socket # Fix 'multipass socket access denied'
           multipass find
 
           # Set up some bridges for the VMs
