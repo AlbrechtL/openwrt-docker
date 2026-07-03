@@ -14,7 +14,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     services:
       registry:
