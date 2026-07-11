@@ -233,8 +233,14 @@ jobs:
       - name: Install VMs
         run: |
           set -x
-          sudo snap install multipass # multipass >= 1.15 because of networks support
-          #sudo chmod a+w /var/snap/multipass/common/multipass_socket # Fix 'multipass socket access denied'
+          sudo snap install multipass # need multipass >= 1.15 because of networks support
+
+          # Workaround for "multipass_root_cert.pem': No such file or directory" issue, see https://github.com/canonical/multipass/issues/5015
+          sleep 180
+
+          # Workaround for 'multipass socket access denied'
+          sudo chmod a+w /var/snap/multipass/common/multipass_socket
+
           multipass find
 
           # Set up some bridges for the VMs
