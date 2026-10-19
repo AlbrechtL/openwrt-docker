@@ -51,7 +51,7 @@ RUN npm run build -- "--base-href='./'"
 ########################################################################################################################
 FROM alpine:latest
 
-ARG OPENWRT_VERSION="25.12.5"
+ARG OPENWRT_VERSION="25.12.6"
 ARG TARGETPLATFORM
 ARG OPENWRT_ROOTFS_IMG
 ARG OPENWRT_KERNEL
