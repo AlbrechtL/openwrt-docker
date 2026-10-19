@@ -258,8 +258,8 @@ def test_openwrt_booted(docker_services):
 
 
 @pytest.mark.parametrize("parameter",
-    [('LAN_IF','veth'),('LAN_IF','veth,nofixedip'),('LAN_IF','ens5'),('LAN_IF',''),('LAN_IF','host')], indirect=True,
-    ids=['LAN_IF=veth','LAN_IF=veth,nofixedip', 'LAN_IF=ens5', 'LAN_IF=""', 'LAN_IF="host"'])
+    [('LAN_IF','veth'),('LAN_IF','veth,nofixedip'),('LAN_IF','eth2'),('LAN_IF',''),('LAN_IF','host')], indirect=True,
+    ids=['LAN_IF=veth','LAN_IF=veth,nofixedip', 'LAN_IF=eth2', 'LAN_IF=""', 'LAN_IF="host"'])
 def test_openwrt_lan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
 
@@ -302,8 +302,8 @@ def test_openwrt_lan(docker_services, parameter):
 
 
 @pytest.mark.parametrize("parameter",
-    [('WAN_IF','host'),('WAN_IF','none'),('WAN_IF','ens4'),('WAN_IF','')], indirect=True,
-    ids=['WAN_IF=host', 'WAN_IF=none', 'WAN_IF=ens4', 'WAN_IF=""'])
+    [('WAN_IF','host'),('WAN_IF','none'),('WAN_IF','eth1'),('WAN_IF','')], indirect=True,
+    ids=['WAN_IF=host', 'WAN_IF=none', 'WAN_IF=eth1', 'WAN_IF=""'])
 def test_openwrt_wan(docker_services, parameter):
     wait_for_openwrt_startup(docker_services)
 

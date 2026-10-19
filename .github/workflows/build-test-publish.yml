@@ -308,20 +308,20 @@ jobs:
           # Prepare WAN VM
           echo '******** wan-vm IPs ********'
           # Add IP address
-          multipass exec wan-vm -- sudo ip addr add 192.168.22.1/24 dev ens4
+          multipass exec wan-vm -- sudo ip addr add 192.168.22.1/24 dev eth1
           multipass exec wan-vm -- ip addr
           # Install DHCP server
           multipass exec wan-vm -- sudo sh -c 'apt-get update && apt-get install -y isc-dhcp-server && echo "default-lease-time 600;\nmax-lease-time 7200;\nsubnet 192.168.22.0 netmask 255.255.255.0 {\n  range 192.168.22.100 192.168.22.200;\n  option routers 192.168.22.1;\n  option domain-name-servers 8.8.8.8, 8.8.4.4;\n  option domain-name \"example.org\";\n}" > /etc/dhcp/dhcpd.conf && systemctl enable isc-dhcp-server && systemctl restart isc-dhcp-server'
           multipass exec wan-vm -- cat /etc/dhcp/dhcpd.conf
           # Enable NAT
           multipass exec wan-vm -- sudo modprobe iptable_nat
-          multipass exec wan-vm -- sudo iptables -t nat -A POSTROUTING -o ens3 -j MASQUERADE
+          multipass exec wan-vm -- sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
           multipass exec wan-vm -- sudo sysctl -w net.ipv4.ip_forward=1
 
           # Prepare LAN VM
           echo '******** lan-vm IPs ********'
-          multipass exec lan-vm -- sudo ip addr add 172.31.1.2/24 dev ens4
-          multipass exec lan-vm -- sudo ip addr add 172.31.22.2/24 dev ens4
+          multipass exec lan-vm -- sudo ip addr add 172.31.1.2/24 dev eth1
+          multipass exec lan-vm -- sudo ip addr add 172.31.22.2/24 dev eth1
           multipass exec lan-vm -- ip addr
 
           # Double check if virtual networks are working
@@ -330,8 +330,8 @@ jobs:
           sudo ufw status
 
           echo '******** router-vm IPs ********'
-          multipass exec router-vm -- sudo ip addr add 192.168.22.99/24 dev ens4
-          multipass exec router-vm -- sudo ip addr add 172.31.22.99/24 dev ens5
+          multipass exec router-vm -- sudo ip addr add 192.168.22.99/24 dev eth1
+          multipass exec router-vm -- sudo ip addr add 172.31.22.99/24 dev eth2
           multipass exec router-vm -- ip addr
 
           echo '******** Test connection between router-vm, lan-vm and wan-vm ********'
