@@ -272,7 +272,10 @@ jobs:
 
           # Start VMs
           # Multipass and the OpenWrt container are using the same MAC QUI 52:54:00 which creates error. Let's use differnet MAC addresses here
-          multipass launch docker --network name=wannetvm,mac=06:00:00:11:22:33 --network name=lannetvm,mac=06:00:00:44:55:66 --name router-vm
+          # Multipass >= 1.17 dropped blueprints (formerly "multipass launch docker"), so install Docker via cloud-init
+          printf '#cloud-config\nruncmd:\n  - curl -fsSL https://get.docker.com | sh\n  - adduser ubuntu docker\n' | \
+            multipass launch 24.04 --cpus 2 --memory 4G --disk 40G --timeout 1800 --cloud-init - \
+            --network name=wannetvm,mac=06:00:00:11:22:33 --network name=lannetvm,mac=06:00:00:44:55:66 --name router-vm
           multipass mount $GITHUB_WORKSPACE router-vm
 
           multipass launch --network wannetvm --name wan-vm
@@ -291,9 +294,6 @@ jobs:
 
       - name: Prepare VMs
         run: |
-          # By default portainer is running at port 9000. But we need port 9000
-          multipass exec router-vm -- docker stop portainer
-
           # Install python
           multipass exec router-vm -- sudo apt-get -y install python3-pip python-is-python3 python3-venv
 
