@@ -36,7 +36,8 @@ fi
 set +e # Enable that the next command can fail
 while true; do
     # Check if OpenWrt is booted
-    /run/qemu_qmp.sh -c 'logread | grep "procd: - init complete"' >/dev/null 2>&1
+    # Use a timeout to never get stuck in a single poll
+    timeout 30 /run/qemu_qmp.sh -c 'logread | grep "procd: - init complete"' >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         echo "Detected OpenWrt is booted"
         break

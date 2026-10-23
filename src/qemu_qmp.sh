@@ -79,6 +79,12 @@ while getopts ":hvrqsSVRc" option; do
          while true; do # Wait for command exit
             RETURN_JSON=`echo '{"execute": "guest-exec-status", "arguments": { "pid": '${PID}'}}' | nc -w 1 -U /run/qga.sock`
             #echo >&2 "RETURN_JSON: $RETURN_JSON"
+            # qemu-ga drops the PID after reporting "exited": true once. If that response got lost (e.g. received by
+            # another client of the shared socket), every further status request fails and we would wait forever.
+            if echo "$RETURN_JSON" | grep -q '"error"'; then
+               echo >&2 "Command error: guest-exec-status failed! RETURN_JSON: $RETURN_JSON"
+               exit 1
+            fi
             export EXITCODE=`echo $RETURN_JSON | sed -n 's/.*"exitcode": \([0-9]*\).*/\1/p'`
             export OUT_DATA=`echo $RETURN_JSON | sed -n 's/.*"out-data": "\([^"]*\).*/\1/p' | base64 -d -w 0`
             export ERR_DATA=`echo $RETURN_JSON | sed -n 's/.*"err-data": "\([^"]*\).*/\1/p' | base64 -d -w 0`
